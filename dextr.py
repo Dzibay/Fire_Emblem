@@ -19,10 +19,7 @@ def bfs(graph, start, goal):
         cur = goal
         a = [cur]
         while cur != start:
-            try:
-                cur = visited[cur]
-            except:
-                break
+            cur = visited[cur]
             a.append(cur)
     except:
         a = []
@@ -53,7 +50,7 @@ def generate_graph(file, persons):
                 cords_.append((cord[0], cord[1] + 1))
             cords[cord] = cords_
 
-    return cords
+    return cords, not_zero
 
 
 def get_cords(graph, start, goal):

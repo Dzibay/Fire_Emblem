@@ -11,6 +11,7 @@ def mapping(pos):
 
 class Main:
     def __init__(self):
+        self.tick = 0
         pygame.init()
         self.screen = pygame.display.set_mode((WIDTH, HEIGHT))
         pygame.display.set_caption('RPG')
@@ -23,6 +24,7 @@ class Main:
 
         self.player = Player()
 
+        self.cant = []
         self.graph = None
         self.person_positions = []
 
@@ -32,10 +34,6 @@ class Main:
         for x in range(0, WIDTH, TILE):
             for y in range(0, HEIGHT, TILE):
                 pygame.draw.rect(self.screen, WHITE, (x, y, TILE, TILE), 1)
-
-        # players
-        for person in self.player.persons:
-            self.screen.blit(person.images['state'], person.get_big_pos())
 
         # mouse
         pygame.draw.rect(self.screen, BLACK, (self.mouse_pos[0] * TILE, self.mouse_pos[1] * TILE, TILE, TILE), 1)
@@ -49,6 +47,14 @@ class Main:
                     pygame.draw.circle(self.screen, ORANGE,
                                        (cord[0] * TILE + TILE // 2, cord[1] * TILE + TILE // 2), TILE // 4)
 
+        # persons
+        for person in self.player.persons:
+            if self.tick % 240 < 120:
+                i_ = (self.tick % 120 // 20)
+            else:
+                i_ = 0
+            self.screen.blit(person.state_images[i_], (person.get_big_pos()[0] - 10, person.get_big_pos()[1] - 10))
+
         # fps
         f1 = pygame.font.Font(None, 40)
         text = f1.render(str(self.clock.get_fps()), True, BLACK)
@@ -57,6 +63,7 @@ class Main:
     def main_loop(self):
         run = True
         while run:
+            self.tick += 1
             self.clock.tick(FPS)
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -70,11 +77,11 @@ class Main:
                                     self.player.choice_person = self.player.persons.index(person)
                                     self.person_positions = [person.pos for person in self.player.persons
                                                              if person != self.player.persons[self.player.choice_person]]
-                                    self.graph = generate_graph('levels/lvl1.txt', self.person_positions)
+                                    self.graph, self.cant = generate_graph('levels/lvl1.txt', self.person_positions)
                                 else:
                                     self.player.choice_person = None
                     else:
-                        if self.mouse_pos not in self.person_positions:
+                        if self.mouse_pos not in self.cant and self.mouse_pos not in self.person_positions:
                             self.player.persons[self.player.choice_person].move(self.mouse_pos)
                             self.player.choice_person = None
 

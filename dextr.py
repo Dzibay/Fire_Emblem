@@ -15,15 +15,21 @@ def bfs(graph, start, goal):
             if next_node not in visited:
                 queque.append(next_node)
                 visited[next_node] = cur_node
-    cur = goal
-    a = [cur]
-    while cur != start:
-        cur = visited[cur]
-        a.append(cur)
+    try:
+        cur = goal
+        a = [cur]
+        while cur != start:
+            try:
+                cur = visited[cur]
+            except:
+                break
+            a.append(cur)
+    except:
+        a = []
     return a
 
 
-def generate_graph(file):
+def generate_graph(file, persons):
     not_zero = []
     lvl = open(file, 'r').readlines()
     lvl = [i.replace('\n', '') for i in lvl]
@@ -50,6 +56,6 @@ def generate_graph(file):
     return cords
 
 
-def get_cords(start, goal):
-    cords = bfs(generate_graph('levels/lvl1.txt'), start, goal)
+def get_cords(graph, start, goal):
+    cords = bfs(graph, start, goal)
     return cords

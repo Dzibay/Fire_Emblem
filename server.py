@@ -72,7 +72,6 @@ while run:
             data = player.conn.recv(1024)
             data = find(data.decode())
             player.persons = [Person(i[1], i[2], i[0]) for i in data]
-
         except:
             pass
 
@@ -88,6 +87,7 @@ while run:
                         sms += f'{person.name} {person.pos[0]} {person.pos[1]},'
                     sms += '|'
             sms += '>'
+            print(sms)
             player.conn.send(sms.encode())
 
             player.errors = 0

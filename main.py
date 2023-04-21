@@ -33,6 +33,7 @@ class Main:
 
         self.cant = []
         self.graph = None
+        self.cords = []
         self.person_positions = []
 
         self.last_sms = ''
@@ -47,7 +48,8 @@ class Main:
             if s[i] == '>' and first is not None:
                 end = i
                 res = s[first + 1:end].split('|')
-                res = [i.split(',') for i in res if len(i) > 0]
+                res.remove(res[len(res) - 1])
+                res = [i.split(',') for i in res]
                 res = [[i.split(' ') for i in j if len(i) > 0] for j in res]
                 result = [[(i[0], int(i[1]), int(i[2])) for i in j] for j in res]
                 return result
@@ -67,18 +69,19 @@ class Main:
             pygame.draw.rect(self.screen, ORANGE, (p_.get_big_pos()[0], p_.get_big_pos()[1], TILE, TILE), 3)
 
             if self.mouse_pos not in self.person_positions:
-                cords = get_cords(self.graph, p_.pos, self.mouse_pos)
-                for cord in cords:
+                self.cords = get_cords(self.graph, p_.pos, self.mouse_pos)
+                for cord in self.cords:
                     pygame.draw.circle(self.screen, ORANGE,
                                        (cord[0] * TILE + TILE // 2, cord[1] * TILE + TILE // 2), TILE // 4)
 
         # persons
-        for person in self.player.persons:
-            if self.tick % 240 < 120:
-                i_ = (self.tick % 120 // 20)
-            else:
-                i_ = 0
-            self.screen.blit(person.state_images[i_], (person.get_big_pos()[0] - 10, person.get_big_pos()[1] - 10))
+        for player in self.players:
+            for person in player.persons:
+                if self.tick % 240 < 120:
+                    i_ = (self.tick % 120 // 20)
+                else:
+                    i_ = 0
+                self.screen.blit(person.state_images[i_], (person.x - 10, person.y - 10))
 
         # fps
         f1 = pygame.font.Font(None, 40)
@@ -114,6 +117,7 @@ class Main:
                     else:
                         if self.mouse_pos not in self.cant and self.mouse_pos not in self.person_positions:
                             self.player.persons[self.player.choice_person].want_move = self.mouse_pos
+                            print('a')
                             self.player.choice_person = None
                             self.can_move = False
 
@@ -130,6 +134,7 @@ class Main:
             data = self.sock.recv(1024).decode()
             data = main.find_sms(data)
             if data != self.last_data:
+                self.last_data = data
                 if len(data) != len(self.players):
                     self.players = [Player() for i in data]
                 for i in range(len(data)):
@@ -138,15 +143,12 @@ class Main:
                     for j in range(len(data[i])):
                         self.players[i].persons[j].name = data[i][j][0]
                         self.players[i].persons[j].x = data[i][j][1]
-                        self.players[i].persons[j].x = data[i][j][2]
-
+                        self.players[i].persons[j].y = data[i][j][2]
             self.mouse_pos = mapping(pygame.mouse.get_pos())
 
             # person move
-            for player in self.players:
-                for person in player.persons:
-                    print(person.want_move)
-                    person.move()
+            for person in self.player.persons:
+                self.cords = person.move(self.cords)
 
             main.render()
             pygame.display.update()

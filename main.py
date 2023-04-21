@@ -1,6 +1,6 @@
 import pygame
 from person import Person
-from Player import Player
+from player import Player
 from settings import *
 from dextr import *
 import socket
@@ -28,11 +28,16 @@ class Main:
 
         self.mouse_pos = (0, 0)
 
-        self.player = Player()
+        self.players = [Player()]
+        self.player = self.players[0]
 
         self.cant = []
         self.graph = None
         self.person_positions = []
+
+        self.last_sms = ''
+        self.last_data = ''
+        self.can_move = True
 
     def find_sms(self, s):
         first = None
@@ -41,9 +46,10 @@ class Main:
                 first = i
             if s[i] == '>' and first is not None:
                 end = i
-                res = s[first + 1:end].split(',')
-                res = [i.split(' ') for i in res if i != '']
-                result = [[i[0], int(i[1]), int(i[2])] for i in res]
+                res = s[first + 1:end].split('|')
+                res = [i.split(',') for i in res if len(i) > 0]
+                res = [[i.split(' ') for i in j if len(i) > 0] for j in res]
+                result = [[(i[0], int(i[1]), int(i[2])) for i in j] for j in res]
                 return result
         return None
 
@@ -87,28 +93,61 @@ class Main:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     run = False
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_SPACE:
+                        self.player.persons.append(Person(80, 80, 'eliwood(lord)'))
+                    elif event.key == pygame.K_e:
+                        self.can_move = True
 
                 if event.type == pygame.MOUSEBUTTONUP and event.button == 1:
                     if self.player.choice_person is None:
-                        for person in self.player.persons:
-                            if self.mouse_pos == person.pos:
-                                if self.player.choice_person is None:
-                                    self.player.choice_person = self.player.persons.index(person)
-                                    self.person_positions = [person.pos for person in self.player.persons
-                                                             if person != self.player.persons[self.player.choice_person]]
-                                    self.graph, self.cant = generate_graph('levels/lvl1.txt', self.person_positions)
-                                else:
-                                    self.player.choice_person = None
+                        if self.can_move:
+                            for person in self.player.persons:
+                                if self.mouse_pos == person.pos:
+                                    if self.player.choice_person is None:
+                                        self.player.choice_person = self.player.persons.index(person)
+                                        self.person_positions = [person.pos for person in self.player.persons
+                                                                 if person != self.player.persons[self.player.choice_person]]
+                                        self.graph, self.cant = generate_graph('levels/lvl1.txt', self.person_positions)
+                                    else:
+                                        self.player.choice_person = None
                     else:
                         if self.mouse_pos not in self.cant and self.mouse_pos not in self.person_positions:
-                            self.player.persons[self.player.choice_person].move(self.mouse_pos)
+                            self.player.persons[self.player.choice_person].want_move = self.mouse_pos
                             self.player.choice_person = None
+                            self.can_move = False
 
+            # send sms
+            sms = '<'
+            for person in self.player.persons:
+                sms += f'{person.name} {person.x} {person.y},'
+            sms += '>'
+            if sms != self.last_sms:
+                self.sock.send(sms.encode())
+                self.last_sms = sms
+
+            # recv sms
             data = self.sock.recv(1024).decode()
             data = main.find_sms(data)
-            print(data)
+            if data != self.last_data:
+                if len(data) != len(self.players):
+                    self.players = [Player() for i in data]
+                for i in range(len(data)):
+                    if len(data[i]) != len(self.players[i].persons):
+                        self.players[i].persons = [Person(j[1], j[2], j[0]) for j in data[i]]
+                    for j in range(len(data[i])):
+                        self.players[i].persons[j].name = data[i][j][0]
+                        self.players[i].persons[j].x = data[i][j][1]
+                        self.players[i].persons[j].x = data[i][j][2]
 
             self.mouse_pos = mapping(pygame.mouse.get_pos())
+
+            # person move
+            for player in self.players:
+                for person in player.persons:
+                    print(person.want_move)
+                    person.move()
+
             main.render()
             pygame.display.update()
 

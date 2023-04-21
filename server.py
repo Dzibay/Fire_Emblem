@@ -35,6 +35,20 @@ class Player:
                         Person(10, 5, 'eliwood(lord)')]
 
 
+def find(s):
+    first = None
+    for i in range(len(s)):
+        if s[i] == '<':
+            first = i
+        if s[i] == '>' and first is not None:
+            end = i
+            res = s[first + 1:end].split(',')
+            res = [i.split(' ') for i in res if i != '']
+            result = [[i[0], int(i[1]), int(i[2])] for i in res]
+            return result
+    return ''
+
+
 players = []
 run = True
 while run:
@@ -46,18 +60,35 @@ while run:
         # проверим, есть ли желающие войти в игру
         try:
             new_socket, addr = main_socket.accept()
-            print(f'Подключился игрок, игроков на сервере: {len(players)}')
             new_socket.setblocking(0)
-
             new_player = Player(new_socket, addr)
             players.append(new_player)
+            print(f'Подключился игрок, игроков на сервере: {len(players)}')
         except:
             pass
 
     for player in players:
         try:
             data = player.conn.recv(1024)
-            data = data.decode()
+            data = find(data.decode())
+            player.persons = [Person(i[1], i[2], i[0]) for i in data]
+
+        except:
+            pass
+
+    for player in players:
+        try:
+            sms = '<'
+            for person in player.persons:
+                sms += f'{person.name} {person.pos[0]} {person.pos[1]},'
+            sms += '|'
+            for player_2 in players:
+                if player_2 != player:
+                    for person in player_2.persons:
+                        sms += f'{person.name} {person.pos[0]} {person.pos[1]},'
+                    sms += '|'
+            sms += '>'
+            player.conn.send(sms.encode())
 
             player.errors = 0
         except:
@@ -66,17 +97,3 @@ while run:
                 player.conn.close()
                 players.remove(player)
                 print(f'Отключился игрок, игроков на сервере: {len(players)}')
-
-    for player in players:
-        try:
-            sms = '<'
-            for person in player.persons:
-                sms += f'{person.name} {person.pos[0]} {person.pos[1]},'
-            for player_2 in players:
-                if player_2 != player:
-                    for person in player_2.persons:
-                        sms += f'{person.name} {person.pos[0]} {person.pos[1]},'
-            sms += '>'
-            player.conn.send(sms.encode())
-        except:
-            pass

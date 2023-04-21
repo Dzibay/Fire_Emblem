@@ -3,6 +3,7 @@ from person import Person
 from Player import Player
 from settings import *
 from dextr import *
+import socket
 
 
 def mapping(pos):
@@ -17,6 +18,11 @@ class Main:
         pygame.display.set_caption('RPG')
         self.clock = pygame.time.Clock()
 
+        self.server_ip = 'localhost'
+        self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
+        self.sock.connect((self.server_ip, 10000))
+
         self.bg = pygame.image.load('templates/map/map1.png')
         self.bg = pygame.transform.scale(self.bg, (1200, 800))
 
@@ -27,6 +33,19 @@ class Main:
         self.cant = []
         self.graph = None
         self.person_positions = []
+
+    def find_sms(self, s):
+        first = None
+        for i in range(len(s)):
+            if s[i] == '<':
+                first = i
+            if s[i] == '>' and first is not None:
+                end = i
+                res = s[first + 1:end].split(',')
+                res = [i.split(' ') for i in res if i != '']
+                result = [[i[0], int(i[1]), int(i[2])] for i in res]
+                return result
+        return None
 
     def render(self):
         # bg
@@ -84,6 +103,10 @@ class Main:
                         if self.mouse_pos not in self.cant and self.mouse_pos not in self.person_positions:
                             self.player.persons[self.player.choice_person].move(self.mouse_pos)
                             self.player.choice_person = None
+
+            data = self.sock.recv(1024).decode()
+            data = main.find_sms(data)
+            print(data)
 
             self.mouse_pos = mapping(pygame.mouse.get_pos())
             main.render()

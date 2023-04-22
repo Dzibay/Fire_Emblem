@@ -77,11 +77,18 @@ class Main:
         # persons
         for player in self.players:
             for person in player.persons:
-                if self.tick % 240 < 120:
-                    i_ = (self.tick % 120 // 20)
-                else:
-                    i_ = 0
-                self.screen.blit(person.state_images[i_], (person.x - 10, person.y - 10))
+                if person.img in person.state_images or person.img is None:
+                    if self.tick % 240 < 120:
+                        i_ = (self.tick % 120 // 20)
+                    else:
+                        i_ = 0
+                    person.img = person.state_images[i_]
+
+                # person move
+                self.cords = person.move(self.cords, self.tick)
+
+                # person blit
+                self.screen.blit(person.img, (person.x - 10, person.y - 10))
 
         # fps
         f1 = pygame.font.Font(None, 40)
@@ -117,7 +124,6 @@ class Main:
                     else:
                         if self.mouse_pos not in self.cant and self.mouse_pos not in self.person_positions:
                             self.player.persons[self.player.choice_person].want_move = self.mouse_pos
-                            print('a')
                             self.player.choice_person = None
                             self.can_move = False
 
@@ -145,10 +151,6 @@ class Main:
                         self.players[i].persons[j].x = data[i][j][1]
                         self.players[i].persons[j].y = data[i][j][2]
             self.mouse_pos = mapping(pygame.mouse.get_pos())
-
-            # person move
-            for person in self.player.persons:
-                self.cords = person.move(self.cords)
 
             main.render()
             pygame.display.update()

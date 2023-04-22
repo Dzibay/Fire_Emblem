@@ -18,9 +18,10 @@ tick = 0
 
 
 class Person:
-    def __init__(self, x, y, name):
+    def __init__(self, x, y, name, state):
         self.name = name
         self.pos = (x, y)
+        self.state = state
 
     def get_big_pos(self):
         return (self.pos[0] * TILE, self.pos[1] * TILE)
@@ -31,8 +32,7 @@ class Player:
         self.addr = addr
         self.conn = conn
         self.errors = 0
-        self.persons = [Person(1, 0, 'eliwood(lord)'),
-                        Person(10, 5, 'eliwood(lord)')]
+        self.persons = []
 
 
 def find(s):
@@ -44,7 +44,7 @@ def find(s):
             end = i
             res = s[first + 1:end].split(',')
             res = [i.split(' ') for i in res if i != '']
-            result = [[i[0], int(i[1]), int(i[2])] for i in res]
+            result = [[i[0], int(i[1]), int(i[2]), i[3]] for i in res]
             return result
     return ''
 
@@ -69,26 +69,29 @@ while run:
 
     for player in players:
         try:
-            data = player.conn.recv(1024)
-            data = find(data.decode())
-            player.persons = [Person(i[1], i[2], i[0]) for i in data]
+            data = player.conn.recv(1024).decode()
+            if data[:6] == '<wait>':
+                print('waiting')
+            else:
+                data = find(data)
+                player.persons = [Person(i[1], i[2], i[0], i[3]) for i in data]
         except:
             pass
 
     for player in players:
         try:
-            sms = '<'
-            for person in player.persons:
-                sms += f'{person.name} {person.pos[0]} {person.pos[1]},'
-            sms += '|'
-            for player_2 in players:
-                if player_2 != player:
-                    for person in player_2.persons:
-                        sms += f'{person.name} {person.pos[0]} {person.pos[1]},'
-                    sms += '|'
-            sms += '>'
-            print(sms)
-            player.conn.send(sms.encode())
+            if len(players) < 2:
+                sms = 'wait'
+                player.conn.send(sms.encode())
+            else:
+                sms = '<'
+                for player_2 in players:
+                    if player_2 != player:
+                        for person in player_2.persons:
+                            sms += f'{person.name} {person.pos[0]} {person.pos[1]} {person.state},'
+                sms += '>'
+                player.conn.send(sms.encode())
+                print(sms)
 
             player.errors = 0
         except:
@@ -97,3 +100,4 @@ while run:
                 player.conn.close()
                 players.remove(player)
                 print(f'Отключился игрок, игроков на сервере: {len(players)}')
+

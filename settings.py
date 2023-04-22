@@ -6,6 +6,7 @@ FPS = 60
 # colors
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
+GREY = (100, 100, 100)
 ORANGE = (255, 165, 0)
 
 #

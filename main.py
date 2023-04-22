@@ -12,7 +12,10 @@ def mapping(pos):
 
 class Main:
     def __init__(self):
+        self.start_game = False
+        self.run = True
         self.tick = 0
+
         pygame.init()
         self.screen = pygame.display.set_mode((WIDTH, HEIGHT))
         pygame.display.set_caption('RPG')
@@ -28,16 +31,17 @@ class Main:
 
         self.mouse_pos = (0, 0)
 
-        self.players = [Player()]
+        self.players = [Player(), Player()]
         self.player = self.players[0]
+        self.opponent = self.players[1]
 
         self.cant = []
         self.graph = None
         self.cords = []
         self.person_positions = []
 
+        self.data = ''
         self.last_sms = ''
-        self.last_data = ''
         self.can_move = True
 
     def find_sms(self, s):
@@ -47,11 +51,9 @@ class Main:
                 first = i
             if s[i] == '>' and first is not None:
                 end = i
-                res = s[first + 1:end].split('|')
-                res.remove(res[len(res) - 1])
-                res = [i.split(',') for i in res]
-                res = [[i.split(' ') for i in j if len(i) > 0] for j in res]
-                result = [[(i[0], int(i[1]), int(i[2])) for i in j] for j in res]
+                res = s[first + 1:end].split(',')
+                res = [i.split(' ') for i in res if len(i) > 0]
+                result = [(i[0], int(i[1]), int(i[2]), i[3]) for i in res]
                 return result
         return None
 
@@ -75,85 +77,110 @@ class Main:
                                        (cord[0] * TILE + TILE // 2, cord[1] * TILE + TILE // 2), TILE // 4)
 
         # persons
-        for player in self.players:
-            for person in player.persons:
-                if person.img in person.state_images or person.img is None:
-                    if self.tick % 240 < 120:
-                        i_ = (self.tick % 120 // 20)
-                    else:
-                        i_ = 0
-                    person.img = person.state_images[i_]
+        for person in self.player.persons:
+            # person move
+            self.cords = person.move(self.cords)
 
-                # person move
-                self.cords = person.move(self.cords, self.tick)
+            # person img
+            person.choice_image(self.tick)
+
+        for player in self.players:
+            for i in range(len(player.persons)):
+                if player == self.opponent:
+
+                    # opponent persons img
+                    if self.data[i][3] == 'stay':
+                        if self.tick % 120 < 60:
+                            i_ = (self.tick % 60 // 10)
+                        else:
+                            i_ = 0
+                        self.opponent.persons[i].img = self.opponent.persons[i].stay_images[i_]
 
                 # person blit
-                self.screen.blit(person.img, (person.x - 10, person.y - 10))
+                self.screen.blit(player.persons[i].img,
+                                 (player.persons[i].x - 45, player.persons[i].y - 60))
 
         # fps
         f1 = pygame.font.Font(None, 40)
         text = f1.render(str(self.clock.get_fps()), True, BLACK)
         self.screen.blit(text, (1150, 0))
 
+    def menu(self):
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                self.run = False
+            elif event.type == pygame.KEYUP:
+                if event.key == pygame.K_TAB:
+                    self.start_game = True
+
+        sms = '<wait>'
+        self.sock.send(sms.encode())
+
+        self.sock.recv(1024)
+
+        self.screen.fill(GREY)
+        pygame.display.update()
+
     def main_loop(self):
-        run = True
-        while run:
+        while self.run:
             self.tick += 1
             self.clock.tick(FPS)
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    run = False
-                if event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_SPACE:
-                        self.player.persons.append(Person(80, 80, 'eliwood(lord)'))
-                    elif event.key == pygame.K_e:
-                        self.can_move = True
+            if self.start_game:
+                for event in pygame.event.get():
+                    if event.type == pygame.QUIT:
+                        self.run = False
+                    if event.type == pygame.KEYDOWN:
+                        if event.key == pygame.K_SPACE:
+                            self.player.persons.append(Person(80, 80, 'eliwood(lord)'))
+                        elif event.key == pygame.K_e:
+                            self.can_move = True
 
-                if event.type == pygame.MOUSEBUTTONUP and event.button == 1:
-                    if self.player.choice_person is None:
-                        if self.can_move:
-                            for person in self.player.persons:
-                                if self.mouse_pos == person.pos:
-                                    if self.player.choice_person is None:
-                                        self.player.choice_person = self.player.persons.index(person)
-                                        self.person_positions = [person.pos for person in self.player.persons
-                                                                 if person != self.player.persons[self.player.choice_person]]
-                                        self.graph, self.cant = generate_graph('levels/lvl1.txt', self.person_positions)
-                                    else:
-                                        self.player.choice_person = None
-                    else:
-                        if self.mouse_pos not in self.cant and self.mouse_pos not in self.person_positions:
-                            self.player.persons[self.player.choice_person].want_move = self.mouse_pos
-                            self.player.choice_person = None
-                            self.can_move = False
+                    if event.type == pygame.MOUSEBUTTONUP and event.button == 1:
+                        if self.player.choice_person is None:
+                            if self.can_move:
+                                for person in self.player.persons:
+                                    if self.mouse_pos == person.pos:
+                                        if self.player.choice_person is None:
+                                            self.player.choice_person = self.player.persons.index(person)
+                                            self.person_positions = [person.pos for person in self.player.persons
+                                                                     if person != self.player.persons[self.player.choice_person]]
+                                            self.graph, self.cant = generate_graph('levels/lvl1.txt', self.person_positions)
+                                        else:
+                                            self.player.choice_person = None
+                        else:
+                            if self.mouse_pos not in self.cant and self.mouse_pos not in self.person_positions:
+                                self.player.persons[self.player.choice_person].want_move = self.mouse_pos
+                                self.player.choice_person = None
+                                self.can_move = False
 
-            # send sms
-            sms = '<'
-            for person in self.player.persons:
-                sms += f'{person.name} {person.x} {person.y},'
-            sms += '>'
-            if sms != self.last_sms:
-                self.sock.send(sms.encode())
-                self.last_sms = sms
+                # send sms
+                sms = '<'
+                for person in self.player.persons:
+                    sms += f'{person.name} {person.x} {person.y} {person.state}{person.move_to},'
+                sms += '>'
+                if sms != self.last_sms:
+                    self.sock.send(sms.encode())
+                    self.last_sms = sms
+                print(sms)
 
-            # recv sms
-            data = self.sock.recv(1024).decode()
-            data = main.find_sms(data)
-            if data != self.last_data:
-                self.last_data = data
-                if len(data) != len(self.players):
-                    self.players = [Player() for i in data]
-                for i in range(len(data)):
-                    if len(data[i]) != len(self.players[i].persons):
-                        self.players[i].persons = [Person(j[1], j[2], j[0]) for j in data[i]]
-                    for j in range(len(data[i])):
-                        self.players[i].persons[j].name = data[i][j][0]
-                        self.players[i].persons[j].x = data[i][j][1]
-                        self.players[i].persons[j].y = data[i][j][2]
-            self.mouse_pos = mapping(pygame.mouse.get_pos())
+                # recv sms
+                try:
+                    self.data = self.sock.recv(1024).decode()
+                    self.data = main.find_sms(self.data)
+                    if len(self.data) != len(self.opponent.persons):
+                        self.opponent.persons = [Person(j[1], j[2], j[0]) for j in self.data]
+                    for j in range(len(self.data)):
+                        self.opponent.persons[j].x = self.data[j][1]
+                        self.opponent.persons[j].y = self.data[j][2]
+                except:
+                    pass
 
-            main.render()
-            pygame.display.update()
+                self.mouse_pos = mapping(pygame.mouse.get_pos())
+
+                main.render()
+                pygame.display.update()
+            else:
+                main.menu()
 
 
 main = Main()

@@ -147,6 +147,13 @@ class Main:
                 self.screen.blit(player.persons[i].img,
                                  (player.persons[i].x - 45, player.persons[i].y - 60))
 
+        # attack button
+        for person in self.player.persons:
+            enemy = person.can_fight_with
+            if enemy is not None:
+                print(enemy.pos)
+                pygame.draw.rect(self.screen, WHITE, (enemy.pos[0], enemy.pos[1] + 20, 100, 30))
+
         # fps
         f1 = pygame.font.Font(None, 40)
         text = f1.render(str(self.clock.get_fps()), True, BLACK)
@@ -176,6 +183,7 @@ class Main:
                 if self.fight:
                     main.render_fight()
                 else:
+                    # events
                     for event in pygame.event.get():
                         if event.type == pygame.QUIT:
                             self.run = False
@@ -226,6 +234,14 @@ class Main:
                         pass
 
                     self.mouse_pos = mapping(pygame.mouse.get_pos())
+
+                    # attack
+                    for person in self.player.persons:
+                        for enemy in self.opponent.persons:
+                            if abs(person.pos[0] - enemy.pos[0]) == 1 and abs(person.pos[1] - enemy.pos[1]) == 1:
+                                person.can_fight_with = enemy
+                            else:
+                                person.can_fight_with = None
 
                     main.render()
                 pygame.display.update()

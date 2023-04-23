@@ -24,6 +24,8 @@ class Person:
         self.want_move = self.pos
         self.move_to = ''
 
+        self.can_fight_with = None
+
         self.stay_images = [pygame.image.load(f'templates/persons/{name}_{color}.png').subsurface(cords(i))
                             for i in state_images_cords]
         for i in range(len(self.stay_images)):

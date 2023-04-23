@@ -14,7 +14,7 @@ def cords(c):
 
 
 class Person:
-    def __init__(self, x, y, name):
+    def __init__(self, x, y, name, color='B'):
         print('person')
         self.x = x
         self.y = y
@@ -24,17 +24,17 @@ class Person:
         self.want_move = self.pos
         self.move_to = ''
 
-        self.stay_images = [pygame.image.load(f'templates/persons/{name}.png').subsurface(cords(i))
+        self.stay_images = [pygame.image.load(f'templates/persons/{name}_{color}.png').subsurface(cords(i))
                             for i in state_images_cords]
         for i in range(len(self.stay_images)):
             self.stay_images[i] = pygame.transform.scale(self.stay_images[i], (170, 170))
 
-        self.move_images = [pygame.image.load(f'templates/persons/{name}.png').subsurface(cords(i))
+        self.move_images = [pygame.image.load(f'templates/persons/{name}_{color}.png').subsurface(cords(i))
                             for i in move_images_cords[:2]]
         self.move_images = self.move_images + self.move_images
-        self.move_images += [pygame.image.load(f'templates/persons/{name}.png').subsurface(cords(i))
+        self.move_images += [pygame.image.load(f'templates/persons/{name}_{color}.png').subsurface(cords(i))
                              for i in move_images_cords[2:4]]
-        self.move_images += [pygame.image.load(f'templates/persons/{name}.png').subsurface(cords(i))
+        self.move_images += [pygame.image.load(f'templates/persons/{name}_{color}.png').subsurface(cords(i))
                              for i in move_images_cords[4:6]]
 
         for i in range(len(self.move_images)):

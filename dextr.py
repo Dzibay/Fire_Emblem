@@ -26,7 +26,7 @@ def bfs(graph, start, goal):
     return a
 
 
-def generate_graph(file, persons):
+def generate_graph(file):
     not_zero = []
     lvl = open(file, 'r').readlines()
     lvl = [i.replace('\n', '') for i in lvl]

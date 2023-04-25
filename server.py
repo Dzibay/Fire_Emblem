@@ -15,6 +15,9 @@ clock = pygame.time.Clock()
 FPS = 60
 TILE = 80
 tick = 0
+is_fight = False
+fight_person = ''
+fight_sms = ''
 
 
 class Person:
@@ -33,6 +36,7 @@ class Player:
         self.conn = conn
         self.errors = 0
         self.persons = []
+        self.is_fight = False
 
 
 def find(s):
@@ -70,13 +74,19 @@ while run:
     for player in players:
         try:
             data = player.conn.recv(1024).decode()
+            print('no this')
             if data[:6] == '<wait>':
                 print('waiting')
+            elif data[:6] == '<fight':
+                player.is_fight = True
+                fight_sms = data
             else:
+                player.is_fight = False
                 data = find(data)
                 player.persons = [Person(i[1], i[2], i[0], i[3]) for i in data]
         except:
-            pass
+            print('cant read')
+    print('--')
 
     for player in players:
         try:
@@ -84,15 +94,18 @@ while run:
                 sms = 'wait'
                 player.conn.send(sms.encode())
             else:
-                sms = '<'
-                for player_2 in players:
-                    if player_2 != player:
-                        for person in player_2.persons:
-                            sms += f'{person.name} {person.pos[0]} {person.pos[1]} {person.state},'
-                sms += '>'
-                player.conn.send(sms.encode())
+                if players[0].is_fight or players[1].is_fight:
+                    if not player.is_fight:
+                        sms = fight_sms
+                else:
+                    sms = '<'
+                    for player_2 in players:
+                        if player_2 != player:
+                            for person in player_2.persons:
+                                sms += f'{person.name} {person.pos[0]} {person.pos[1]} {person.state},'
+                    sms += '>'
                 print(sms)
-
+                player.conn.send(sms.encode())
             player.errors = 0
         except:
             player.errors += 1
@@ -101,3 +114,4 @@ while run:
                 players.remove(player)
                 print(f'Отключился игрок, игроков на сервере: {len(players)}')
 
+    print('<<<<<<------->>>>>>')

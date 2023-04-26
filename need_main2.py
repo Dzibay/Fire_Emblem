@@ -460,8 +460,9 @@ class Main:
                             self.not_my_fight = True
                             id_1, a_, b_, c_, d_ = self.data[1]
                             id_2, a_, b_, c_, d_ = self.data[0]
-                            self.fight_person = self.player.persons[id_2]
-                            self.fight_enemy = self.opponent.persons[id_1]
+                            self.fight_person = self.player.persons[id_1]
+                            self.fight_enemy = self.opponent.persons[id_2]
+                            print(id_1, id_2)
                         else:
                             self.not_my_fight = False
                             self.data = main.find_sms(self.data)

@@ -26,8 +26,10 @@ class Person:
 
         self.hp = 100
         self.damage = 20
+        self.armor = 20
+        self.critical = 15
 
-        self.can_fight_with = None
+        self.can_fight_with = []
         self.attack_button = None
 
         self.stay_images = [pygame.image.load(f'templates/persons/{name}_{color}.png').subsurface(cords(i))

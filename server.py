@@ -21,10 +21,15 @@ fight_sms = ''
 
 
 class Person:
-    def __init__(self, x, y, name, state):
+    def __init__(self, x, y, name, state, hp, armor, damage, critical):
         self.name = name
         self.pos = (x, y)
         self.state = state
+
+        self.hp = hp
+        self.armor = armor
+        self.damage = damage
+        self.critical = critical
 
     def get_big_pos(self):
         return (self.pos[0] * TILE, self.pos[1] * TILE)
@@ -48,7 +53,7 @@ def find(s):
             end = i
             res = s[first + 1:end].split(',')
             res = [i.split(' ') for i in res if i != '']
-            result = [[i[0], int(i[1]), int(i[2]), i[3]] for i in res]
+            result = [[i[0], int(i[1]), int(i[2]), i[3], int(i[4]), int(i[5]), int(i[6]), int(i[7])] for i in res]
             return result
     return ''
 
@@ -83,10 +88,9 @@ while run:
             else:
                 player.is_fight = False
                 data = find(data)
-                player.persons = [Person(i[1], i[2], i[0], i[3]) for i in data]
+                player.persons = [Person(i[1], i[2], i[0], i[3], i[4], i[5], i[6], i[7]) for i in data]
         except:
             print('cant read')
-    print('--')
 
     for player in players:
         try:
@@ -102,9 +106,9 @@ while run:
                     for player_2 in players:
                         if player_2 != player:
                             for person in player_2.persons:
-                                sms += f'{person.name} {person.pos[0]} {person.pos[1]} {person.state},'
+                                sms += f'{person.name} {person.pos[0]} {person.pos[1]} {person.state} ' \
+                                       f'{person.hp} {person.armor} {person.damage} {person.critical},'
                     sms += '>'
-                print(sms)
                 player.conn.send(sms.encode())
             player.errors = 0
         except:
@@ -113,5 +117,3 @@ while run:
                 player.conn.close()
                 players.remove(player)
                 print(f'Отключился игрок, игроков на сервере: {len(players)}')
-
-    print('<<<<<<------->>>>>>')

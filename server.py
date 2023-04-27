@@ -79,7 +79,6 @@ while run:
     for player in players:
         try:
             data = player.conn.recv(1024).decode()
-            print('no this')
             if data[:6] == '<wait>':
                 print('waiting')
             elif data[:6] == '<fight':
@@ -90,7 +89,7 @@ while run:
                 data = find(data)
                 player.persons = [Person(i[1], i[2], i[0], i[3], i[4], i[5], i[6], i[7]) for i in data]
         except:
-            print('cant read')
+            pass
 
     for player in players:
         try:

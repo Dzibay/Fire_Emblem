@@ -26,42 +26,55 @@ class Main:
         self.run = True
         self.tick = 0
 
+        # pygame
         pygame.init()
         self.screen = pygame.display.set_mode((WIDTH, HEIGHT))
         pygame.display.set_caption('RPG')
         self.clock = pygame.time.Clock()
 
+        # socket
         # self.server_ip = '82.146.45.210'
         self.server_ip = 'localhost'
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
         self.sock.connect((self.server_ip, 10000))
 
+        # bg
         self.bg = pygame.image.load('templates/map/map1.png')
         self.bg = pygame.transform.scale(self.bg, (1200, 800))
 
+        # mouse
         self.mouse_pos = (0, 0)
         self.big_mouse_pos = (0, 0)
 
+        # players
         self.players = [Player(), Player()]
         self.player = self.players[0]
         self.opponent = self.players[1]
 
+        # move
         self.graph, self.cant = generate_graph('levels/lvl1.txt')
         self.can_move_to = []
         self.cords = []
         self.person_positions = []
 
+        # pointer
+        names_point = ['start_r', 'start_d', 'u', 'r', 'u-r', 'r-d', 'end_r', 'end_d']
+        self.pointer = [pygame.image.load('templates/pointer/pointer.png').subsurface(1, 1, 16, 16) for i in range(16)]
+
+        # data
         self.data = ''
         self.last_sms = ''
         self.can_move = True
 
+        # fight
         self.fight = False
         self.not_my_fight = False
         self.fight_person = None
         self.fight_enemy = None
         self.fight_tick = 0
 
+        # menu
         self.menu_btn_cords = (450, 550, 300, 50)
         self.menu_person_choice_cords = [(i, j, 100, 100) for j in range(50, 530, 120) for i in range(250, 950, 120)]
         self.menu_person_img = [pygame.image.load(f'templates/persons/eliwood(lord)_B.png').subsurface((1, 33, 31, 31))
@@ -71,10 +84,12 @@ class Main:
         self.menu_choice_persons = []
         self.names_choice_persons = ['eliwood(lord)', 'eliwood(lord)']
 
+        # placing persons
         self.placing_persons_window = False
         self.placing_choice_person = None
         self.placing_persons_pos = [(20, 660), (120, 660), (220, 660), (320, 660), (420, 660), (520, 660)]
 
+        # fonts
         self.f1 = pygame.font.Font(None, 30)
         self.f2 = pygame.font.Font(None, 50)
 
@@ -364,9 +379,7 @@ class Main:
             # person img
             person.choice_image(self.tick)
 
-        print('-------')
         for player in self.players:
-            print(len(self.player.persons))
             try:
                 for i in range(len(player.persons)):
                     if player == self.opponent:
@@ -450,7 +463,6 @@ class Main:
         self.screen.blit(text_fps, (1150, 0))
 
     def place_persons(self):
-        print(self.menu_choice_persons)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 self.run = False

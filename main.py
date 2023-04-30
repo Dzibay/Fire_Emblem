@@ -59,9 +59,16 @@ class Main:
         self.person_positions = []
 
         # pointer
-        names_point = ['start_r', 'start_d', 'u', 'r', 'u-r', 'r-d', 'end_r', 'end_d']
-        self.pointer = [pygame.image.load('templates/pointer/pointer.png').subsurface(1, 1, 16, 16) for i in range(16)]
-
+        names_point = ['start_r', 'start_d', 'u', 'r', 'u-r', 'r-d', 'end_r', 'end_d',
+                       'start_u', 'start_l', 'r', 'u', 'd-r', 'r-u', 'end_u', 'end_l']
+        cords_point = [(1, 1, 16, 16), (19, 1, 16, 16), (37, 1, 16, 16), (55, 1, 16, 16),
+                       (73, 1, 16, 16), (91, 1, 16, 16), (109, 1, 16, 16), (127, 1, 16, 16),
+                       (1, 19, 16, 16), (19, 19, 16, 16), (37, 19, 16, 16), (55, 19, 16, 16),
+                       (73, 19, 16, 16), (91, 19, 16, 16), (109, 19, 16, 16), (127, 19, 16, 16)]
+        self.pointer = {names_point[i]: pygame.transform.scale(
+            pygame.image.load('templates/pointer/pointer.png').subsurface(cords_point[i]), (TILE, TILE))
+                        for i in range(len(names_point))}
+        print(self.pointer)
         # data
         self.data = ''
         self.last_sms = ''
@@ -349,6 +356,7 @@ class Main:
         for x in range(0, WIDTH, TILE):
             for y in range(0, HEIGHT, TILE):
                 pygame.draw.rect(self.screen, WHITE, (x, y, TILE, TILE), 1)
+
         # mouse
         pygame.draw.rect(self.screen, BLACK, (self.mouse_pos[0] * TILE, self.mouse_pos[1] * TILE, TILE, TILE), 1)
         if self.player.choice_person is not None:
@@ -367,9 +375,49 @@ class Main:
             # orange circles
             if self.mouse_pos in self.can_move_to:
                 self.cords = get_cords(self.graph, p_.pos, self.mouse_pos)
-                for cord in self.cords:
-                    pygame.draw.circle(self.screen, ORANGE,
-                                       (cord[0] * TILE + TILE // 2, cord[1] * TILE + TILE // 2), TILE // 4)
+                print('----')
+                for i in range(len(self.cords) - 1):
+                    img = None
+                    if i == 0:
+                        if self.cords[i][0] < self.cords[i + 1][0]:
+                            img = 'end_l'
+                        elif self.cords[i][0] > self.cords[i + 1][0]:
+                            img = 'end_r'
+                        elif self.cords[i][1] < self.cords[i + 1][1]:
+                            img = 'end_u'
+                        elif self.cords[i][1] > self.cords[i + 1][1]:
+                            img = 'end_d'
+                    else:
+                        if (self.cords[i - 1][0] < self.cords[i][0] and self.cords[i][1] < self.cords[i + 1][1]) or \
+                                (self.cords[i + 1][0] < self.cords[i][0] and self.cords[i][1] < self.cords[i - 1][1]):
+                            img = 'r-d'
+                        elif (self.cords[i - 1][0] < self.cords[i][0] and self.cords[i][1] > self.cords[i + 1][1]) or \
+                                (self.cords[i + 1][0] < self.cords[i][0] and self.cords[i][1] > self.cords[i - 1][1]):
+                            img = 'r-u'
+                        elif (self.cords[i - 1][0] > self.cords[i][0] and self.cords[i][1] < self.cords[i + 1][1]) or \
+                                (self.cords[i + 1][0] > self.cords[i][0] and self.cords[i][1] < self.cords[i - 1][1]):
+                            img = 'u-r'
+                        elif (self.cords[i - 1][0] > self.cords[i][0] and self.cords[i][1] > self.cords[i + 1][1]) or \
+                                (self.cords[i + 1][0] > self.cords[i][0] and self.cords[i][1] > self.cords[i - 1][1]):
+                            img = 'd-r'
+                        else:
+                            if i == len(self.cords) - 2:
+                                if self.cords[i][0] < self.cords[i + 1][0]:
+                                    img = 'start_l'
+                                elif self.cords[i][0] > self.cords[i + 1][0]:
+                                    img = 'start_r'
+                                elif self.cords[i][1] < self.cords[i + 1][1]:
+                                    img = 'start_u'
+                                elif self.cords[i][1] > self.cords[i + 1][1]:
+                                    img = 'start_d'
+                    if img is None:
+                        if self.cords[i-1][0] < self.cords[i][0] or self.cords[i-1][0] > self.cords[i][0]:
+                            img = 'r'
+                        else:
+                            img = 'u'
+                    print(img, self.cords[i-1], self.cords[i], self.cords[i+1])
+                    if img is not None:
+                        self.screen.blit(self.pointer[img], (self.cords[i][0] * TILE, self.cords[i][1] * TILE))
 
         # persons
         for person in self.player.persons:

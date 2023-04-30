@@ -68,7 +68,7 @@ class Main:
         self.pointer = {names_point[i]: pygame.transform.scale(
             pygame.image.load('templates/pointer/pointer.png').subsurface(cords_point[i]), (TILE, TILE))
                         for i in range(len(names_point))}
-        print(self.pointer)
+
         # data
         self.data = ''
         self.last_sms = ''
@@ -211,7 +211,7 @@ class Main:
                     self.fight_tick = 0
 
         if self.fight_tick == 1:
-            fight = Fight()
+            fight = Fight(self.fight_person.critical)
 
         # send sms
         sms = f'<fight {self.opponent.persons.index(self.fight_enemy)} {fight.person_img_id} ' \
@@ -225,57 +225,80 @@ class Main:
 
         # person
         if self.fight_tick <= 100:
-            self.screen.blit(fight.person_stay_img, (200, 400))
+            self.screen.blit(fight.person_stay_img, (fight.person_x, fight.person_y))
+            self.screen.blit(fight.enemy_stay_img, (fight.enemy_x, fight.enemy_y))
             fight.person_img_id = 0
-        elif self.fight_tick <= 245:
-            img, cords_ = fight.mellee_person_attack()
-            self.screen.blit(img, cords_)
-            fight.person_img_id = 1 + fight.person_melee_attack_img.index(img)
-
-        elif (self.fight_tick > 450) and (self.fight_tick < 455):
-            fight.person_x = 190
-            self.screen.blit(fight.person_stay_img, (190, 400))
-            fight.person_img_id = 0
-        elif (self.fight_tick > 455) and (self.fight_tick < 460):
-            fight.person_x = 200
-            self.screen.blit(fight.person_stay_img, (200, 400))
-            fight.person_img_id = 0
-            if self.fight_tick == 456:
-                self.fight_person.hp -= self.fight_person.damage
-        elif (self.fight_tick > 460) and (self.fight_tick < 465):
-            fight.person_x = 190
-            self.screen.blit(fight.person_stay_img, (190, 400))
-            fight.person_img_id = 0
-
+            fight.enemy_img_id = 0
+            fight_end = 1000
         else:
-            self.screen.blit(fight.person_stay_img, (200, 400))
+            if fight.moves[0]:
+                enemy_dmg_tick = 310
+                person_dmg_tick = 650
+                fight_end = 800
 
-        # enemy
-        if (self.fight_tick > 150) and (self.fight_tick < 155):
-            fight.enemy_x = 710
-            self.screen.blit(fight.enemy_stay_img, (710, 400))
-            fight.enemy_img_id = 0
-        elif (self.fight_tick > 155) and (self.fight_tick < 160):
-            fight.enemy_x = 700
-            self.screen.blit(fight.enemy_stay_img, (700, 400))
-            fight.enemy_img_id = 0
-            if self.fight_tick == 156:
-                self.fight_enemy.hp -= self.fight_enemy.damage
-        elif (self.fight_tick > 160) and (self.fight_tick < 165):
-            fight.enemy_x = 710
-            self.screen.blit(fight.enemy_stay_img, (710, 400))
-            fight.enemy_img_id = 0
+                # person
+                if self.fight_tick <= 445:
+                    img = fight.critical_person_attack()
+                    self.screen.blit(img, (fight.person_x, fight.person_y))
+                    fight.person_img_id = 0
+                else:
+                    self.screen.blit(fight.person_stay_img, (fight.person_x, fight.person_y))
+                    fight.person_img_id = 0
 
-        elif self.fight_tick <= 400:
-            self.screen.blit(fight.enemy_stay_img, (700, 400))
-            fight.enemy_img_id = 0
-        elif self.fight_tick <= 545:
-            img, cords_ = fight.mellee_enemy_attack()
-            self.screen.blit(img, cords_)
-            fight.enemy_img_id = 1 + fight.enemy_melee_attack_img.index(img)
-        else:
-            self.screen.blit(fight.enemy_stay_img, (700, 400))
-            fight.enemy_img_id = 0
+                # enemy
+                if self.fight_tick <= 600:
+                    self.screen.blit(fight.enemy_stay_img, (fight.enemy_x, fight.enemy_y))
+                    fight.enemy_img_id = 0
+                elif self.fight_tick <= 745:
+                    img = fight.mellee_enemy_attack()
+                    self.screen.blit(img, (fight.enemy_x, fight.enemy_y))
+                    fight.enemy_img_id = 1 + fight.enemy_melee_attack_img.index(img)
+                else:
+                    self.screen.blit(fight.enemy_stay_img, (fight.enemy_x, fight.enemy_y))
+                    fight.enemy_img_id = 0
+
+            else:
+                enemy_dmg_tick = 150
+                person_dmg_tick = 450
+                fight_end = 600
+
+                # person
+                if self.fight_tick <= 245:
+                    img = fight.mellee_person_attack()
+                    self.screen.blit(img, (fight.person_x, fight.person_y))
+                    fight.person_img_id = 1 + fight.person_melee_attack_img.index(img)
+                else:
+                    self.screen.blit(fight.person_stay_img, (fight.person_x, fight.person_y))
+                    fight.person_img_id = 0
+
+                # enemy
+                if self.fight_tick <= 400:
+                    self.screen.blit(fight.enemy_stay_img, (fight.enemy_x, fight.enemy_y))
+                    fight.enemy_img_id = 0
+                elif self.fight_tick <= 545:
+                    img = fight.mellee_enemy_attack()
+                    self.screen.blit(img, (fight.enemy_x, fight.enemy_y))
+                    fight.enemy_img_id = 1 + fight.enemy_melee_attack_img.index(img)
+                else:
+                    self.screen.blit(fight.enemy_stay_img, (fight.enemy_x, fight.enemy_y))
+                    fight.enemy_img_id = 0
+
+            # damage
+            if (self.fight_tick > person_dmg_tick) and (self.fight_tick < person_dmg_tick + 5):
+                fight.person_x -= 10
+            elif (self.fight_tick > person_dmg_tick + 5) and (self.fight_tick < person_dmg_tick + 10):
+                fight.person_x += 10
+                if self.fight_tick == person_dmg_tick + 6:
+                    self.fight_person.hp -= self.fight_person.damage
+
+            if (self.fight_tick > enemy_dmg_tick) and (self.fight_tick < enemy_dmg_tick + 5):
+                fight.enemy_x += 10
+            elif (self.fight_tick > enemy_dmg_tick + 5) and (self.fight_tick < enemy_dmg_tick + 10):
+                fight.enemy_x -= 10
+                if self.fight_tick == 156:
+                    self.fight_enemy.hp -= self.fight_enemy.damage
+
+
 
         # name
         pygame.draw.rect(self.screen, BLUE, (0, 50, 150, 50))
@@ -291,7 +314,7 @@ class Main:
         main.render_persons_characters_for_fight()
 
         # end
-        if self.fight_tick > 600:
+        if self.fight_tick > fight_end:
             self.fight_tick = 0
             self.fight = False
 

@@ -32,25 +32,34 @@ class Person:
         self.can_fight_with = []
         self.attack_button = None
 
-        self.stay_images = [pygame.image.load(f'templates/persons/{name}_{color}.png').subsurface(cords(i))
-                            for i in state_images_cords]
-        for i in range(len(self.stay_images)):
-            self.stay_images[i] = pygame.transform.scale(self.stay_images[i], (170, 170))
-
-        self.move_images = [pygame.image.load(f'templates/persons/{name}_{color}.png').subsurface(cords(i))
-                            for i in move_images_cords[:2]]
-        self.move_images = self.move_images + self.move_images
-        self.move_images += [pygame.image.load(f'templates/persons/{name}_{color}.png').subsurface(cords(i))
-                             for i in move_images_cords[2:4]]
-        self.move_images += [pygame.image.load(f'templates/persons/{name}_{color}.png').subsurface(cords(i))
-                             for i in move_images_cords[4:6]]
-
-        for i in range(len(self.move_images)):
-            self.move_images[i] = pygame.transform.scale(self.move_images[i], (170, 170))
-            if i == 2 or i == 3:
-                self.move_images[i] = pygame.transform.flip(self.move_images[i], True, False)
-
+        # person
+        self.stay_images = [pygame.transform.scale(pygame.image.load(f'templates/persons/{name}/person/map_idle.png').
+                            subsurface((i * 48, 0, 48, 48)), (250, 250)) for i in range(4)]
+        self.move_up_images = [pygame.transform.scale(pygame.image.load(f'templates/persons/{name}/person/map_up.png').
+                                                      subsurface((i * 48, 0, 48, 48)), (250, 250)) for i in range(4)]
+        self.move_down_images = [
+            pygame.transform.scale(pygame.image.load(f'templates/persons/{name}/person/map_down.png').
+                                   subsurface((i * 48, 0, 48, 48)), (250, 250)) for i in range(4)]
+        self.move_left_images = [
+            pygame.transform.scale(pygame.image.load(f'templates/persons/{name}/person/map_side.png').
+                                   subsurface((i * 48, 0, 48, 48)), (250, 250)) for i in range(4)]
+        self.move_right_images = [pygame.transform.flip(i, True, False) for i in self.move_left_images]
         self.img = self.stay_images[0]
+
+        # enemy
+        self.enemy_stay_images = [pygame.transform.scale(pygame.image.load(f'templates/persons/{name}/enemy/map_idle.png').
+                                                   subsurface((i * 48, 0, 48, 48)), (250, 250)) for i in range(4)]
+        self.enemy_move_up_images = [
+            pygame.transform.scale(pygame.image.load(f'templates/persons/{name}/enemy/map_up.png').
+                                   subsurface((i * 48, 0, 48, 48)), (250, 250)) for i in range(4)]
+        self.enemy_move_down_images = [
+            pygame.transform.scale(pygame.image.load(f'templates/persons/{name}/enemy/map_down.png').
+                                   subsurface((i * 48, 0, 48, 48)), (250, 250)) for i in range(4)]
+        self.enemy_move_left_images = [
+            pygame.transform.scale(pygame.image.load(f'templates/persons/{name}/enemy/map_side.png').
+                                   subsurface((i * 48, 0, 48, 48)), (250, 250)) for i in range(4)]
+        self.enemy_move_right_images = [
+            pygame.transform.flip(i, True, False) for i in self.move_left_images]
 
     def get_big_pos(self):
         return (self.pos[0] * TILE, self.pos[1] * TILE)
@@ -83,18 +92,18 @@ class Person:
     def choice_image(self, tick):
         if self.pos != self.want_move:
             if self.move_to == 'L':
-                self.img = self.move_images[tick % 40 // 20]
+                self.img = self.move_left_images[tick % 40 // 10]
             elif self.move_to == 'R':
-                self.img = self.move_images[2 + tick % 40 // 20]
+                self.img = self.move_right_images[tick % 40 // 10]
             elif self.move_to == 'D':
-                self.img = self.move_images[4 + tick % 40 // 20]
+                self.img = self.move_down_images[tick % 40 // 10]
             elif self.move_to == 'U':
-                self.img = self.move_images[6 + tick % 40 // 20]
+                self.img = self.move_up_images[tick % 40 // 10]
         else:
             self.state = 'stay'
             self.move_to = ''
-            if tick % 120 < 60:
-                i_ = (tick % 60 // 10)
+            if tick % 80 < 40:
+                i_ = (tick % 40 // 10)
             else:
                 i_ = 0
             self.img = self.stay_images[i_]

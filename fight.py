@@ -5,13 +5,13 @@ from random import randint
 
 # person
 person_melee_attack_img = [
-    pygame.image.load(f'templates/persons_fight/roy/person/normal_attack.png').
+    pygame.image.load(f'templates/persons/roy/person/normal_attack.png').
     subsurface(124*x, 102*y, 124, 102) for y in range(0, 8) for x in range(0, 11)]
 for i in range(len(person_melee_attack_img)):
     person_melee_attack_img[i] = pygame.transform.scale(person_melee_attack_img[i], (500, 500))
     person_melee_attack_img[i] = pygame.transform.flip(person_melee_attack_img[i], True, False)
 person_critical_attack_img = [
-    pygame.image.load(f'templates/persons_fight/roy/person/critical_attack.png').
+    pygame.image.load(f'templates/persons/roy/person/critical_attack.png').
     subsurface(142*x, 102*y, 142, 102) for y in range(0, 8) for x in range(0, 12)]
 for i in range(len(person_critical_attack_img)):
     person_critical_attack_img[i] = pygame.transform.scale(person_critical_attack_img[i], (500, 500))
@@ -19,12 +19,12 @@ for i in range(len(person_critical_attack_img)):
 
 # enemy
 enemy_melee_attack_img = [
-    pygame.image.load(f'templates/persons_fight/roy/enemy/normal_attack.png').
+    pygame.image.load(f'templates/persons/roy/enemy/normal_attack.png').
     subsurface(124 * x, 102 * y, 124, 102) for y in range(0, 8) for x in range(0, 11)]
 for i in range(len(enemy_melee_attack_img)):
     enemy_melee_attack_img[i] = pygame.transform.scale(enemy_melee_attack_img[i], (500, 500))
 enemy_critical_attack_img = [
-    pygame.image.load(f'templates/persons_fight/roy/enemy/critical_attack.png').
+    pygame.image.load(f'templates/persons/roy/enemy/critical_attack.png').
     subsurface(142 * x, 102 * y, 142, 102) for y in range(0, 8) for x in range(0, 12)]
 for i in range(len(enemy_critical_attack_img)):
     enemy_critical_attack_img[i] = pygame.transform.scale(enemy_critical_attack_img[i], (500, 500))
@@ -47,7 +47,7 @@ class Fight:
         self.fight_bg = pygame.image.load('templates/fight_bg/0.png')
         self.fight_bg = pygame.transform.scale(self.fight_bg, (WIDTH, HEIGHT))
 
-        self.miss_img = [pygame.image.load(f'templates/persons_fight/miss/{i}.png') for i in range(0, 12)]
+        self.miss_img = [pygame.image.load(f'templates/miss/{i}.png') for i in range(0, 12)]
         for i in range(len(self.miss_img)):
             self.miss_img[i] = pygame.transform.scale(self.miss_img[i], (100, 100))
 

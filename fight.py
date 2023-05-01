@@ -49,6 +49,7 @@ class Fight:
             self.person_dodge_img[i] = pygame.transform.scale(self.person_dodge_img[i], (400, 400))
             self.person_dodge_img[i] = pygame.transform.flip(self.person_dodge_img[i], True, False)
         self.person_stay_img = self.person_melee_attack_img[0]
+        self.all_person_img = self.person_melee_attack_img + self.person_critical_attack_img + self.person_dodge_img
 
         # enemy
         self.enemy_melee_attack_img = [
@@ -56,7 +57,11 @@ class Fight:
             for i in range(0, 29)]
         for i in range(len(self.enemy_melee_attack_img)):
             self.enemy_melee_attack_img[i] = pygame.transform.scale(self.enemy_melee_attack_img[i], (400, 400))
+        self.enemy_critical_attack_img = []
+        for i in self.person_critical_attack_img:
+            self.enemy_critical_attack_img.append(pygame.transform.flip(i, True, False))
         self.enemy_stay_img = self.enemy_melee_attack_img[0]
+        self.all_enemy_img = self.enemy_melee_attack_img + self.enemy_critical_attack_img
 
     def mellee_person_attack(self):
         self.tick += 1

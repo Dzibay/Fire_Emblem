@@ -27,7 +27,7 @@ class Person:
         self.hp = 100
         self.damage = 20
         self.armor = 20
-        self.critical = 15
+        self.critical = 100
 
         self.can_fight_with = []
         self.attack_button = None

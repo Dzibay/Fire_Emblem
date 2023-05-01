@@ -6,6 +6,8 @@ from dextr import *
 import socket
 from fight import Fight
 
+import time
+
 
 def mapping(pos):
     return (pos[0] // TILE, pos[1] // TILE)
@@ -115,6 +117,19 @@ class Main:
         return None
 
     @staticmethod
+    def is_fight(s):
+        first = None
+        for i in range(len(s)):
+            if s[i] == '<':
+                first = i
+            if s[i] == '>' and first is not None:
+                end = i
+                res = s[first:end][:6]
+                if res[:6] == '<fight':
+                    return True
+        return False
+
+    @staticmethod
     def find_fight(s):
         first = None
         for i in range(len(s)):
@@ -211,7 +226,10 @@ class Main:
                     self.fight_tick = 0
 
         if self.fight_tick == 1:
+            start = time.time()
             fight = Fight(self.fight_person.critical, self.fight_enemy.critical)
+            end = time.time() - start
+            print(end)
 
         # send sms
         sms = f'<fight {self.opponent.persons.index(self.fight_enemy)} {fight.person_img_id} ' \
@@ -220,9 +238,30 @@ class Main:
               f'{int(fight.enemy_x)} {int(fight.enemy_y)} {self.fight_enemy.hp}>'
         self.sock.send(sms.encode())
 
+        # recv sms
+        try:
+            self.data = self.sock.recv(1024).decode()
+            self.not_my_fight = False
+        except:
+            pass
+
         # bg
         self.screen.blit(fight.fight_bg, (0, 0))
 
+        if not fight.moves[0]:
+            enemy_dmg_tick = 320
+            person_dmg_tick = 860
+            fight_end = 1280
+            if fight.moves[2]:
+                person_dmg_tick = 915
+                fight_end = 1430
+        else:
+            enemy_dmg_tick = 375
+            person_dmg_tick = 955
+            fight_end = 1220
+            if fight.moves[2]:
+                person_dmg_tick = 1110
+                fight_end = 1415
         # person
         if self.fight_tick <= 100:
             img = fight.person_stay_img
@@ -231,68 +270,47 @@ class Main:
         else:
             if fight.moves[0]:
                 if fight.moves[2]:
-                    enemy_dmg_tick = 310
-                    person_dmg_tick = 810
-                    fight_end = 1000
+                    enemy_dmg_tick = 345
+                    person_dmg_tick = 980
+                    fight_end = 1370
                 else:
-                    enemy_dmg_tick = 310
-                    person_dmg_tick = 650
-                    fight_end = 800
+                    enemy_dmg_tick = 345
+                    person_dmg_tick = 825
+                    fight_end = 1275
 
                 # person
-                if self.fight_tick <= 445:
+                img = fight.person_stay_img
+                if self.fight_tick <= 100 + fight.person_critical_attack_time:
                     img = fight.critical_person_attack()
-                else:
-                    # dodge
-                    if (fight.moves[3]) and (self.fight_tick > person_dmg_tick - 20) and \
-                            (self.fight_tick < person_dmg_tick + 20):
-                        img = fight.dodge_person()
-                    else:
-                        img = fight.person_stay_img
-                    if (fight.moves[3]) and (self.fight_tick > person_dmg_tick - 20) and \
-                            (self.fight_tick < person_dmg_tick + 101):
-                        self.screen.blit(fight.miss(), (150, 350))
 
                 # enemy
                 img_ = fight.enemy_stay_img
+                start_enemy_attack = 100 + fight.person_critical_attack_time + 155
                 if fight.moves[2]:
-                    if self.fight_tick <= 600:
-                        img_ = fight.enemy_stay_img
-                    elif self.fight_tick <= 945:
+                    if (self.fight_tick >= start_enemy_attack) and \
+                            (self.fight_tick <= start_enemy_attack + fight.enemy_critical_attack_time):
                         img_ = fight.critical_enemy_attack()
                 else:
-                    if self.fight_tick <= 600:
-                        img_ = fight.enemy_stay_img
-                    elif self.fight_tick <= 745:
+                    if (self.fight_tick >= start_enemy_attack) and \
+                            (self.fight_tick <= start_enemy_attack + fight.enemy_melee_attack_time):
                         img_ = fight.mellee_enemy_attack()
-                    else:
-                        img_ = fight.enemy_stay_img
             else:
-                enemy_dmg_tick = 150
-                person_dmg_tick = 450
-                fight_end = 600
-
                 # person
-                if self.fight_tick <= 245:
+                img = fight.person_stay_img
+                if self.fight_tick <= 100 + fight.person_melee_attack_time:
                     img = fight.mellee_person_attack()
-                else:
-                    # dodge
-                    if (fight.moves[3]) and (self.fight_tick > person_dmg_tick - 20) and \
-                            (self.fight_tick < person_dmg_tick + 20):
-                        img = fight.dodge_person()
-                    else:
-                        img = fight.person_stay_img
-                    if (fight.moves[3]) and (self.fight_tick > person_dmg_tick - 20) and \
-                            (self.fight_tick < person_dmg_tick + 101):
-                        self.screen.blit(fight.miss(), (150, 350))
 
                 # enemy
-                if self.fight_tick <= 400:
-                    img_ = fight.enemy_stay_img
-                elif self.fight_tick <= 545:
-                    img_ = fight.mellee_enemy_attack()
+                img_ = fight.enemy_stay_img
+                start_enemy_attack = 100 + fight.person_melee_attack_time + 155
+                if fight.moves[2]:
+                    if (self.fight_tick >= start_enemy_attack) and \
+                            (self.fight_tick <= start_enemy_attack + fight.enemy_critical_attack_time):
+                        img_ = fight.critical_enemy_attack()
                 else:
-                    img_ = fight.enemy_stay_img
+                    if (self.fight_tick >= start_enemy_attack) and \
+                            (self.fight_tick <= start_enemy_attack + fight.enemy_melee_attack_time):
+                        img_ = fight.mellee_enemy_attack()
 
             # damage
             if not fight.moves[3]:
@@ -345,27 +363,13 @@ class Main:
         if self.fight_tick == 1:
             fight = Fight()
 
-        if self.not_my_fight:
-            pass
-        else:
-            sms = '<'
-            for person in self.player.persons:
-                sms += f'{person.name} {person.x} {person.y} {person.state}{person.move_to},'
-            sms += '>'
-            if sms != self.last_sms:
-                self.sock.send(sms.encode())
-                self.last_sms = sms
-
         # recv sms
         try:
             self.data = self.sock.recv(1024).decode()
-            if self.data[:6] == '<fight':
+            if main.is_fight(self.data):
                 self.data = main.find_fight(self.data)
-                id_1, fight.person_img_id, fight.person_x, fight.person_y, self.fight_person.hp = self.data[1]
-                fight.person_x = 200 + (700 - fight.person_x)
-
-                id_2, fight.enemy_img_id, fight.enemy_x, fight.enemy_y, self.fight_enemy.hp = self.data[0]
-                fight.enemy_x = 700 - (fight.enemy_x - 200)
+                id_1, fight.person_img_id, fight.enemy_x, fight.person_y, self.fight_person.hp = self.data[1]
+                id_2, fight.enemy_img_id, fight.person_x, fight.enemy_y, self.fight_enemy.hp = self.data[0]
             else:
                 self.not_my_fight = False
                 self.data = main.find_sms(self.data)
@@ -411,7 +415,6 @@ class Main:
             # orange circles
             if self.mouse_pos in self.can_move_to:
                 self.cords = get_cords(self.graph, p_.pos, self.mouse_pos)
-                print('----')
                 for i in range(len(self.cords) - 1):
                     img = None
                     if i == 0:
@@ -451,7 +454,6 @@ class Main:
                             img = 'r'
                         else:
                             img = 'u'
-                    print(img, self.cords[i - 1], self.cords[i], self.cords[i + 1])
                     if img is not None:
                         self.screen.blit(self.pointer[img], (self.cords[i][0] * TILE, self.cords[i][1] * TILE))
 
@@ -702,7 +704,7 @@ class Main:
                         # recv sms
                         try:
                             data_ = self.sock.recv(1024).decode()
-                            if data_[:6] == '<fight':
+                            if main.is_fight(data_):
                                 self.data = main.find_fight(data_)
                                 self.not_my_fight = True
                                 id_1, a_, b_, c_, d_ = self.data[1]

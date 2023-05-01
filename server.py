@@ -1,7 +1,7 @@
 import socket
 import pygame
 
-server_ip = 'localhost'
+server_ip = '82.146.45.210'
 
 main_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 main_socket.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
@@ -42,6 +42,7 @@ class Player:
         self.errors = 0
         self.persons = []
         self.is_fight = False
+        self.ready = False
 
 
 def find(s):
@@ -80,7 +81,9 @@ while run:
         try:
             data = player.conn.recv(1024).decode()
             if data[:6] == '<wait>':
-                print('waiting')
+                pass
+            elif data[:7] == '<ready>':
+                player.ready = True
             elif data[:6] == '<fight':
                 player.is_fight = True
                 fight_sms = data
@@ -93,11 +96,13 @@ while run:
 
     for player in players:
         try:
+            sms = '<wait>'
             if len(players) < 2:
-                sms = 'wait'
-                player.conn.send(sms.encode())
+                sms = '<wait>'
             else:
-                if players[0].is_fight or players[1].is_fight:
+                if not players[0].ready or not players[1].ready:
+                    sms = '<wait>'
+                elif players[0].is_fight or players[1].is_fight:
                     if not player.is_fight:
                         sms = fight_sms
                 else:
@@ -108,7 +113,7 @@ while run:
                                 sms += f'{person.name} {person.pos[0]} {person.pos[1]} {person.state} ' \
                                        f'{person.hp} {person.armor} {person.damage} {person.critical},'
                     sms += '>'
-                player.conn.send(sms.encode())
+            player.conn.send(sms.encode())
             player.errors = 0
         except:
             player.errors += 1

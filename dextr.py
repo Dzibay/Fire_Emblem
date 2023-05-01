@@ -1,4 +1,5 @@
 from collections import deque
+from functools import lru_cache
 
 
 def bfs(graph, start, goal):
@@ -26,6 +27,7 @@ def bfs(graph, start, goal):
     return a
 
 
+@lru_cache
 def generate_graph(file):
     not_zero = []
     lvl = open(file, 'r').readlines()

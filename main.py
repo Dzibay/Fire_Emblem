@@ -67,7 +67,7 @@ class Main:
                        (73, 19, 16, 16), (91, 19, 16, 16), (109, 19, 16, 16), (127, 19, 16, 16)]
         self.pointer = {names_point[i]: pygame.transform.scale(
             pygame.image.load('templates/pointer/pointer.png').subsurface(cords_point[i]), (TILE, TILE))
-                        for i in range(len(names_point))}
+            for i in range(len(names_point))}
 
         # data
         self.data = ''
@@ -242,7 +242,16 @@ class Main:
                     self.screen.blit(img, (fight.person_x, fight.person_y))
                     fight.person_img_id = 0
                 else:
-                    self.screen.blit(fight.person_stay_img, (fight.person_x, fight.person_y))
+                    # dodge
+                    if (fight.moves[3]) and (self.fight_tick > person_dmg_tick - 20) and \
+                            (self.fight_tick < person_dmg_tick + 20):
+                        img = fight.dodge_person()
+                        self.screen.blit(img, (fight.person_x, fight.person_y))
+                    else:
+                        self.screen.blit(fight.person_stay_img, (fight.person_x, fight.person_y))
+                    if (fight.moves[3]) and (self.fight_tick > person_dmg_tick - 20) and \
+                            (self.fight_tick < person_dmg_tick + 101):
+                        self.screen.blit(fight.miss(), (150, 350))
                     fight.person_img_id = 0
 
                 # enemy
@@ -268,7 +277,16 @@ class Main:
                     self.screen.blit(img, (fight.person_x, fight.person_y))
                     fight.person_img_id = 1 + fight.person_melee_attack_img.index(img)
                 else:
-                    self.screen.blit(fight.person_stay_img, (fight.person_x, fight.person_y))
+                    # dodge
+                    if (fight.moves[3]) and (self.fight_tick > person_dmg_tick - 20) and \
+                            (self.fight_tick < person_dmg_tick + 20):
+                        img = fight.dodge_person()
+                        self.screen.blit(img, (fight.person_x, fight.person_y))
+                    else:
+                        self.screen.blit(fight.person_stay_img, (fight.person_x, fight.person_y))
+                    if (fight.moves[3]) and (self.fight_tick > person_dmg_tick - 20) and \
+                            (self.fight_tick < person_dmg_tick + 101):
+                        self.screen.blit(fight.miss(), (150, 350))
                     fight.person_img_id = 0
 
                 # enemy
@@ -284,20 +302,23 @@ class Main:
                     fight.enemy_img_id = 0
 
             # damage
-            if (self.fight_tick > person_dmg_tick) and (self.fight_tick < person_dmg_tick + 5):
-                fight.person_x -= 10
-            elif (self.fight_tick > person_dmg_tick + 5) and (self.fight_tick < person_dmg_tick + 10):
-                fight.person_x += 10
+            if not fight.moves[3]:
+                if (self.fight_tick > person_dmg_tick) and (self.fight_tick < person_dmg_tick + 5):
+                    fight.person_x -= 10
+                elif (self.fight_tick > person_dmg_tick + 5) and (self.fight_tick < person_dmg_tick + 10):
+                    fight.person_x += 10
                 if self.fight_tick == person_dmg_tick + 6:
-                    self.fight_person.hp -= self.fight_person.damage
+                    k_ = int(self.fight_enemy.critical / 100 + 1) if fight.moves[2] else 1
+                    self.fight_person.hp -= self.fight_enemy.damage * k_
 
-            if (self.fight_tick > enemy_dmg_tick) and (self.fight_tick < enemy_dmg_tick + 5):
-                fight.enemy_x += 10
-            elif (self.fight_tick > enemy_dmg_tick + 5) and (self.fight_tick < enemy_dmg_tick + 10):
-                fight.enemy_x -= 10
-                if self.fight_tick == 156:
-                    self.fight_enemy.hp -= self.fight_enemy.damage
-
+            if not fight.moves[1]:
+                if (self.fight_tick > enemy_dmg_tick) and (self.fight_tick < enemy_dmg_tick + 5):
+                    fight.enemy_x += 10
+                elif (self.fight_tick > enemy_dmg_tick + 5) and (self.fight_tick < enemy_dmg_tick + 10):
+                    fight.enemy_x -= 10
+                if self.fight_tick == enemy_dmg_tick + 6:
+                    k_ = int(self.fight_person.critical / 100 + 1) if fight.moves[0] else 1
+                    self.fight_enemy.hp -= self.fight_person.damage * k_
 
 
         # name
@@ -434,11 +455,11 @@ class Main:
                                 elif self.cords[i][1] > self.cords[i + 1][1]:
                                     img = 'start_d'
                     if img is None:
-                        if self.cords[i-1][0] < self.cords[i][0] or self.cords[i-1][0] > self.cords[i][0]:
+                        if self.cords[i - 1][0] < self.cords[i][0] or self.cords[i - 1][0] > self.cords[i][0]:
                             img = 'r'
                         else:
                             img = 'u'
-                    print(img, self.cords[i-1], self.cords[i], self.cords[i+1])
+                    print(img, self.cords[i - 1], self.cords[i], self.cords[i + 1])
                     if img is not None:
                         self.screen.blit(self.pointer[img], (self.cords[i][0] * TILE, self.cords[i][1] * TILE))
 

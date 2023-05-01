@@ -14,9 +14,13 @@ img_cords_critical_attack = [()]
 
 class Fight:
     def __init__(self, person_crt=0):
-        person_crit = True if randint(0, person_crt) <= person_crt else False
-        self.moves = [person_crit, False]
+        self.moves = [True if randint(0, 100) <= person_crt else False,
+                      False,
+                      False,
+                      True if randint(0, 100) <= 30 else False]
         self.tick = 0
+        self.dodge_tick = 0
+        self.miss_tick = 0
         self.person_x, self.person_y = 150, 200
         self.enemy_x, self.enemy_y = 650, 200
         self.person_img_id = 0
@@ -24,23 +28,31 @@ class Fight:
         self.speed = 2
         self.fight_bg = pygame.image.load('templates/fight_bg/bg.png').subsurface((2, 2, 240, 160))
         self.fight_bg = pygame.transform.scale(self.fight_bg, (WIDTH, HEIGHT))
+        self.miss_img = [pygame.image.load(f'templates/persons_fight/miss/{i}.png') for i in range(0, 12)]
+        for i in range(len(self.miss_img)):
+            self.miss_img[i] = pygame.transform.scale(self.miss_img[i], (100, 100))
 
         # person
         self.person_melee_attack_img = [
-            pygame.image.load(f'templates/persons_fight/eliwood(lord)/melee_attack/{i}.png') for i in range(0, 29)]
+            pygame.image.load(f'templates/persons_fight/eliwood(lord)/person/melee_attack/{i}.png') for i in range(0, 29)]
         for i in range(len(self.person_melee_attack_img)):
             self.person_melee_attack_img[i] = pygame.transform.scale(self.person_melee_attack_img[i], (400, 400))
             self.person_melee_attack_img[i] = pygame.transform.flip(self.person_melee_attack_img[i], True, False)
         self.person_critical_attack_img = [
-            pygame.image.load(f'templates/persons_fight/eliwood(lord)/critical_attack/{i}.png') for i in range(0, 69)]
+            pygame.image.load(f'templates/persons_fight/eliwood(lord)/person/critical_attack/{i}.png') for i in range(0, 69)]
         for i in range(len(self.person_critical_attack_img)):
             self.person_critical_attack_img[i] = pygame.transform.scale(self.person_critical_attack_img[i], (400, 400))
             self.person_critical_attack_img[i] = pygame.transform.flip(self.person_critical_attack_img[i], True, False)
+        self.person_dodge_img = [
+            pygame.image.load(f'templates/persons_fight/eliwood(lord)/person/dodge/{i}.png') for i in range(0, 5)]
+        for i in range(len(self.person_dodge_img)):
+            self.person_dodge_img[i] = pygame.transform.scale(self.person_dodge_img[i], (400, 400))
+            self.person_dodge_img[i] = pygame.transform.flip(self.person_dodge_img[i], True, False)
         self.person_stay_img = self.person_melee_attack_img[0]
 
         # enemy
         self.enemy_melee_attack_img = [
-            pygame.image.load(f'templates/persons_fight/eliwood(lord)/enemy_melee_attack/{i}.png')
+            pygame.image.load(f'templates/persons_fight/eliwood(lord)/enemy/melee_attack/{i}.png')
             for i in range(0, 29)]
         for i in range(len(self.enemy_melee_attack_img)):
             self.enemy_melee_attack_img[i] = pygame.transform.scale(self.enemy_melee_attack_img[i], (400, 400))
@@ -80,6 +92,24 @@ class Fight:
         if self.tick == 345:
             self.tick = 0
 
+        return img
+
+    def dodge_person(self):
+        self.dodge_tick += 1
+        img = self.person_dodge_img[self.dodge_tick % 40 // 10]
+        if self.dodge_tick == 40:
+            self.dodge_tick = 0
+        return img
+
+    def miss(self):
+        self.miss_tick += 1
+        if self.miss_tick < 66:
+            img = self.miss_img[self.miss_tick % 66 // 6]
+        else:
+            img = self.miss_img[11]
+
+        if self.miss_tick > 120:
+            self.miss_tick = 0
         return img
 
     def mellee_enemy_attack(self):

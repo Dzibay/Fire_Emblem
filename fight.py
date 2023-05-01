@@ -13,10 +13,10 @@ img_cords_critical_attack = [()]
 
 
 class Fight:
-    def __init__(self, person_crt=0):
+    def __init__(self, person_crt=0, enemy_crt=0):
         self.moves = [True if randint(0, 100) <= person_crt else False,
                       False,
-                      False,
+                      True if randint(0, 100) <= enemy_crt else False,
                       True if randint(0, 100) <= 30 else False]
         self.tick = 0
         self.dodge_tick = 0
@@ -60,8 +60,11 @@ class Fight:
         self.enemy_critical_attack_img = []
         for i in self.person_critical_attack_img:
             self.enemy_critical_attack_img.append(pygame.transform.flip(i, True, False))
+        self.enemy_dodge_img = []
+        for i in self.person_dodge_img:
+            self.enemy_dodge_img.append(pygame.transform.flip(i, True, False))
         self.enemy_stay_img = self.enemy_melee_attack_img[0]
-        self.all_enemy_img = self.enemy_melee_attack_img + self.enemy_critical_attack_img
+        self.all_enemy_img = self.enemy_melee_attack_img + self.enemy_critical_attack_img + self.enemy_dodge_img
 
     def mellee_person_attack(self):
         self.tick += 1
@@ -131,6 +134,24 @@ class Fight:
             self.enemy_x += 7
 
         if self.tick == 145:
+            self.tick = 0
+
+        return img
+
+    def critical_enemy_attack(self):
+        self.tick += 1
+        img = self.enemy_critical_attack_img[self.tick % 345 // 5]
+
+        if self.tick < 185:
+            pass
+        elif self.tick < 210:
+            self.enemy_x -= 14
+        elif self.tick < 220:
+            pass
+        elif self.tick < 270:
+            self.enemy_x += 7
+
+        if self.tick == 345:
             self.tick = 0
 
         return img

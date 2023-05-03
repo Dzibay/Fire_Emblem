@@ -1,7 +1,8 @@
 import socket
 import pygame
 
-server_ip = '82.146.45.210'
+# server_ip = '82.146.45.210'
+server_ip = 'localhost'
 
 main_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 main_socket.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
@@ -12,7 +13,7 @@ main_socket.listen(5)
 pygame.init()
 clock = pygame.time.Clock()
 
-FPS = 60
+FPS = 30
 TILE = 80
 tick = 0
 is_fight = False

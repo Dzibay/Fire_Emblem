@@ -1,7 +1,7 @@
 # display
 WIDTH = 1200
 HEIGHT = 800
-FPS = 60
+FPS = 30
 
 # colors
 WHITE = (255, 255, 255)

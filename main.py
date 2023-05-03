@@ -4,7 +4,7 @@ from player import Player
 from settings import *
 from dextr import *
 import socket
-from fight import Fight
+from fight import Fight, Fight_images
 
 import time
 
@@ -35,8 +35,8 @@ class Main:
         self.clock = pygame.time.Clock()
 
         # socket
-        self.server_ip = '82.146.45.210'
-        # self.server_ip = 'localhost'
+        # self.server_ip = '82.146.45.210'
+        self.server_ip = 'localhost'
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
         self.sock.connect((self.server_ip, 10000))
@@ -77,6 +77,7 @@ class Main:
         self.can_move = True
 
         # fight
+        self.fight_img = None
         self.fight = False
         self.not_my_fight = False
         self.fight_person = None
@@ -88,9 +89,10 @@ class Main:
         self.menu_tick = 0
         self.menu_btn_cords = (450, 550, 300, 50)
         self.menu_person_choice_cords = [(i, j, 100, 100) for j in range(50, 530, 120) for i in range(250, 950, 120)]
-        self.names_choice_persons = ['roy', 'roy']
-        self.menu_person_img = [pygame.image.load(f'templates/persons/{i}/person/map_idle.png').subsurface((0, 0, 48, 48))
-                                for i in self.names_choice_persons]
+        self.names_choice_persons = ['roy', 'roy', 'lyn']
+        self.menu_person_img = [
+            pygame.image.load(f'templates/persons/{i}/person/map_idle.png').subsurface((0, 0, 48, 48))
+            for i in self.names_choice_persons]
         for i in range(len(self.menu_person_img)):
             self.menu_person_img[i] = pygame.transform.scale(self.menu_person_img[i], (200, 200))
         self.menu_choice_persons = []
@@ -226,7 +228,8 @@ class Main:
                     self.fight_tick = 0
 
         if self.fight_tick == 1:
-            fight = Fight(self.fight_person.critical, self.fight_enemy.critical)
+            fight = Fight(self.fight_person.name, self.fight_enemy.name,
+                          self.fight_img, self.fight_person.critical, self.fight_enemy.critical)
 
         # send sms
         sms = f'<fight {self.opponent.persons.index(self.fight_enemy)} {fight.person_img_id} ' \
@@ -245,44 +248,36 @@ class Main:
         # bg
         self.screen.blit(fight.fight_bg, (0, 0))
 
+        enemy_dmg_tick = 50 + fight.enemy_dmg_tick
         if not fight.moves[0]:
-            enemy_dmg_tick = 320
-            person_dmg_tick = 860
-            fight_end = 1200
+            person_dmg_tick = 50 + fight.person_melee_attack_time + 100 + fight.person_dmg_tick
+            fight_end = 50 + fight.person_melee_attack_time + \
+                        100 + fight.enemy_melee_attack_time + 50
             if fight.moves[2]:
-                person_dmg_tick = 915
-                fight_end = 1350
+                fight_end = 100 + fight.person_melee_attack_time + \
+                            100 + fight.enemy_critical_attack_time + 100
         else:
-            enemy_dmg_tick = 375
-            person_dmg_tick = 955
-            fight_end = 1200
+            person_dmg_tick = 50 + fight.person_critical_attack_time + 100 + fight.person_dmg_tick
+            fight_end = fight_end = 50 + fight.person_critical_attack_time + \
+                                    100 + fight.enemy_melee_attack_time + 50
             if fight.moves[2]:
                 person_dmg_tick = 1110
-                fight_end = 1350
+                fight_end = fight_end = 50 + fight.person_critical_attack_time + \
+                                        100 + fight.enemy_critical_attack_time + 50
         # person
-        if self.fight_tick <= 100:
+        if self.fight_tick <= 50:
             img = fight.person_stay_img
             img_ = fight.enemy_stay_img
-            fight_end = 1000
         else:
             if fight.moves[0]:
-                if fight.moves[2]:
-                    enemy_dmg_tick = 345
-                    person_dmg_tick = 980
-                    fight_end = 1370
-                else:
-                    enemy_dmg_tick = 345
-                    person_dmg_tick = 825
-                    fight_end = 1275
-
                 # person
                 img = fight.person_stay_img
-                if self.fight_tick <= 100 + fight.person_critical_attack_time:
+                if self.fight_tick <= 50 + fight.person_critical_attack_time:
                     img = fight.critical_person_attack()
 
                 # enemy
                 img_ = fight.enemy_stay_img
-                start_enemy_attack = 100 + fight.person_critical_attack_time + 155
+                start_enemy_attack = 50 + fight.person_critical_attack_time + 100
                 if fight.moves[2]:
                     if (self.fight_tick >= start_enemy_attack) and \
                             (self.fight_tick <= start_enemy_attack + fight.enemy_critical_attack_time):
@@ -294,12 +289,12 @@ class Main:
             else:
                 # person
                 img = fight.person_stay_img
-                if self.fight_tick <= 100 + fight.person_melee_attack_time:
+                if self.fight_tick <= 50 + fight.person_melee_attack_time:
                     img = fight.mellee_person_attack()
 
                 # enemy
                 img_ = fight.enemy_stay_img
-                start_enemy_attack = 100 + fight.person_melee_attack_time + 155
+                start_enemy_attack = 50 + fight.person_melee_attack_time + 100
                 if fight.moves[2]:
                     if (self.fight_tick >= start_enemy_attack) and \
                             (self.fight_tick <= start_enemy_attack + fight.enemy_critical_attack_time):
@@ -356,7 +351,7 @@ class Main:
                 self.run = False
 
         if self.fight_tick == 1:
-            fight = Fight()
+            fight = Fight(self.fight_person.name, self.fight_enemy.name, self.fight_img)
 
         # recv sms
         try:
@@ -458,7 +453,13 @@ class Main:
             self.cords = person.move(self.cords)
 
             # person img
-            person.choice_image(self.tick)
+            choice_ = False
+            try:
+                if person == self.player.persons[self.player.choice_person]:
+                    choice_ = True
+            except:
+                pass
+            person.choice_image(self.tick, choice_)
 
         for player in self.players:
 
@@ -468,7 +469,7 @@ class Main:
                     try:
                         # opponent persons img
                         if self.data[i][3] == 'stay':
-                            if self.tick % 80 < 40:
+                            if self.tick % 120 < 40:
                                 i_ = (self.tick % 40 // 10)
                             else:
                                 i_ = 0
@@ -490,7 +491,6 @@ class Main:
                 # person blit
                 self.screen.blit(player.persons[i].img,
                                  (player.persons[i].x - 88, player.persons[i].y - 100))
-
 
         if len(self.menu_choice_persons) == 0:
             # attack button
@@ -574,8 +574,8 @@ class Main:
                         self.player.persons.append(Person(self.mouse_pos[0] * TILE,
                                                           self.mouse_pos[1] * TILE,
                                                           self.names_choice_persons[self.placing_choice_person]))
-                    self.menu_choice_persons.remove(self.placing_choice_person)
-                    self.placing_choice_person = None
+                        self.menu_choice_persons.remove(self.placing_choice_person)
+                        self.placing_choice_person = None
 
         sms = '<'
         for person in self.player.persons:
@@ -634,6 +634,7 @@ class Main:
         data_ = self.sock.recv(1024).decode()
         if data_[:6] != '<wait>':
             self.start_game = True
+            self.fight_img = Fight_images(['roy', 'lyn'])
 
         # draw
         self.screen.fill(GREY)
@@ -643,7 +644,8 @@ class Main:
                 pygame.draw.rect(self.screen, c_, self.menu_person_choice_cords[i])
                 try:
                     self.screen.blit(self.menu_person_img[i],
-                                     (self.menu_person_choice_cords[i][0] - 50, self.menu_person_choice_cords[i][1] - 50))
+                                     (self.menu_person_choice_cords[i][0] - 50,
+                                      self.menu_person_choice_cords[i][1] - 50))
                 except:
                     pass
 
@@ -662,9 +664,9 @@ class Main:
                          (WIDTH // 2, HEIGHT // 2, 50, 50)]
             elif i_ == 4:
                 cords = [(WIDTH // 2 - 50, HEIGHT // 2 - 50, 50, 50),
-                                        (WIDTH // 2, HEIGHT // 2 - 50, 50, 50),
-                                        (WIDTH // 2, HEIGHT // 2, 50, 50),
-                                        (WIDTH // 2 - 50, HEIGHT // 2, 50, 50)]
+                         (WIDTH // 2, HEIGHT // 2 - 50, 50, 50),
+                         (WIDTH // 2, HEIGHT // 2, 50, 50),
+                         (WIDTH // 2 - 50, HEIGHT // 2, 50, 50)]
             elif i_ == 5:
                 cords = [(WIDTH // 2, HEIGHT // 2 - 50, 50, 50),
                          (WIDTH // 2, HEIGHT // 2, 50, 50),
@@ -715,12 +717,14 @@ class Main:
                             if event.type == pygame.MOUSEBUTTONUP and event.button == 1:
                                 if self.player.choice_person is None:
                                     if self.can_move:
+                                        # choice person
                                         for person in self.player.persons:
                                             if self.mouse_pos == person.pos:
                                                 self.player.choice_person = self.player.persons.index(person)
                                                 self.person_positions = [person.pos for person in self.opponent.persons]
                                                 self.can_move_to = main.get_can_move_to(person.pos, 3)
                                             else:
+                                                # attack
                                                 for person in self.player.persons:
                                                     i_ = 0
                                                     for enemy in person.can_fight_with:
@@ -732,11 +736,14 @@ class Main:
                                                             self.can_move = False
                                                             break
                                                         i_ += 1
-
+                                # move
                                 elif self.player.choice_person is not None and self.mouse_pos in self.can_move_to:
-                                    self.player.persons[self.player.choice_person].want_move = self.mouse_pos
+                                    if self.mouse_pos == self.player.persons[self.player.choice_person].pos:
+                                        pass
+                                    else:
+                                        self.player.persons[self.player.choice_person].want_move = self.mouse_pos
+                                        self.can_move = False
                                     self.player.choice_person = None
-                                    self.can_move = False
 
                         # send sms
                         sms = '<'

@@ -73,7 +73,6 @@ class Main:
 
         # data
         self.data = ''
-        self.last_sms = ''
         self.can_move = True
 
         # fight
@@ -83,6 +82,7 @@ class Main:
         self.fight_person = None
         self.fight_enemy = None
         self.fight_tick = 0
+        self.fight_img = Fight_images()
 
         # menu
         self.sms = '<wait>'
@@ -143,6 +143,18 @@ class Main:
                 end = i
                 res = s[first + 1:end][6:].split(',')
                 res = [[int(i) for i in j.split(' ')] for j in res]
+                return res
+        return ''
+
+    @staticmethod
+    def find_persons_images(s):
+        first = None
+        for i in range(len(s)):
+            if s[i] == '|':
+                first = i
+            if s[i] == '>' and first is not None:
+                end = i
+                res = s[first + 1:end - 1].split(' ')
                 return res
         return ''
 
@@ -462,7 +474,6 @@ class Main:
             person.choice_image(self.tick, choice_)
 
         for player in self.players:
-
             for i in range(len(player.persons)):
                 if player == self.opponent:
 
@@ -593,7 +604,7 @@ class Main:
             if len(self.data) != len(self.opponent.persons):
                 if [(j[1] // TILE, j[2] // TILE) for j in self.data] != \
                         [person.pos for person in self.player.persons]:
-                    self.opponent.persons = [Person(j[1], j[2], j[0], 'R') for j in self.data]
+                    self.opponent.persons = [Person(j[1], j[2], j[0]) for j in self.data]
 
             for j in range(len(self.data)):
                 self.opponent.persons[j].x = self.data[j][1]
@@ -612,15 +623,18 @@ class Main:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 self.run = False
-            elif self.sms != '<ready>':
+            elif self.sms[:8] != '<my_pers':
                 if event.type == pygame.MOUSEBUTTONUP and event.button == 1:
                     if in_box(self.big_mouse_pos, self.menu_btn_cords):
-                        self.sms = '<ready>'
                         self.menu_choice_persons = [self.menu_person_choice_cords.index(j) for j in
                                                     self.menu_choice_persons]
                         self.menu_choice_persons = [i for i in self.menu_choice_persons if
                                                     i < len(self.menu_person_img)]
                         self.placing_persons_window = True
+                        self.sms = f'<my_pers |'
+                        for i in self.menu_choice_persons:
+                            self.sms += self.names_choice_persons[i] + ','
+                        self.sms += '>'
                     else:
                         for i in self.menu_person_choice_cords:
                             if in_box(self.big_mouse_pos, i):
@@ -629,16 +643,18 @@ class Main:
                                 else:
                                     self.menu_choice_persons.append(i)
 
-        self.sock.send(self.sms.encode())
-
         data_ = self.sock.recv(1024).decode()
-        if data_[:6] != '<wait>':
+        if data_[:5] == '<wait' and data_[:6] != '<wait>':
+            self.fight_img.uppload_images(self.names_choice_persons[i] for i in self.menu_choice_persons)
+            data_ = main.find_persons_images(data_)
+            self.fight_img.uppload_images(data_)
             self.start_game = True
-            self.fight_img = Fight_images(['roy', 'lyn'])
+            self.sms = '<ready>'
+        self.sock.send(self.sms.encode())
 
         # draw
         self.screen.fill(GREY)
-        if self.sms != '<ready>':
+        if self.sms[:8] != '<my_pers':
             for i in range(len(self.menu_person_choice_cords)):
                 c_ = BLUE if self.menu_person_choice_cords[i] in self.menu_choice_persons else WHITE
                 pygame.draw.rect(self.screen, c_, self.menu_person_choice_cords[i])
@@ -772,7 +788,7 @@ class Main:
                                 if len(self.data) != len(self.opponent.persons):
                                     if [(j[1] // TILE, j[2] // TILE) for j in self.data] != \
                                             [person.pos for person in self.player.persons]:
-                                        self.opponent.persons = [Person(j[1], j[2], j[0], 'R') for j in self.data]
+                                        self.opponent.persons = [Person(j[1], j[2], j[0]) for j in self.data]
 
                                 for j in range(len(self.data)):
                                     self.opponent.persons[j].x = self.data[j][1]

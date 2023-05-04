@@ -4,7 +4,7 @@ from player import Player
 from settings import *
 from dextr import *
 import socket
-from fight import Fight
+from fight import Fight, Fight_images
 
 import time
 
@@ -73,25 +73,29 @@ class Main:
 
         # data
         self.data = ''
-        self.last_sms = ''
         self.can_move = True
 
         # fight
+        self.fight_img = None
         self.fight = False
         self.not_my_fight = False
         self.fight_person = None
         self.fight_enemy = None
         self.fight_tick = 0
+        self.fight_img = Fight_images()
 
         # menu
+        self.sms = '<wait>'
+        self.menu_tick = 0
         self.menu_btn_cords = (450, 550, 300, 50)
         self.menu_person_choice_cords = [(i, j, 100, 100) for j in range(50, 530, 120) for i in range(250, 950, 120)]
-        self.menu_person_img = [pygame.image.load(f'templates/persons/eliwood(lord)_B.png').subsurface((1, 33, 31, 31))
-                                for i in range(2)]
+        self.names_choice_persons = ['roy', 'roy', 'lyn']
+        self.menu_person_img = [
+            pygame.image.load(f'templates/persons/{i}/person/map_idle.png').subsurface((0, 0, 48, 48))
+            for i in self.names_choice_persons]
         for i in range(len(self.menu_person_img)):
-            self.menu_person_img[i] = pygame.transform.scale(self.menu_person_img[i], (100, 100))
+            self.menu_person_img[i] = pygame.transform.scale(self.menu_person_img[i], (200, 200))
         self.menu_choice_persons = []
-        self.names_choice_persons = ['eliwood(lord)', 'eliwood(lord)']
 
         # placing persons
         self.placing_persons_window = False
@@ -142,6 +146,18 @@ class Main:
                 return res
         return ''
 
+    @staticmethod
+    def find_persons_images(s):
+        first = None
+        for i in range(len(s)):
+            if s[i] == '|':
+                first = i
+            if s[i] == '>' and first is not None:
+                end = i
+                res = s[first + 1:end - 1].split(' ')
+                return res
+        return ''
+
     def get_can_move_to(self, pos, l):
         res = [(x, y)
                for x in range(pos[0] - l, pos[0] + l + 1) if x >= 0
@@ -159,11 +175,9 @@ class Main:
         # name
         pygame.draw.rect(self.screen, BLUE, (0, 50, 150, 50))
         pygame.draw.rect(self.screen, RED, (1050, 50, 150, 50))
-        name_person = 'Eliwood' if self.fight_person.name == 'eliwood(lord)' else self.fight_person.name
-        name_enemy = 'Eliwood' if self.fight_enemy.name == 'eliwood(lord)' else self.fight_enemy.name
-        text_name = self.f1.render(name_person, True, WHITE)
+        text_name = self.f1.render(self.fight_person.name, True, WHITE)
         self.screen.blit(text_name, (20, 65))
-        text_name = self.f1.render(name_enemy, True, WHITE)
+        text_name = self.f1.render(self.fight_enemy.name, True, WHITE)
         self.screen.blit(text_name, (1070, 65))
 
         # characters persons
@@ -226,10 +240,8 @@ class Main:
                     self.fight_tick = 0
 
         if self.fight_tick == 1:
-            start = time.time()
-            fight = Fight(self.fight_person.critical, self.fight_enemy.critical)
-            end = time.time() - start
-            print(end)
+            fight = Fight(self.fight_person.name, self.fight_enemy.name,
+                          self.fight_img, self.fight_person.critical, self.fight_enemy.critical)
 
         # send sms
         sms = f'<fight {self.opponent.persons.index(self.fight_enemy)} {fight.person_img_id} ' \
@@ -248,44 +260,36 @@ class Main:
         # bg
         self.screen.blit(fight.fight_bg, (0, 0))
 
+        enemy_dmg_tick = 50 + fight.enemy_dmg_tick
         if not fight.moves[0]:
-            enemy_dmg_tick = 320
-            person_dmg_tick = 860
-            fight_end = 1280
+            person_dmg_tick = 50 + fight.person_melee_attack_time + 100 + fight.person_dmg_tick
+            fight_end = 50 + fight.person_melee_attack_time + \
+                        100 + fight.enemy_melee_attack_time + 50
             if fight.moves[2]:
-                person_dmg_tick = 915
-                fight_end = 1430
+                fight_end = 100 + fight.person_melee_attack_time + \
+                            100 + fight.enemy_critical_attack_time + 100
         else:
-            enemy_dmg_tick = 375
-            person_dmg_tick = 955
-            fight_end = 1220
+            person_dmg_tick = 50 + fight.person_critical_attack_time + 100 + fight.person_dmg_tick
+            fight_end = fight_end = 50 + fight.person_critical_attack_time + \
+                                    100 + fight.enemy_melee_attack_time + 50
             if fight.moves[2]:
                 person_dmg_tick = 1110
-                fight_end = 1415
+                fight_end = fight_end = 50 + fight.person_critical_attack_time + \
+                                        100 + fight.enemy_critical_attack_time + 50
         # person
-        if self.fight_tick <= 100:
+        if self.fight_tick <= 50:
             img = fight.person_stay_img
             img_ = fight.enemy_stay_img
-            fight_end = 1000
         else:
             if fight.moves[0]:
-                if fight.moves[2]:
-                    enemy_dmg_tick = 345
-                    person_dmg_tick = 980
-                    fight_end = 1370
-                else:
-                    enemy_dmg_tick = 345
-                    person_dmg_tick = 825
-                    fight_end = 1275
-
                 # person
                 img = fight.person_stay_img
-                if self.fight_tick <= 100 + fight.person_critical_attack_time:
+                if self.fight_tick <= 50 + fight.person_critical_attack_time:
                     img = fight.critical_person_attack()
 
                 # enemy
                 img_ = fight.enemy_stay_img
-                start_enemy_attack = 100 + fight.person_critical_attack_time + 155
+                start_enemy_attack = 50 + fight.person_critical_attack_time + 100
                 if fight.moves[2]:
                     if (self.fight_tick >= start_enemy_attack) and \
                             (self.fight_tick <= start_enemy_attack + fight.enemy_critical_attack_time):
@@ -297,12 +301,12 @@ class Main:
             else:
                 # person
                 img = fight.person_stay_img
-                if self.fight_tick <= 100 + fight.person_melee_attack_time:
+                if self.fight_tick <= 50 + fight.person_melee_attack_time:
                     img = fight.mellee_person_attack()
 
                 # enemy
                 img_ = fight.enemy_stay_img
-                start_enemy_attack = 100 + fight.person_melee_attack_time + 155
+                start_enemy_attack = 50 + fight.person_melee_attack_time + 100
                 if fight.moves[2]:
                     if (self.fight_tick >= start_enemy_attack) and \
                             (self.fight_tick <= start_enemy_attack + fight.enemy_critical_attack_time):
@@ -338,11 +342,9 @@ class Main:
         # name
         pygame.draw.rect(self.screen, BLUE, (0, 50, 150, 50))
         pygame.draw.rect(self.screen, RED, (1050, 50, 150, 50))
-        name_person = 'Eliwood' if self.fight_person.name == 'eliwood(lord)' else self.fight_person.name
-        name_enemy = 'Eliwood' if self.fight_enemy.name == 'eliwood(lord)' else self.fight_enemy.name
-        text_name = self.f1.render(name_person, True, WHITE)
+        text_name = self.f1.render(self.fight_person.name, True, WHITE)
         self.screen.blit(text_name, (20, 65))
-        text_name = self.f1.render(name_enemy, True, WHITE)
+        text_name = self.f1.render(self.fight_enemy.name, True, WHITE)
         self.screen.blit(text_name, (1070, 65))
 
         # characters persons
@@ -361,7 +363,7 @@ class Main:
                 self.run = False
 
         if self.fight_tick == 1:
-            fight = Fight()
+            fight = Fight(self.fight_person.name, self.fight_enemy.name, self.fight_img)
 
         # recv sms
         try:
@@ -463,37 +465,43 @@ class Main:
             self.cords = person.move(self.cords)
 
             # person img
-            person.choice_image(self.tick)
+            choice_ = False
+            try:
+                if person == self.player.persons[self.player.choice_person]:
+                    choice_ = True
+            except:
+                pass
+            person.choice_image(self.tick, choice_)
 
         for player in self.players:
-            try:
-                for i in range(len(player.persons)):
-                    if player == self.opponent:
+            for i in range(len(player.persons)):
+                if player == self.opponent:
 
+                    try:
                         # opponent persons img
                         if self.data[i][3] == 'stay':
-                            if self.tick % 120 < 60:
-                                i_ = (self.tick % 60 // 10)
+                            if self.tick % 120 < 40:
+                                i_ = (self.tick % 40 // 10)
                             else:
                                 i_ = 0
-                            self.opponent.persons[i].img = self.opponent.persons[i].stay_images[i_]
+                            self.opponent.persons[i].img = self.opponent.persons[i].enemy_stay_images[i_]
                         elif self.data[i][3] == 'move_L':
-                            self.opponent.persons[i].img = self.opponent.persons[i].move_images[self.tick % 40 // 20]
+                            self.opponent.persons[i].img = self.opponent.persons[i].enemy_move_left_images[
+                                self.tick % 40 // 10]
                         elif self.data[i][3] == 'move_R':
-                            self.opponent.persons[i].img = self.opponent.persons[i].move_images[
-                                2 + self.tick % 40 // 20]
+                            self.opponent.persons[i].img = self.opponent.persons[i].enemy_move_right_images[
+                                self.tick % 40 // 10]
                         elif self.data[i][3] == 'move_D':
-                            self.opponent.persons[i].img = self.opponent.persons[i].move_images[
-                                4 + self.tick % 40 // 20]
+                            self.opponent.persons[i].img = self.opponent.persons[i].enemy_move_down_images[
+                                self.tick % 40 // 10]
                         elif self.data[i][3] == 'move_U':
-                            self.opponent.persons[i].img = self.opponent.persons[i].move_images[
-                                6 + self.tick % 40 // 20]
-
-                    # person blit
-                    self.screen.blit(player.persons[i].img,
-                                     (player.persons[i].x - 45, player.persons[i].y - 60))
-            except:
-                print('cant print')
+                            self.opponent.persons[i].img = self.opponent.persons[i].enemy_move_up_images[
+                                self.tick % 40 // 10]
+                    except:
+                        print('cant print')
+                # person blit
+                self.screen.blit(player.persons[i].img,
+                                 (player.persons[i].x - 88, player.persons[i].y - 100))
 
         if len(self.menu_choice_persons) == 0:
             # attack button
@@ -516,8 +524,14 @@ class Main:
                         pygame.draw.rect(self.screen, RED, (975, 50, 200, 300))
 
                     # name
-                    text_name = self.f2.render('Eliwood' if person.name == 'eliwood(lord)' else person.name, True,
-                                               WHITE)
+                    text_name = self.f2.render(person.name, True, WHITE)
+                    self.screen.blit(text_name, (990, 60))
+
+                    # hp
+                    text_hp = self.f2.render(str(person.hp), True, WHITE)
+                    self.screen.blit(text_hp, (990, 100))
+                    for i in range(person.hp // 10):
+                        pygame.draw.rect(self.screen, GREEN, (1055 + i * 10, 105, 5, 20))
 
                     # characters
                     text_armor = self.f2.render('ARM', True, WHITE)
@@ -526,7 +540,6 @@ class Main:
                     text_dmg = self.f2.render(str(person.damage), True, WHITE)
                     text_critical = self.f2.render('CRT', True, WHITE)
                     text_crt = self.f2.render(str(person.critical), True, WHITE)
-                    self.screen.blit(text_name, (990, 60))
                     self.screen.blit(text_armor, (1000, 150))
                     self.screen.blit(text_damage, (1000, 200))
                     self.screen.blit(text_critical, (1000, 250))
@@ -539,7 +552,7 @@ class Main:
             pygame.draw.rect(self.screen, BLUE, (0, 650, WIDTH, 150))
             for i in self.menu_choice_persons:
                 img = self.menu_person_img[i]
-                self.screen.blit(img, self.placing_persons_pos[i])
+                self.screen.blit(img, (self.placing_persons_pos[i][0] - 50, self.placing_persons_pos[i][1] - 50))
             if self.placing_choice_person is not None:
                 pos_ = self.placing_persons_pos[self.placing_choice_person]
                 pygame.draw.rect(self.screen, WHITE, (pos_[0], pos_[1], 100, 100), 2)
@@ -572,8 +585,8 @@ class Main:
                         self.player.persons.append(Person(self.mouse_pos[0] * TILE,
                                                           self.mouse_pos[1] * TILE,
                                                           self.names_choice_persons[self.placing_choice_person]))
-                    self.menu_choice_persons.remove(self.placing_choice_person)
-                    self.placing_choice_person = None
+                        self.menu_choice_persons.remove(self.placing_choice_person)
+                        self.placing_choice_person = None
 
         sms = '<'
         for person in self.player.persons:
@@ -585,12 +598,13 @@ class Main:
         # recv sms
         try:
             data_ = self.sock.recv(1024).decode()
-
+            if data_ == '<wait>':
+                self.start_game = False
             self.data = main.find_sms(data_)
             if len(self.data) != len(self.opponent.persons):
                 if [(j[1] // TILE, j[2] // TILE) for j in self.data] != \
                         [person.pos for person in self.player.persons]:
-                    self.opponent.persons = [Person(j[1], j[2], j[0], 'R') for j in self.data]
+                    self.opponent.persons = [Person(j[1], j[2], j[0]) for j in self.data]
 
             for j in range(len(self.data)):
                 self.opponent.persons[j].x = self.data[j][1]
@@ -606,42 +620,85 @@ class Main:
             pass
 
     def menu(self):
-        sms = '<wait>'
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 self.run = False
-            elif event.type == pygame.MOUSEBUTTONUP and event.button == 1:
-                if in_box(self.big_mouse_pos, self.menu_btn_cords):
-                    self.start_game = True
-                    self.menu_choice_persons = [self.menu_person_choice_cords.index(j) for j in
-                                                self.menu_choice_persons]
-                    self.menu_choice_persons = [i for i in self.menu_choice_persons if i < len(self.menu_person_img)]
-                    self.placing_persons_window = True
-                else:
-                    for i in self.menu_person_choice_cords:
-                        if in_box(self.big_mouse_pos, i):
-                            if i in self.menu_choice_persons:
-                                self.menu_choice_persons.remove(i)
-                            else:
-                                self.menu_choice_persons.append(i)
+            elif self.sms[:8] != '<my_pers':
+                if event.type == pygame.MOUSEBUTTONUP and event.button == 1:
+                    if in_box(self.big_mouse_pos, self.menu_btn_cords):
+                        self.menu_choice_persons = [self.menu_person_choice_cords.index(j) for j in
+                                                    self.menu_choice_persons]
+                        self.menu_choice_persons = [i for i in self.menu_choice_persons if
+                                                    i < len(self.menu_person_img)]
+                        self.placing_persons_window = True
+                        self.sms = f'<my_pers |'
+                        for i in self.menu_choice_persons:
+                            self.sms += self.names_choice_persons[i] + ','
+                        self.sms += '>'
+                    else:
+                        for i in self.menu_person_choice_cords:
+                            if in_box(self.big_mouse_pos, i):
+                                if i in self.menu_choice_persons:
+                                    self.menu_choice_persons.remove(i)
+                                else:
+                                    self.menu_choice_persons.append(i)
 
-        self.sock.send(sms.encode())
-
-        self.sock.recv(1024)
+        data_ = self.sock.recv(1024).decode()
+        if data_[:5] == '<wait' and data_[:6] != '<wait>':
+            self.fight_img.uppload_images(self.names_choice_persons[i] for i in self.menu_choice_persons)
+            data_ = main.find_persons_images(data_)
+            self.fight_img.uppload_images(data_)
+            self.start_game = True
+            self.sms = '<ready>'
+        self.sock.send(self.sms.encode())
 
         # draw
         self.screen.fill(GREY)
-        for i in range(len(self.menu_person_choice_cords)):
-            c_ = BLUE if self.menu_person_choice_cords[i] in self.menu_choice_persons else WHITE
-            pygame.draw.rect(self.screen, c_, self.menu_person_choice_cords[i])
-            try:
-                self.screen.blit(self.menu_person_img[i],
-                                 (self.menu_person_choice_cords[i][0], self.menu_person_choice_cords[i][1]))
-            except:
-                pass
+        if self.sms[:8] != '<my_pers':
+            for i in range(len(self.menu_person_choice_cords)):
+                c_ = BLUE if self.menu_person_choice_cords[i] in self.menu_choice_persons else WHITE
+                pygame.draw.rect(self.screen, c_, self.menu_person_choice_cords[i])
+                try:
+                    self.screen.blit(self.menu_person_img[i],
+                                     (self.menu_person_choice_cords[i][0] - 50,
+                                      self.menu_person_choice_cords[i][1] - 50))
+                except:
+                    pass
 
-        pygame.draw.rect(self.screen, GREEN, self.menu_btn_cords)
+            pygame.draw.rect(self.screen, GREEN, self.menu_btn_cords)
+        else:
+            self.menu_tick += 1
+            i_ = self.menu_tick % 160 // 20
+            if i_ == 1:
+                cords = [(WIDTH // 2 - 50, HEIGHT // 2 - 50, 50, 50)]
+            elif i_ == 2:
+                cords = [(WIDTH // 2 - 50, HEIGHT // 2 - 50, 50, 50),
+                         (WIDTH // 2, HEIGHT // 2, 50, 50)]
+            elif i_ == 3:
+                cords = [(WIDTH // 2 - 50, HEIGHT // 2 - 50, 50, 50),
+                         (WIDTH // 2, HEIGHT // 2 - 50, 50, 50),
+                         (WIDTH // 2, HEIGHT // 2, 50, 50)]
+            elif i_ == 4:
+                cords = [(WIDTH // 2 - 50, HEIGHT // 2 - 50, 50, 50),
+                         (WIDTH // 2, HEIGHT // 2 - 50, 50, 50),
+                         (WIDTH // 2, HEIGHT // 2, 50, 50),
+                         (WIDTH // 2 - 50, HEIGHT // 2, 50, 50)]
+            elif i_ == 5:
+                cords = [(WIDTH // 2, HEIGHT // 2 - 50, 50, 50),
+                         (WIDTH // 2, HEIGHT // 2, 50, 50),
+                         (WIDTH // 2 - 50, HEIGHT // 2, 50, 50)]
+            elif i_ == 6:
+                cords = [(WIDTH // 2, HEIGHT // 2 - 50, 50, 50),
+                         (WIDTH // 2 - 50, HEIGHT // 2, 50, 50)]
+            elif i_ == 7:
+                cords = [(WIDTH // 2 - 50, HEIGHT // 2, 50, 50)]
+            else:
+                cords = []
 
+            for i in cords:
+                pygame.draw.rect(self.screen, WHITE, i)
+            text = self.f1.render('Waiting the second player...', True, WHITE)
+            self.screen.blit(text, (WIDTH // 2 - 140, HEIGHT // 2 + 70))
         pygame.display.update()
 
     def main_loop(self):
@@ -666,16 +723,24 @@ class Main:
                                     self.player.persons.append(Person(80, 80, 'eliwood(lord)'))
                                 elif event.key == pygame.K_e:
                                     self.can_move = True
+                                elif event.key == pygame.K_o:
+                                    for person in self.player.persons:
+                                        person.critical = 100
+                                elif event.key == pygame.K_l:
+                                    for person in self.player.persons:
+                                        person.critical = 15
 
                             if event.type == pygame.MOUSEBUTTONUP and event.button == 1:
                                 if self.player.choice_person is None:
                                     if self.can_move:
+                                        # choice person
                                         for person in self.player.persons:
                                             if self.mouse_pos == person.pos:
                                                 self.player.choice_person = self.player.persons.index(person)
                                                 self.person_positions = [person.pos for person in self.opponent.persons]
                                                 self.can_move_to = main.get_can_move_to(person.pos, 3)
                                             else:
+                                                # attack
                                                 for person in self.player.persons:
                                                     i_ = 0
                                                     for enemy in person.can_fight_with:
@@ -687,11 +752,14 @@ class Main:
                                                             self.can_move = False
                                                             break
                                                         i_ += 1
-
+                                # move
                                 elif self.player.choice_person is not None and self.mouse_pos in self.can_move_to:
-                                    self.player.persons[self.player.choice_person].want_move = self.mouse_pos
+                                    if self.mouse_pos == self.player.persons[self.player.choice_person].pos:
+                                        pass
+                                    else:
+                                        self.player.persons[self.player.choice_person].want_move = self.mouse_pos
+                                        self.can_move = False
                                     self.player.choice_person = None
-                                    self.can_move = False
 
                         # send sms
                         sms = '<'
@@ -704,6 +772,8 @@ class Main:
                         # recv sms
                         try:
                             data_ = self.sock.recv(1024).decode()
+                            if data_ == '<wait>':
+                                self.start_game = False
                             if main.is_fight(data_):
                                 self.data = main.find_fight(data_)
                                 self.not_my_fight = True
@@ -718,7 +788,7 @@ class Main:
                                 if len(self.data) != len(self.opponent.persons):
                                     if [(j[1] // TILE, j[2] // TILE) for j in self.data] != \
                                             [person.pos for person in self.player.persons]:
-                                        self.opponent.persons = [Person(j[1], j[2], j[0], 'R') for j in self.data]
+                                        self.opponent.persons = [Person(j[1], j[2], j[0]) for j in self.data]
 
                                 for j in range(len(self.data)):
                                     self.opponent.persons[j].x = self.data[j][1]
@@ -748,12 +818,19 @@ class Main:
                                     pass
                             person.can_fight_with = a_
                             person.attack_button = b_
+
+                        # dead persons
+                        for player in self.players:
+                            for person in player.persons:
+                                if person.hp <= 0:
+                                    player.persons.remove(person)
                     else:
                         main.place_persons()
                     if self.not_my_fight:
                         pass
                     else:
-                        main.render()
+                        if self.start_game:
+                            main.render()
                 pygame.display.update()
             else:
                 main.menu()

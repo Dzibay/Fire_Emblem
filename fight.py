@@ -48,9 +48,12 @@ sizes = {'roy': [{'width': 124,
 
 
 class Fight_images:
-    def __init__(self, names):
-        self.images = {i: {'person': {'norm': [], 'crt': []}, 'enemy': {'norm': [], 'crt': []}} for i in names}
+    def __init__(self):
+        self.images = {}
+
+    def uppload_images(self, names):
         for name in set(names):
+            self.images[name] = {'person': {'norm': [], 'crt': []}, 'enemy': {'norm': [], 'crt': []}}
             # person
             person_melee_attack_img = [pygame.image.load(f'templates/persons/{name}/person/normal_attack.png').
                                        subsurface(sizes[name][0]['width'] * x, sizes[name][0]['height'] * y,

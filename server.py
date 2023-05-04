@@ -44,6 +44,7 @@ class Player:
         self.persons = []
         self.is_fight = False
         self.ready = False
+        self.person_names = []
 
 
 def find(s):
@@ -57,6 +58,18 @@ def find(s):
             res = [i.split(' ') for i in res if i != '']
             result = [[i[0], int(i[1]), int(i[2]), i[3], int(i[4]), int(i[5]), int(i[6]), int(i[7])] for i in res]
             return result
+    return ''
+
+
+def find_player_persons(s):
+    first = None
+    for i in range(len(s)):
+        if s[i] == '|':
+            first = i
+        if s[i] == '>' and first is not None:
+            end = i
+            res = s[first + 1:end - 1].split(',')
+            return res
     return ''
 
 
@@ -83,7 +96,9 @@ while run:
             data = player.conn.recv(1024).decode()
             if data[:6] == '<wait>':
                 pass
-            elif data[:7] == '<ready>':
+            elif data[:8] == '<my_pers':
+                player.person_names = find_player_persons(data)
+            elif data[:6] == '<ready':
                 player.ready = True
             elif data[:6] == '<fight':
                 player.is_fight = True
@@ -95,14 +110,24 @@ while run:
         except:
             pass
 
+    print('--------')
     for player in players:
+        second_player = None
+        for player_2 in players:
+            if player_2 != player:
+                second_player = player_2
         try:
             sms = '<wait>'
             if len(players) < 2:
                 sms = '<wait>'
             else:
-                if not players[0].ready or not players[1].ready:
-                    sms = '<wait>'
+                if player.person_names == [] or second_player.person_names == []:
+                    pass
+                elif (player.person_names != [] and second_player.person_names != []) and not player.ready:
+                    sms = f'<wait |'
+                    for name in second_player.person_names:
+                        sms += name + ' '
+                    sms += '>'
                 elif players[0].is_fight or players[1].is_fight:
                     if not player.is_fight:
                         sms = fight_sms
@@ -114,6 +139,7 @@ while run:
                                 sms += f'{person.name} {person.pos[0]} {person.pos[1]} {person.state} ' \
                                        f'{person.hp} {person.armor} {person.damage} {person.critical},'
                     sms += '>'
+            print(sms)
             player.conn.send(sms.encode())
             player.errors = 0
         except:

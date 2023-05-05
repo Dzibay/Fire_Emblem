@@ -4,7 +4,7 @@ from player import Player
 from settings import *
 from dextr import *
 import socket
-from fight import Fight, Fight_images
+from fight import Fight, Fight_images, sizes
 
 import time
 
@@ -76,6 +76,7 @@ class Main:
         self.can_move = True
 
         # fight
+        self.fight_upload = False
         self.fight_img = None
         self.fight = False
         self.not_my_fight = False
@@ -89,7 +90,7 @@ class Main:
         self.menu_tick = 0
         self.menu_btn_cords = (450, 550, 300, 50)
         self.menu_person_choice_cords = [(i, j, 100, 100) for j in range(50, 530, 120) for i in range(250, 950, 120)]
-        self.names_choice_persons = ['roy', 'roy', 'lyn']
+        self.names_choice_persons = ['roy', 'lyn', 'hector']
         self.menu_person_img = [
             pygame.image.load(f'templates/persons/{i}/person/map_idle.png').subsurface((0, 0, 48, 48))
             for i in self.names_choice_persons]
@@ -245,11 +246,11 @@ class Main:
 
         # send sms
         sms = f'<fight {self.opponent.persons.index(self.fight_enemy)} {fight.person_img_id} ' \
-              f'{int(fight.person_x)} {int(fight.person_y)} {self.fight_person.hp},' \
+              f'{int(fight.moves[0])} {int(fight.person_y)} {self.fight_person.hp},' \
               f'{self.player.persons.index(self.fight_person)} {fight.enemy_img_id} ' \
-              f'{int(fight.enemy_x)} {int(fight.enemy_y)} {self.fight_enemy.hp}>'
+              f'{int(fight.moves[2])} {int(fight.enemy_y)} {self.fight_enemy.hp}>'
         self.sock.send(sms.encode())
-
+        print(sms)
         # recv sms
         try:
             self.data = self.sock.recv(1024).decode()
@@ -362,21 +363,23 @@ class Main:
             if event.type == pygame.QUIT:
                 self.run = False
 
-        if self.fight_tick == 1:
+        if not self.fight_upload:
+            print(self.fight_person.name, self.fight_enemy.name)
             fight = Fight(self.fight_person.name, self.fight_enemy.name, self.fight_img)
+            self.fight_upload = True
 
         # recv sms
         try:
             self.data = self.sock.recv(1024).decode()
             if main.is_fight(self.data):
                 self.data = main.find_fight(self.data)
-                id_1, fight.person_img_id, fight.enemy_x, fight.person_y, self.fight_person.hp = self.data[1]
-                id_2, fight.enemy_img_id, fight.person_x, fight.enemy_y, self.fight_enemy.hp = self.data[0]
+                id_1, fight.person_img_id, fight.need_moves[0], fight.person_y, self.fight_person.hp = self.data[1]
+                id_2, fight.enemy_img_id, fight.need_moves[1], fight.enemy_y, self.fight_enemy.hp = self.data[0]
             else:
                 self.not_my_fight = False
                 self.data = main.find_sms(self.data)
                 if len(self.data) != len(self.opponent.persons):
-                    self.opponent.persons = [Person(j[1], j[2], j[0], 'R') for j in self.data]
+                    self.opponent.persons = [Person(j[1], j[2], j[0]) for j in self.data]
                 for j in range(len(self.data)):
                     self.opponent.persons[j].x = self.data[j][1]
                     self.opponent.persons[j].y = self.data[j][2]
@@ -385,9 +388,11 @@ class Main:
 
         self.screen.blit(fight.fight_bg, (0, 0))
         # person
-        self.screen.blit(fight.all_person_img[fight.person_img_id], (fight.person_x, fight.person_y))
+        self.screen.blit(fight.all_person_img[fight.person_img_id],
+                         (sizes[self.fight_person.name][fight.need_moves[0]]['x'], fight.person_y))
         # enemy
-        self.screen.blit(fight.all_enemy_img[fight.enemy_img_id], (fight.enemy_x, fight.enemy_y))
+        self.screen.blit(fight.all_enemy_img[fight.enemy_img_id],
+                         (sizes[self.fight_enemy.name][fight.need_moves[1]]['x1'], fight.enemy_y))
 
         # characters persons
         main.render_persons_characters_for_fight()
@@ -650,6 +655,8 @@ class Main:
             self.fight_img.uppload_images(data_)
             self.start_game = True
             self.sms = '<ready>'
+        elif data_[1:10].split(' ')[0] in self.names_choice_persons:
+            self.start_game = True
         self.sock.send(self.sms.encode())
 
         # draw
@@ -777,10 +784,12 @@ class Main:
                             if main.is_fight(data_):
                                 self.data = main.find_fight(data_)
                                 self.not_my_fight = True
+                                self.fight_upload = False
                                 id_1, a_, b_, c_, d_ = self.data[1]
                                 id_2, a_, b_, c_, d_ = self.data[0]
                                 self.fight_person = self.player.persons[id_2]
                                 self.fight_enemy = self.opponent.persons[id_1]
+                                print(self.fight_person.name, self.fight_enemy.name)
 
                             else:
                                 self.not_my_fight = False

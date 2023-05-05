@@ -7,33 +7,33 @@ sizes = {'roy': [{'width': 124,
                   'w': 11,
                   'h': 8,
                   'frames': 82,
-                  'x': 250,
+                  'x': 240,
                   'y': 0,
                   'x1': 380,
                   'size': (550, 550),
-                  'dmg_time': 0},
+                  'dmg_time': 100},
 
                  {'width': 142,
                   'height': 102,
                   'w': 12,
                   'h': 8,
                   'frames': 96,
-                  'x': 220,
+                  'x': 210,
                   'y': 0,
                   'x1': 380,
                   'size': (550, 550),
-                  'dmg_time': 0}],
+                  'dmg_time': 140}],
 
          'lyn': [{'width': 118,
                   'height': 119,
                   'w': 7,
                   'h': 6,
                   'frames': 37,
-                  'x': 300,
+                  'x': 290,
                   'y': 85,
-                  'x1': 370,
+                  'x1': 380,
                   'size': (530, 530),
-                  'dmg_time': 0},
+                  'dmg_time': 45},
 
                  {'width': 220,
                   'height': 144,
@@ -41,10 +41,33 @@ sizes = {'roy': [{'width': 124,
                   'h': 13,
                   'frames': 115,
                   'x': 105,
-                  'y': 140,
+                  'y': 110,
                   'x1': 120,
                   'size': (970, 650),
-                  'dmg_time': 200}]}
+                  'dmg_time': 110}],
+
+         'hector': [{'width': 117,
+                     'height': 99,
+                     'w': 7,
+                     'h': 6,
+                     'frames': 33,
+                     'x': 290,
+                     'y': 120,
+                     'x1': 400,
+                     'size': (530, 450),
+                     'dmg_time': 60},
+
+                    {'width': 118,
+                     'height': 99,
+                     'w': 7,
+                     'h': 6,
+                     'frames': 32,
+                     'x': 290,
+                     'y': 120,
+                     'x1': 400,
+                     'size': (530, 450),
+                     'dmg_time': 60}]
+         }
 
 
 class Fight_images:
@@ -71,7 +94,8 @@ class Fight_images:
                                           range(0, sizes[name][1]['w'])][
                                          :sizes[name][1]['frames']]
             for i in range(len(person_critical_attack_img)):
-                person_critical_attack_img[i] = pygame.transform.scale(person_critical_attack_img[i], sizes[name][1]['size'])
+                person_critical_attack_img[i] = pygame.transform.scale(person_critical_attack_img[i],
+                                                                       sizes[name][1]['size'])
                 person_critical_attack_img[i] = pygame.transform.flip(person_critical_attack_img[i], True, False)
 
             # enemy
@@ -89,7 +113,8 @@ class Fight_images:
                                          for y in range(0, sizes[name][1]['h']) for x in range(0, sizes[name][1]['w'])][
                                         :sizes[name][1]['frames']]
             for i in range(len(enemy_critical_attack_img)):
-                enemy_critical_attack_img[i] = pygame.transform.scale(enemy_critical_attack_img[i], sizes[name][1]['size'])
+                enemy_critical_attack_img[i] = pygame.transform.scale(enemy_critical_attack_img[i],
+                                                                      sizes[name][1]['size'])
 
             self.images[name]['person']['norm'] = person_melee_attack_img
             self.images[name]['person']['crt'] = person_critical_attack_img
@@ -103,9 +128,11 @@ class Fight:
                       False,
                       True if randint(0, 100) <= enemy_crt else False,
                       False]
+        self.need_moves = [0, 0]
         self.tick = 0
         self.dodge_tick = 0
         self.miss_tick = 0
+
         self.person_x, self.person_y = sizes[person_name][int(self.moves[0])]['x'], \
                                        sizes[person_name][int(self.moves[0])]['y']
         self.enemy_x, self.enemy_y = sizes[enemy_name][int(self.moves[2])]['x1'], \
@@ -132,14 +159,14 @@ class Fight:
         self.person_stay_img = self.person_critical_attack_img[0] if self.moves[0] else self.person_melee_attack_img[0]
         self.enemy_stay_img = self.enemy_critical_attack_img[0] if self.moves[2] else self.enemy_melee_attack_img[0]
 
-        self.person_melee_attack_time = len(self.person_melee_attack_img) * 5
-        self.person_critical_attack_time = len(self.person_critical_attack_img) * 5
-        self.enemy_melee_attack_time = len(self.enemy_melee_attack_img) * 5
-        self.enemy_critical_attack_time = len(self.enemy_critical_attack_img) * 5
+        self.person_melee_attack_time = len(self.person_melee_attack_img) * 3
+        self.person_critical_attack_time = len(self.person_critical_attack_img) * 3
+        self.enemy_melee_attack_time = len(self.enemy_melee_attack_img) * 3
+        self.enemy_critical_attack_time = len(self.enemy_critical_attack_img) * 3
 
     def mellee_person_attack(self):
         self.tick += 1
-        img = self.person_melee_attack_img[self.tick % self.person_melee_attack_time // 5]
+        img = self.person_melee_attack_img[self.tick % self.person_melee_attack_time // 3]
 
         if self.tick == self.person_melee_attack_time:
             self.tick = 0
@@ -148,7 +175,7 @@ class Fight:
 
     def critical_person_attack(self):
         self.tick += 1
-        img = self.person_critical_attack_img[self.tick % self.person_critical_attack_time // 5]
+        img = self.person_critical_attack_img[self.tick % self.person_critical_attack_time // 3]
 
         if self.tick == self.person_critical_attack_time:
             self.tick = 0
@@ -168,7 +195,7 @@ class Fight:
 
     def mellee_enemy_attack(self):
         self.tick += 1
-        img = self.enemy_melee_attack_img[self.tick % self.enemy_melee_attack_time // 5]
+        img = self.enemy_melee_attack_img[self.tick % self.enemy_melee_attack_time // 3]
 
         if self.tick == self.enemy_melee_attack_time:
             self.tick = 0
@@ -177,7 +204,7 @@ class Fight:
 
     def critical_enemy_attack(self):
         self.tick += 1
-        img = self.enemy_critical_attack_img[self.tick % self.enemy_critical_attack_time // 5]
+        img = self.enemy_critical_attack_img[self.tick % self.enemy_critical_attack_time // 3]
 
         if self.tick == self.enemy_critical_attack_time:
             self.tick = 0

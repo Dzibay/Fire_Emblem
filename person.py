@@ -65,16 +65,16 @@ class Person:
             cords.reverse()
             cord = cords[0]
             if self.y < cord[1] * TILE:
-                self.y += 4
+                self.y += 8
                 self.move_to = 'D'
             elif self.y > cord[1] * TILE:
-                self.y -= 4
+                self.y -= 8
                 self.move_to = 'U'
             elif self.x < cord[0] * TILE:
-                self.x += 4
+                self.x += 8
                 self.move_to = 'R'
             elif self.x > cord[0] * TILE:
-                self.x -= 4
+                self.x -= 8
                 self.move_to = 'L'
             else:
                 self.pos = cord

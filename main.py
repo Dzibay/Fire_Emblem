@@ -90,7 +90,7 @@ class Main:
         self.menu_tick = 0
         self.menu_btn_cords = (450, 550, 300, 50)
         self.menu_person_choice_cords = [(i, j, 100, 100) for j in range(50, 530, 120) for i in range(250, 950, 120)]
-        self.names_choice_persons = ['roy', 'lyn', 'hector']
+        self.names_choice_persons = ['roy', 'lyn', 'hector', 'eirika', 'eliwood', 'marth', 'ike']
         self.menu_person_img = [
             pygame.image.load(f'templates/persons/{i}/person/map_idle.png').subsurface((0, 0, 48, 48))
             for i in self.names_choice_persons]
@@ -101,7 +101,7 @@ class Main:
         # placing persons
         self.placing_persons_window = False
         self.placing_choice_person = None
-        self.placing_persons_pos = [(20, 660), (120, 660), (220, 660), (320, 660), (420, 660), (520, 660)]
+        self.placing_persons_pos = [(20, 660), (120, 660), (220, 660), (320, 660), (420, 660), (520, 660), (620, 660)]
 
         # fonts
         self.f1 = pygame.font.Font(None, 30)

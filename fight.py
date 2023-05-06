@@ -230,8 +230,11 @@ class Fight:
         self.person_img_id = 0
         self.enemy_img_id = 0
 
-        self.fight_bg = pygame.image.load('templates/fight_bg/0.png')
+        self.fight_bg = pygame.image.load('templates/fight_bg/bg.png').subsurface(1, 1, 240, 160)
         self.fight_bg = pygame.transform.scale(self.fight_bg, (WIDTH, HEIGHT))
+        self.fight_characters = pygame.image.load('templates/fight_bg/baze.png')
+        self.fight_characters = pygame.transform.scale(self.fight_characters, (WIDTH, HEIGHT))
+        self.numbers = [pygame.image.load('templates/fight_bg/numbers.png').subsurface(i, i, 8, 8) for i in range(10)]
 
         self.miss_img = [pygame.image.load(f'templates/miss/{i}.png') for i in range(0, 12)]
         for i in range(len(self.miss_img)):

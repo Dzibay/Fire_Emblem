@@ -106,6 +106,7 @@ class Main:
         # fonts
         self.f1 = pygame.font.Font(None, 30)
         self.f2 = pygame.font.Font(None, 50)
+        self.f3 = pygame.font.Font(None, 70)
 
     @staticmethod
     def find_sms(s):
@@ -173,56 +174,35 @@ class Main:
         return result
 
     def render_persons_characters_for_fight(self):
+        # bg
+        self.screen.blit(fight.fight_bg, (0, 0))
+        self.screen.blit(fight.fight_characters, (0, 0))
+
         # name
-        pygame.draw.rect(self.screen, BLUE, (0, 50, 150, 50))
-        pygame.draw.rect(self.screen, RED, (1050, 50, 150, 50))
-        text_name = self.f1.render(self.fight_person.name, True, WHITE)
+        text_name = self.f3.render(self.fight_person.name, True, WHITE)
         self.screen.blit(text_name, (20, 65))
-        text_name = self.f1.render(self.fight_enemy.name, True, WHITE)
+        text_name = self.f3.render(self.fight_enemy.name, True, WHITE)
         self.screen.blit(text_name, (1070, 65))
 
         # characters persons
-        pygame.draw.rect(self.screen, BLUE, (0, 700, 600, 100))
-        pygame.draw.rect(self.screen, RED, (600, 700, 600, 100))
-        pygame.draw.rect(self.screen, ORANGE, (0, 700, 600, 100), 5)
-        pygame.draw.rect(self.screen, ORANGE, (600, 700, 600, 100), 5)
-
-        pygame.draw.rect(self.screen, (100, 65, 0), (0, 600, 200, 100))
-        pygame.draw.rect(self.screen, BLUE, (0, 617.5, 200, 10))
-        pygame.draw.rect(self.screen, BLUE, (0, 645, 200, 10))
-        pygame.draw.rect(self.screen, BLUE, (0, 672.5, 200, 10))
-        pygame.draw.rect(self.screen, ORANGE, (0, 600, 200, 100), 5)
-
-        pygame.draw.rect(self.screen, (100, 65, 0), (1000, 600, 200, 100))
-        pygame.draw.rect(self.screen, RED, (1000, 617.5, 200, 10))
-        pygame.draw.rect(self.screen, RED, (1000, 645, 200, 10))
-        pygame.draw.rect(self.screen, RED, (1000, 672.5, 200, 10))
-        pygame.draw.rect(self.screen, ORANGE, (1000, 600, 200, 100), 5)
-
-        text_arm = self.f2.render(str(self.fight_person.armor), True, WHITE)
-        text_dmg = self.f2.render(str(self.fight_person.damage), True, WHITE)
-        text_crt = self.f2.render(str(self.fight_person.critical), True, WHITE)
-        self.screen.blit(self.f2.render('ARM', True, WHITE), (10, 605))
-        self.screen.blit(self.f2.render('DMG', True, WHITE), (10, 634))
-        self.screen.blit(self.f2.render('CRT', True, WHITE), (10, 662))
-        self.screen.blit(text_arm, (100, 605))
-        self.screen.blit(text_dmg, (100, 634))
+        text_arm = self.f3.render(str(self.fight_person.armor), True, WHITE)
+        text_dmg = self.f3.render(str(self.fight_person.damage), True, WHITE)
+        text_crt = self.f3.render(str(self.fight_person.critical), True, WHITE)
+        self.screen.blit(text_arm, (100, 556))
+        self.screen.blit(text_dmg, (100, 614))
         self.screen.blit(text_crt, (100, 662))
 
-        text_arm = self.f2.render(str(self.fight_enemy.armor), True, WHITE)
-        text_dmg = self.f2.render(str(self.fight_enemy.damage), True, WHITE)
-        text_crt = self.f2.render(str(self.fight_enemy.critical), True, WHITE)
-        self.screen.blit(self.f2.render('DMG', True, WHITE), (1010, 605))
-        self.screen.blit(self.f2.render('DMG', True, WHITE), (1010, 634))
-        self.screen.blit(self.f2.render('CRT', True, WHITE), (1010, 662))
-        self.screen.blit(text_arm, (1100, 605))
+        text_arm = self.f3.render(str(self.fight_enemy.armor), True, WHITE)
+        text_dmg = self.f3.render(str(self.fight_enemy.damage), True, WHITE)
+        text_crt = self.f3.render(str(self.fight_enemy.critical), True, WHITE)
+        self.screen.blit(text_arm, (1100, 556))
         self.screen.blit(text_dmg, (1100, 634))
         self.screen.blit(text_crt, (1100, 662))
 
         # hp
-        text_hp = self.f2.render(str(self.fight_person.hp), True, WHITE)
+        text_hp = self.f3.render(str(self.fight_person.hp), True, WHITE)
         self.screen.blit(text_hp, (100, 735))
-        text_hp = self.f2.render(str(self.fight_enemy.hp), True, WHITE)
+        text_hp = self.f3.render(str(self.fight_enemy.hp), True, WHITE)
         self.screen.blit(text_hp, (900, 735))
         for i in range(0, int(self.fight_person.hp // 10)):
             pygame.draw.rect(self.screen, GREEN, (180 + i * 8, 730, 5, 40))
@@ -250,16 +230,12 @@ class Main:
               f'{self.player.persons.index(self.fight_person)} {fight.enemy_img_id} ' \
               f'{int(fight.moves[2])} {int(fight.enemy_y)} {self.fight_enemy.hp}>'
         self.sock.send(sms.encode())
-        print(sms)
         # recv sms
         try:
             self.data = self.sock.recv(1024).decode()
             self.not_my_fight = False
         except:
             pass
-
-        # bg
-        self.screen.blit(fight.fight_bg, (0, 0))
 
         enemy_dmg_tick = 50 + fight.enemy_dmg_tick
         if not fight.moves[0]:
@@ -335,21 +311,15 @@ class Main:
                 if self.fight_tick == enemy_dmg_tick + 6:
                     k_ = 2 if fight.moves[0] else 1
                     self.fight_enemy.hp -= self.fight_person.damage * k_
+
+        # fight baze
+        main.render_persons_characters_for_fight()
+
+        # persons
         self.screen.blit(img, (fight.person_x, fight.person_y))
         self.screen.blit(img_, (fight.enemy_x, fight.enemy_y))
         fight.person_img_id = fight.all_person_img.index(img)
         fight.enemy_img_id = fight.all_enemy_img.index(img_)
-
-        # name
-        pygame.draw.rect(self.screen, BLUE, (0, 50, 150, 50))
-        pygame.draw.rect(self.screen, RED, (1050, 50, 150, 50))
-        text_name = self.f1.render(self.fight_person.name, True, WHITE)
-        self.screen.blit(text_name, (20, 65))
-        text_name = self.f1.render(self.fight_enemy.name, True, WHITE)
-        self.screen.blit(text_name, (1070, 65))
-
-        # characters persons
-        main.render_persons_characters_for_fight()
 
         # end
         if self.fight_tick > fight_end:
@@ -364,7 +334,6 @@ class Main:
                 self.run = False
 
         if not self.fight_upload:
-            print(self.fight_person.name, self.fight_enemy.name)
             fight = Fight(self.fight_person.name, self.fight_enemy.name, self.fight_img)
             self.fight_upload = True
 
@@ -386,16 +355,15 @@ class Main:
         except:
             pass
 
-        self.screen.blit(fight.fight_bg, (0, 0))
+        # fight baze
+        main.render_persons_characters_for_fight()
+
         # person
         self.screen.blit(fight.all_person_img[fight.person_img_id],
                          (sizes[self.fight_person.name][fight.need_moves[0]]['x'], fight.person_y))
         # enemy
         self.screen.blit(fight.all_enemy_img[fight.enemy_img_id],
                          (sizes[self.fight_enemy.name][fight.need_moves[1]]['x1'], fight.enemy_y))
-
-        # characters persons
-        main.render_persons_characters_for_fight()
 
     def render(self):
         # bg

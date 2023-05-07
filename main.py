@@ -90,7 +90,7 @@ class Main:
         self.menu_tick = 0
         self.menu_btn_cords = (450, 550, 300, 50)
         self.menu_person_choice_cords = [(i, j, 100, 100) for j in range(50, 530, 120) for i in range(250, 950, 120)]
-        self.names_choice_persons = ['roy', 'lyn', 'hector', 'eirika', 'eliwood', 'marth', 'ike']
+        self.names_choice_persons = ['roy', 'lyn', 'hector', 'eirika', 'eliwood', 'marth', 'ike', 'sorcerer']
         self.menu_person_img = [
             pygame.image.load(f'templates/persons/{i}/person/map_idle.png').subsurface((0, 0, 48, 48))
             for i in self.names_choice_persons]
@@ -101,7 +101,7 @@ class Main:
         # placing persons
         self.placing_persons_window = False
         self.placing_choice_person = None
-        self.placing_persons_pos = [(20, 660), (120, 660), (220, 660), (320, 660), (420, 660), (520, 660), (620, 660)]
+        self.placing_persons_pos = [(20 + i * 100, 660) for i in range(20)]
 
         # fonts
         self.f1 = pygame.font.Font(None, 30)
@@ -178,36 +178,50 @@ class Main:
         self.screen.blit(fight.fight_bg, (0, 0))
         self.screen.blit(fight.fight_characters, (0, 0))
 
-        # name
+        # characters person
         text_name = self.f3.render(self.fight_person.name, True, WHITE)
-        self.screen.blit(text_name, (20, 65))
+        self.screen.blit(text_name, (50, 50))
+
+        hit = str(self.fight_person.hit) if self.fight_person.hit > 0 else f'0{self.fight_person.hit}'
+        dmg = str(self.fight_person.dmg) if self.fight_person.dmg > 9 else f'0{self.fight_person.dmg}'
+        crt = str(self.fight_person.crt) if self.fight_person.crt > 9 else f'0{self.fight_person.crt}'
+        for i in range(len(hit)):
+            self.screen.blit(fight.numbers[int(hit[i])], (120 + i * 40, 560))
+        for i in range(len(dmg)):
+            self.screen.blit(fight.numbers[int(dmg[i])], (120 + i * 40, 600))
+        for i in range(len(crt)):
+            self.screen.blit(fight.numbers[int(crt[i])], (120 + i * 40, 640))
+
+        # characters enemy
         text_name = self.f3.render(self.fight_enemy.name, True, WHITE)
-        self.screen.blit(text_name, (1070, 65))
+        self.screen.blit(text_name, (1000, 50))
 
-        # characters persons
-        text_arm = self.f3.render(str(self.fight_person.armor), True, WHITE)
-        text_dmg = self.f3.render(str(self.fight_person.damage), True, WHITE)
-        text_crt = self.f3.render(str(self.fight_person.critical), True, WHITE)
-        self.screen.blit(text_arm, (100, 556))
-        self.screen.blit(text_dmg, (100, 614))
-        self.screen.blit(text_crt, (100, 662))
-
-        text_arm = self.f3.render(str(self.fight_enemy.armor), True, WHITE)
-        text_dmg = self.f3.render(str(self.fight_enemy.damage), True, WHITE)
-        text_crt = self.f3.render(str(self.fight_enemy.critical), True, WHITE)
-        self.screen.blit(text_arm, (1100, 556))
-        self.screen.blit(text_dmg, (1100, 634))
-        self.screen.blit(text_crt, (1100, 662))
+        hit = str(self.fight_enemy.hit) if self.fight_enemy.hit > 0 else f'0{self.fight_enemy.hit}'
+        dmg = str(self.fight_enemy.dmg) if self.fight_enemy.dmg > 9 else f'0{self.fight_enemy.dmg}'
+        crt = str(self.fight_enemy.crt) if self.fight_enemy.crt > 9 else f'0{self.fight_enemy.crt}'
+        for i in range(len(hit)):
+            self.screen.blit(fight.numbers[int(hit[i])], (1115 + i * 40, 560))
+        for i in range(len(dmg)):
+            self.screen.blit(fight.numbers[int(dmg[i])], (1115 + i * 40, 600))
+        for i in range(len(crt)):
+            self.screen.blit(fight.numbers[int(crt[i])], (1115 + i * 40, 640))
 
         # hp
-        text_hp = self.f3.render(str(self.fight_person.hp), True, WHITE)
-        self.screen.blit(text_hp, (100, 735))
-        text_hp = self.f3.render(str(self.fight_enemy.hp), True, WHITE)
-        self.screen.blit(text_hp, (900, 735))
-        for i in range(0, int(self.fight_person.hp // 10)):
-            pygame.draw.rect(self.screen, GREEN, (180 + i * 8, 730, 5, 40))
-        for i in range(0, int(self.fight_enemy.hp // 10)):
-            pygame.draw.rect(self.screen, GREEN, (980 + i * 8, 730, 5, 40))
+        text_hp = str(self.fight_person.hp) if self.fight_person.hp > 0 else '0'
+        for i in range(len(text_hp)):
+            self.screen.blit(fight.numbers[int(text_hp[i])], (20 + i * 40, 725))
+        for i in range(0, self.fight_person.max_hp // 40):
+            for j in range(0, 40):
+                self.screen.blit(fight.hp[0 if j + i * 40 <= self.fight_person.hp else 1],
+                                 (110 + j * 10, 705 if i == 0 else 745))
+
+        text_hp = str(self.fight_enemy.hp) if self.fight_enemy.hp > 0 else '0'
+        for i in range(len(text_hp)):
+            self.screen.blit(fight.numbers[int(text_hp[i])], (630 + i * 40, 725))
+        for i in range(0, self.fight_enemy.max_hp // 40):
+            for j in range(0, 40):
+                self.screen.blit(fight.hp[0 if j + i * 40 <= self.fight_enemy.hp else 1],
+                                 (720 + j * 10, 705 if i == 0 else 745))
 
     def render_fight(self):
         global fight
@@ -222,8 +236,7 @@ class Main:
 
         if self.fight_tick == 1:
             fight = Fight(self.fight_person.name, self.fight_enemy.name,
-                          self.fight_img, self.fight_person.critical, self.fight_enemy.critical)
-
+                          self.fight_img, self.fight_person.crt, self.fight_enemy.crt)
         # send sms
         sms = f'<fight {self.opponent.persons.index(self.fight_enemy)} {fight.person_img_id} ' \
               f'{int(fight.moves[0])} {int(fight.person_y)} {self.fight_person.hp},' \
@@ -301,7 +314,7 @@ class Main:
                     fight.person_x += 10
                 if self.fight_tick == person_dmg_tick + 6:
                     k_ = 2 if fight.moves[2] else 1
-                    self.fight_person.hp -= self.fight_enemy.damage * k_
+                    self.fight_person.hp -= int(self.fight_enemy.dmg * k_ * (1 - self.fight_person.def_ / 100))
 
             if not fight.moves[1]:
                 if (self.fight_tick > enemy_dmg_tick) and (self.fight_tick < enemy_dmg_tick + 5):
@@ -310,8 +323,28 @@ class Main:
                     fight.enemy_x -= 10
                 if self.fight_tick == enemy_dmg_tick + 6:
                     k_ = 2 if fight.moves[0] else 1
-                    self.fight_enemy.hp -= self.fight_person.damage * k_
+                    self.fight_enemy.hp -= int(self.fight_person.dmg * k_ * (1 - self.fight_enemy.def_ / 100))
+            if self.fight_enemy.hp <= 0:
+                fight.enemy_dead += 1
+                if fight.enemy_dead >= 100:
+                    self.fight_tick = 0
+                    self.fight = False
 
+        # effect
+        magic_img = None
+        if self.fight_person.name in self.fight_img.magic_effects:
+            if fight.moves[0]:
+                if (self.fight_tick > 70) and (self.fight_tick <= 70 + 168):
+                    fight.magic_tick += 1
+                    magic_img = self.fight_img.magic_effects[self.fight_person.name]['crt'][fight.magic_tick % 168 // 3]
+                    if self.fight_tick == 70 + 168:
+                        fight.magic_tick = 0
+            else:
+                if (self.fight_tick > 50) and (self.fight_tick <= 50 + 105):
+                    fight.magic_tick += 1
+                    magic_img = self.fight_img.magic_effects[self.fight_person.name]['norm'][fight.magic_tick % 105 // 3]
+                    if self.fight_tick == 50 + 105:
+                        fight.magic_tick = 0
         # fight baze
         main.render_persons_characters_for_fight()
 
@@ -321,6 +354,17 @@ class Main:
         fight.person_img_id = fight.all_person_img.index(img)
         fight.enemy_img_id = fight.all_enemy_img.index(img_)
 
+        self.screen.blit(img, (fight.person_x, fight.person_y))
+        self.screen.blit(img_, (fight.enemy_x, fight.enemy_y))
+        fight.person_img_id = fight.all_person_img.index(img)
+        fight.enemy_img_id = fight.all_enemy_img.index(img_)
+
+        # magic
+        if magic_img is not None:
+            self.screen.blit(magic_img, (0, 0) if fight.moves[0] else (600, 90))
+            fight.magic_img_id = self.fight_img.all_magic_img.index(magic_img)
+        else:
+            fight.magic_img_id = -1
         # end
         if self.fight_tick > fight_end:
             self.fight_tick = 0
@@ -353,7 +397,7 @@ class Main:
                     self.opponent.persons[j].x = self.data[j][1]
                     self.opponent.persons[j].y = self.data[j][2]
         except:
-            pass
+            print('hp')
 
         # fight baze
         main.render_persons_characters_for_fight()
@@ -507,16 +551,16 @@ class Main:
                         pygame.draw.rect(self.screen, GREEN, (1055 + i * 10, 105, 5, 20))
 
                     # characters
-                    text_armor = self.f2.render('ARM', True, WHITE)
-                    text_arm = self.f2.render(str(person.armor), True, WHITE)
+                    text_hit_ = self.f2.render('HIT', True, WHITE)
+                    text_hit = self.f2.render(str(person.hit), True, WHITE)
                     text_damage = self.f2.render('DMG', True, WHITE)
-                    text_dmg = self.f2.render(str(person.damage), True, WHITE)
+                    text_dmg = self.f2.render(str(person.dmg), True, WHITE)
                     text_critical = self.f2.render('CRT', True, WHITE)
-                    text_crt = self.f2.render(str(person.critical), True, WHITE)
-                    self.screen.blit(text_armor, (1000, 150))
+                    text_crt = self.f2.render(str(person.crt), True, WHITE)
+                    self.screen.blit(text_hit_, (1000, 150))
                     self.screen.blit(text_damage, (1000, 200))
                     self.screen.blit(text_critical, (1000, 250))
-                    self.screen.blit(text_arm, (1100, 150))
+                    self.screen.blit(text_hit, (1100, 150))
                     self.screen.blit(text_dmg, (1100, 200))
                     self.screen.blit(text_crt, (1100, 250))
 
@@ -564,7 +608,7 @@ class Main:
         sms = '<'
         for person in self.player.persons:
             sms += f'{person.name} {person.x} {person.y} {person.state}{person.move_to} ' \
-                   f'{person.hp} {person.armor} {person.damage} {person.critical},'
+                   f'{person.hp} {person.hit} {person.dmg} {person.crt},'
         sms += '>'
         self.sock.send(sms.encode())
 
@@ -585,9 +629,9 @@ class Main:
                 self.opponent.persons[j].pos = (self.data[j][1] // TILE,
                                                 self.data[j][2] // TILE)
                 self.opponent.persons[j].hp = self.data[j][4]
-                self.opponent.persons[j].armor = self.data[j][5]
-                self.opponent.persons[j].damage = self.data[j][6]
-                self.opponent.persons[j].critical = self.data[j][7]
+                self.opponent.persons[j].hit = self.data[j][5]
+                self.opponent.persons[j].dmg = self.data[j][6]
+                self.opponent.persons[j].crt = self.data[j][7]
 
         except:
             pass
@@ -713,7 +757,7 @@ class Main:
                                             if self.mouse_pos == person.pos:
                                                 self.player.choice_person = self.player.persons.index(person)
                                                 self.person_positions = [person.pos for person in self.opponent.persons]
-                                                self.can_move_to = main.get_can_move_to(person.pos, 3)
+                                                self.can_move_to = main.get_can_move_to(person.pos, person.movement)
                                             else:
                                                 # attack
                                                 for person in self.player.persons:
@@ -740,7 +784,7 @@ class Main:
                         sms = '<'
                         for person in self.player.persons:
                             sms += f'{person.name} {person.x} {person.y} {person.state}{person.move_to} ' \
-                                   f'{person.hp} {person.armor} {person.damage} {person.critical},'
+                                   f'{person.hp} {person.hit} {person.dmg} {person.crt},'
                         sms += '>'
                         self.sock.send(sms.encode())
 
@@ -757,7 +801,6 @@ class Main:
                                 id_2, a_, b_, c_, d_ = self.data[0]
                                 self.fight_person = self.player.persons[id_2]
                                 self.fight_enemy = self.opponent.persons[id_1]
-                                print(self.fight_person.name, self.fight_enemy.name)
 
                             else:
                                 self.not_my_fight = False
@@ -773,9 +816,9 @@ class Main:
                                     self.opponent.persons[j].pos = (self.data[j][1] // TILE,
                                                                     self.data[j][2] // TILE)
                                     self.opponent.persons[j].hp = self.data[j][4]
-                                    self.opponent.persons[j].armor = self.data[j][5]
-                                    self.opponent.persons[j].damage = self.data[j][6]
-                                    self.opponent.persons[j].critical = self.data[j][7]
+                                    self.opponent.persons[j].hit = self.data[j][5]
+                                    self.opponent.persons[j].dmg = self.data[j][6]
+                                    self.opponent.persons[j].crt = self.data[j][7]
 
                         except:
                             pass

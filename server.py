@@ -22,15 +22,15 @@ fight_sms = ''
 
 
 class Person:
-    def __init__(self, x, y, name, state, hp, armor, damage, critical):
+    def __init__(self, x, y, name, state, hp, hit, dmg, crt):
         self.name = name
         self.pos = (x, y)
         self.state = state
 
         self.hp = hp
-        self.armor = armor
-        self.damage = damage
-        self.critical = critical
+        self.hit = hit
+        self.dmg = dmg
+        self.crt = crt
 
     def get_big_pos(self):
         return (self.pos[0] * TILE, self.pos[1] * TILE)
@@ -108,7 +108,7 @@ while run:
                 data = find(data)
                 player.persons = [Person(i[1], i[2], i[0], i[3], i[4], i[5], i[6], i[7]) for i in data]
         except:
-            pass
+            print('cant')
 
     print('--------')
     for player in players:
@@ -137,9 +137,8 @@ while run:
                         if player_2 != player:
                             for person in player_2.persons:
                                 sms += f'{person.name} {person.pos[0]} {person.pos[1]} {person.state} ' \
-                                       f'{person.hp} {person.armor} {person.damage} {person.critical},'
+                                       f'{person.hp} {person.hit} {person.dmg} {person.crt},'
                     sms += '>'
-            print(sms)
             player.conn.send(sms.encode())
             player.errors = 0
         except:

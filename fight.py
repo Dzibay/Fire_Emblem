@@ -7,11 +7,11 @@ sizes = {'roy': [{'width': 124,
                   'w': 11,
                   'h': 8,
                   'frames': 82,
-                  'x': 160,
-                  'y': 100,
+                  'x': 205,
+                  'y': 70,
                   'x1': 420,
                   'size': (550, 450),
-                  'dmg_time': 60},
+                  'dmg_time': 100},
 
                  {'width': 142,
                   'height': 102,
@@ -19,8 +19,8 @@ sizes = {'roy': [{'width': 124,
                   'h': 8,
                   'frames': 96,
                   'x': 130,
-                  'y': 100,
-                  'x1': 380,
+                  'y': 70,
+                  'x1': 410,
                   'size': (650, 450),
                   'dmg_time': 140}],
 
@@ -29,19 +29,19 @@ sizes = {'roy': [{'width': 124,
                   'w': 7,
                   'h': 6,
                   'frames': 37,
-                  'x': 290,
-                  'y': 85,
-                  'x1': 380,
+                  'x': 280,
+                  'y': 55,
+                  'x1': 390,
                   'size': (530, 530),
-                  'dmg_time': 45},
+                  'dmg_time': 40},
 
                  {'width': 220,
                   'height': 144,
                   'w': 9,
                   'h': 13,
                   'frames': 115,
-                  'x': 75,
-                  'y': 120,
+                  'x': 60,
+                  'y': 90,
                   'x1': 160,
                   'size': (970, 650),
                   'dmg_time': 110}],
@@ -51,9 +51,9 @@ sizes = {'roy': [{'width': 124,
                      'w': 7,
                      'h': 6,
                      'frames': 33,
-                     'x': 250,
-                     'y': 140,
-                     'x1': 430,
+                     'x': 230,
+                     'y': 110,
+                     'x1': 455,
                      'size': (530, 450),
                      'dmg_time': 60},
 
@@ -62,9 +62,9 @@ sizes = {'roy': [{'width': 124,
                      'w': 7,
                      'h': 6,
                      'frames': 32,
-                     'x': 250,
-                     'y': 140,
-                     'x1': 400,
+                     'x': 230,
+                     'y': 110,
+                     'x1': 435,
                      'size': (530, 450),
                      'dmg_time': 60}],
 
@@ -73,9 +73,9 @@ sizes = {'roy': [{'width': 124,
                      'w': 6,
                      'h': 5,
                      'frames': 28,
-                     'x': 250,
-                     'y': 250,
-                     'x1': 440,
+                     'x': 240,
+                     'y': 220,
+                     'x1': 450,
                      'size': (515, 300),
                      'dmg_time': 35},
 
@@ -84,9 +84,9 @@ sizes = {'roy': [{'width': 124,
                      'w': 6,
                      'h': 6,
                      'frames': 32,
-                     'x': 250,
-                     'y': 250,
-                     'x1': 440,
+                     'x': 240,
+                     'y': 225,
+                     'x1': 450,
                      'size': (515, 300),
                      'dmg_time': 45}],
 
@@ -95,9 +95,9 @@ sizes = {'roy': [{'width': 124,
                       'w': 7,
                       'h': 6,
                       'frames': 40,
-                      'x': 200,
-                      'y': 100,
-                      'x1': 350,
+                      'x': 220,
+                      'y': 50,
+                      'x1': 330,
                       'size': (650, 480),
                       'dmg_time': 60},
 
@@ -106,9 +106,9 @@ sizes = {'roy': [{'width': 124,
                       'w': 8,
                       'h': 8,
                       'frames': 59,
-                      'x': 100,
-                      'y': 100,
-                      'x1': 210,
+                      'x': 95,
+                      'y': 50,
+                      'x1': 180,
                       'size': (920, 570),
                       'dmg_time': 120}],
 
@@ -117,8 +117,8 @@ sizes = {'roy': [{'width': 124,
                     'w': 8,
                     'h': 4,
                     'frames': 29,
-                    'x': 320,
-                    'y': 300,
+                    'x': 325,
+                    'y': 270,
                     'x1': 440,
                     'size': (430, 300),
                     'dmg_time': 30},
@@ -129,8 +129,8 @@ sizes = {'roy': [{'width': 124,
                     'h': 8,
                     'frames': 70,
                     'x': 250,
-                    'y': 110,
-                    'x1': 440,
+                    'y': 80,
+                    'x1': 435,
                     'size': (515, 450),
                     'dmg_time': 115}],
 
@@ -140,8 +140,8 @@ sizes = {'roy': [{'width': 124,
                   'h': 5,
                   'frames': 23,
                   'x': 320,
-                  'y': 250,
-                  'x1': 440,
+                  'y': 220,
+                  'x1': 450,
                   'size': (430, 315),
                   'dmg_time': 45},
 
@@ -151,58 +151,72 @@ sizes = {'roy': [{'width': 124,
                   'h': 7,
                   'frames': 44,
                   'x': 300,
-                  'y': 10,
-                  'x1': 260,
+                  'y': -25,
+                  'x1': 240,
                   'size': (675, 560),
-                  'dmg_time': 60}]
+                  'dmg_time': 60}],
+
+         'sorcerer': [{'width': 68,
+                       'height': 51,
+                       'w': 8,
+                       'h': 2,
+                       'frames': 16,
+                       'x': 240,
+                       'y': 300,
+                       'x1': 665,
+                       'size': (300, 225),
+                       'dmg_time': 40},
+
+                      {'width': 80,
+                       'height': 111,
+                       'w': 8,
+                       'h': 8,
+                       'frames': 61,
+                       'x': 220,
+                       'y': 60,
+                       'x1': 620,
+                       'size': (360, 500),
+                       'dmg_time': 160}],
          }
 
 
 class Fight_images:
     def __init__(self):
         self.images = {}
+        self.magic_effects = {'sorcerer': {'norm': [pygame.transform.scale(
+            pygame.image.load(f'templates/persons/sorcerer/normal_effect.png').
+            subsurface(x * 65, y * 99, 65, 99), (290, 450)) for y in range(0, 7) for x in range(0, 5)][:35],
+
+                                           'crt': [pygame.transform.flip(pygame.transform.scale(
+                                               pygame.image.load(f'templates/persons/sorcerer/critical_effect.png').
+                                               subsurface(x * 240, y * 128, 240, 128), (WIDTH, HEIGHT)), True, False)
+                                               for y in range(0, 10) for x in range(0, 6)][:56]}}
+        self.all_magic_img = self.magic_effects['sorcerer']['norm'] + self.magic_effects['sorcerer']['crt']
 
     def uppload_images(self, names):
         for name in set(names):
             self.images[name] = {'person': {'norm': [], 'crt': []}, 'enemy': {'norm': [], 'crt': []}}
-            # person
-            person_melee_attack_img = [pygame.image.load(f'templates/persons/{name}/person/normal_attack.png').
-                                       subsurface(sizes[name][0]['width'] * x, sizes[name][0]['height'] * y,
-                                                  sizes[name][0]['width'], sizes[name][0]['height'])
-                                       for y in range(0, sizes[name][0]['h']) for x in range(0, sizes[name][0]['w'])][
-                                      :sizes[name][0]['frames']]
-            for i in range(len(person_melee_attack_img)):
-                person_melee_attack_img[i] = pygame.transform.scale(person_melee_attack_img[i], sizes[name][0]['size'])
-                person_melee_attack_img[i] = pygame.transform.flip(person_melee_attack_img[i], True, False)
-
-            person_critical_attack_img = [pygame.image.load(f'templates/persons/{name}/person/critical_attack.png').
-                                          subsurface(sizes[name][1]['width'] * x, sizes[name][1]['height'] * y,
-                                                     sizes[name][1]['width'], sizes[name][1]['height'])
-                                          for y in range(0, sizes[name][1]['h']) for x in
-                                          range(0, sizes[name][1]['w'])][
-                                         :sizes[name][1]['frames']]
-            for i in range(len(person_critical_attack_img)):
-                person_critical_attack_img[i] = pygame.transform.scale(person_critical_attack_img[i],
-                                                                       sizes[name][1]['size'])
-                person_critical_attack_img[i] = pygame.transform.flip(person_critical_attack_img[i], True, False)
-
             # enemy
-            enemy_melee_attack_img = [pygame.image.load(f'templates/persons/{name}/enemy/normal_attack.png').
+            enemy_melee_attack_img = [pygame.image.load(f'templates/persons/{name}/normal_attack.png').
                                       subsurface(sizes[name][0]['width'] * x, sizes[name][0]['height'] * y,
                                                  sizes[name][0]['width'], sizes[name][0]['height'])
-                                      for y in range(0, sizes[name][0]['h']) for x in range(0, sizes[name][0]['w'])][
-                                     :sizes[name][0]['frames']]
+                                      for y in range(0, sizes[name][0]['h'])
+                                      for x in range(0, sizes[name][0]['w'])][:sizes[name][0]['frames']]
             for i in range(len(enemy_melee_attack_img)):
                 enemy_melee_attack_img[i] = pygame.transform.scale(enemy_melee_attack_img[i], sizes[name][0]['size'])
 
-            enemy_critical_attack_img = [pygame.image.load(f'templates/persons/{name}/enemy/critical_attack.png').
+            enemy_critical_attack_img = [pygame.image.load(f'templates/persons/{name}/critical_attack.png').
                                          subsurface(sizes[name][1]['width'] * x, sizes[name][1]['height'] * y,
                                                     sizes[name][1]['width'], sizes[name][1]['height'])
-                                         for y in range(0, sizes[name][1]['h']) for x in range(0, sizes[name][1]['w'])][
-                                        :sizes[name][1]['frames']]
+                                         for y in range(0, sizes[name][1]['h'])
+                                         for x in range(0, sizes[name][1]['w'])][:sizes[name][1]['frames']]
             for i in range(len(enemy_critical_attack_img)):
                 enemy_critical_attack_img[i] = pygame.transform.scale(enemy_critical_attack_img[i],
                                                                       sizes[name][1]['size'])
+
+            # person
+            person_melee_attack_img = [pygame.transform.flip(img, True, False) for img in enemy_melee_attack_img]
+            person_critical_attack_img = [pygame.transform.flip(img, True, False) for img in enemy_critical_attack_img]
 
             self.images[name]['person']['norm'] = person_melee_attack_img
             self.images[name]['person']['crt'] = person_critical_attack_img
@@ -220,6 +234,9 @@ class Fight:
         self.tick = 0
         self.dodge_tick = 0
         self.miss_tick = 0
+        self.magic_tick = 0
+        self.magic_img_id = -1
+        self.enemy_dead = 0
 
         self.person_x, self.person_y = sizes[person_name][int(self.moves[0])]['x'], \
                                        sizes[person_name][int(self.moves[0])]['y']
@@ -230,11 +247,14 @@ class Fight:
         self.person_img_id = 0
         self.enemy_img_id = 0
 
-        self.fight_bg = pygame.image.load('templates/fight_bg/bg.png').subsurface(1, 1, 240, 160)
+        self.fight_bg = pygame.image.load('templates/fight/bg.png').subsurface(1, 1, 240, 160)
         self.fight_bg = pygame.transform.scale(self.fight_bg, (WIDTH, HEIGHT))
-        self.fight_characters = pygame.image.load('templates/fight_bg/baze.png')
+        self.fight_characters = pygame.image.load('templates/fight/baze.png')
         self.fight_characters = pygame.transform.scale(self.fight_characters, (WIDTH, HEIGHT))
-        self.numbers = [pygame.image.load('templates/fight_bg/numbers.png').subsurface(i, i, 8, 8) for i in range(10)]
+        self.numbers = [pygame.transform.scale(
+            pygame.image.load('templates/fight/numbers.png').subsurface(i * 8, 0, 8, 8), (40, 40)) for i in range(10)]
+        self.hp = [pygame.transform.scale(
+            pygame.image.load('templates/fight/hp.png').subsurface(i * 2, 0, 2, 7), (10, 35)) for i in range(2)]
 
         self.miss_img = [pygame.image.load(f'templates/miss/{i}.png') for i in range(0, 12)]
         for i in range(len(self.miss_img)):

@@ -225,11 +225,12 @@ class Fight_images:
 
 
 class Fight:
-    def __init__(self, person_name, enemy_name, fight_images, person_crt=0, enemy_crt=0):
-        self.moves = [True,
-                      False,
-                      False,
-                      False]
+    def __init__(self, person_name, enemy_name, fight_images, person_crt=0, enemy_crt=0, person_hit=0, enemy_hit=0):
+        self.moves = [True if randint(0, 100) <= person_crt else False,
+                      True if randint(0, 100) <= (1 - person_hit) else False,
+                      True if randint(0, 100) <= enemy_crt else False,
+                      True if randint(0, 100) <= (1 - enemy_hit) else False]
+        print(self.moves)
         self.need_moves = [0, 0]
         self.tick = 0
         self.dodge_tick = 0

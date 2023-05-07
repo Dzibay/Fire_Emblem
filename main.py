@@ -210,18 +210,28 @@ class Main:
         text_hp = str(self.fight_person.hp) if self.fight_person.hp > 0 else '0'
         for i in range(len(text_hp)):
             self.screen.blit(fight.numbers[int(text_hp[i])], (20 + i * 40, 725))
-        for i in range(0, self.fight_person.max_hp // 40):
-            for j in range(0, 40):
-                self.screen.blit(fight.hp[0 if j + i * 40 <= self.fight_person.hp else 1],
-                                 (110 + j * 10, 705 if i == 0 else 745))
+        for i in range(0, 2 if self.fight_person.max_hp > 40 else 1):
+            if self.fight_person.max_hp > 40:
+                for j in range(0, self.fight_person.max_hp):
+                    self.screen.blit(fight.hp[0 if j + i * 40 <= self.fight_person.hp else 1],
+                                     (110 + j * 10, 705 if i == 0 else 745))
+            else:
+                for j in range(0, self.fight_person.max_hp):
+                    self.screen.blit(fight.hp[0 if j + i * 40 <= self.fight_person.hp else 1],
+                                     (110 + j * 10, 726))
 
         text_hp = str(self.fight_enemy.hp) if self.fight_enemy.hp > 0 else '0'
         for i in range(len(text_hp)):
             self.screen.blit(fight.numbers[int(text_hp[i])], (630 + i * 40, 725))
-        for i in range(0, self.fight_enemy.max_hp // 40):
-            for j in range(0, 40):
-                self.screen.blit(fight.hp[0 if j + i * 40 <= self.fight_enemy.hp else 1],
-                                 (720 + j * 10, 705 if i == 0 else 745))
+        for i in range(0, 2 if self.fight_enemy.max_hp > 40 else 1):
+            if self.fight_enemy.max_hp > 40:
+                for j in range(0, self.fight_enemy.max_hp):
+                    self.screen.blit(fight.hp[0 if j + i * 40 <= self.fight_enemy.hp else 1],
+                                     (720 + j * 10, 705 if i == 0 else 745))
+            else:
+                for j in range(0, self.fight_enemy.max_hp):
+                    self.screen.blit(fight.hp[0 if j + i * 40 <= self.fight_enemy.hp else 1],
+                                     (720 + j * 10, 726))
 
     def render_fight(self):
         global fight
@@ -313,8 +323,10 @@ class Main:
                 elif (self.fight_tick > person_dmg_tick + 5) and (self.fight_tick < person_dmg_tick + 10):
                     fight.person_x += 10
                 if self.fight_tick == person_dmg_tick + 6:
-                    k_ = 2 if fight.moves[2] else 1
-                    self.fight_person.damage_for_me = int(self.fight_enemy.dmg * k_ * (1 - self.fight_person.def_ / 100))
+                    k_ = 3 if fight.moves[2] else 1
+                    self.fight_person.damage_for_me = int((self.fight_enemy.dmg - (self.fight_person.res
+                                                                                   if self.fight_enemy.type == 'magic'
+                                                                                   else self.fight_person.def_)) * k_)
 
             if not fight.moves[1]:
                 if (self.fight_tick > enemy_dmg_tick) and (self.fight_tick < enemy_dmg_tick + 5):
@@ -322,8 +334,10 @@ class Main:
                 elif (self.fight_tick > enemy_dmg_tick + 5) and (self.fight_tick < enemy_dmg_tick + 10):
                     fight.enemy_x -= 10
                 if self.fight_tick == enemy_dmg_tick + 6:
-                    k_ = 2 if fight.moves[0] else 1
-                    self.fight_enemy.damage_for_me = int(self.fight_person.dmg * k_ * (1 - self.fight_enemy.def_ / 100))
+                    k_ = 3 if fight.moves[0] else 1
+                    self.fight_enemy.damage_for_me = int((self.fight_person.dmg - (self.fight_enemy.res
+                                                                                   if self.fight_person.type == 'magic'
+                                                                                   else self.fight_enemy.def_)) * k_)
 
             for person in [self.fight_person] + [self.fight_enemy]:
                 if person.damage_for_me > 0:
@@ -345,10 +359,11 @@ class Main:
                     if self.fight_tick == 70 + 168:
                         fight.magic_tick = 0
             else:
-                if (self.fight_tick > 50) and (self.fight_tick <= 50 + 105):
+                if (self.fight_tick > 70) and (self.fight_tick <= 70 + 100):
                     fight.magic_tick += 1
-                    magic_img = self.fight_img.magic_effects[self.fight_person.name]['norm'][fight.magic_tick % 105 // 3]
-                    if self.fight_tick == 50 + 105:
+                    magic_img = self.fight_img.magic_effects[self.fight_person.name]['norm'][
+                        fight.magic_tick % 105 // 3]
+                    if self.fight_tick == 70 + 100:
                         fight.magic_tick = 0
         # fight baze
         main.render_persons_characters_for_fight()
@@ -399,7 +414,9 @@ class Main:
                 self.not_my_fight = False
                 self.data = main.find_sms(self.data)
                 if len(self.data) != len(self.opponent.persons):
-                    self.opponent.persons = [Person(j[1], j[2], j[0]) for j in self.data]
+                    self.opponent.persons = [Person(j[1], j[2], j[0], 'magic' if j[0] in
+                                                                                 self.fight_img.magic_effects
+                    else 'no') for j in self.data]
                 for j in range(len(self.data)):
                     self.opponent.persons[j].x = self.data[j][1]
                     self.opponent.persons[j].y = self.data[j][2]
@@ -608,11 +625,14 @@ class Main:
                     if self.placing_choice_person is not None:
                         self.player.persons.append(Person(self.mouse_pos[0] * TILE,
                                                           self.mouse_pos[1] * TILE,
-                                                          self.names_choice_persons[self.placing_choice_person]))
+                                                          self.names_choice_persons[self.placing_choice_person],
+                                                          'magic' if self.names_choice_persons[
+                                                                         self.placing_choice_person] in
+                                                                     self.fight_img.magic_effects else 'no'))
                         self.menu_choice_persons.remove(self.placing_choice_person)
                         self.placing_choice_person = None
 
-        sms = '<'
+        sms = '<|'
         for person in self.player.persons:
             sms += f'{person.name} {person.x} {person.y} {person.state}{person.move_to} ' \
                    f'{person.hp} {person.hit} {person.dmg} {person.crt},'
@@ -628,7 +648,9 @@ class Main:
             if len(self.data) != len(self.opponent.persons):
                 if [(j[1] // TILE, j[2] // TILE) for j in self.data] != \
                         [person.pos for person in self.player.persons]:
-                    self.opponent.persons = [Person(j[1], j[2], j[0]) for j in self.data]
+                    self.opponent.persons = [Person(j[1], j[2], j[0], 'magic' if j[0] in
+                                                                                 self.fight_img.magic_effects
+                    else 'no') for j in self.data]
 
             for j in range(len(self.data)):
                 self.opponent.persons[j].x = self.data[j][1]
@@ -745,9 +767,7 @@ class Main:
                             if event.type == pygame.QUIT:
                                 self.run = False
                             if event.type == pygame.KEYUP:
-                                if event.key == pygame.K_SPACE:
-                                    self.player.persons.append(Person(80, 80, 'eliwood(lord)'))
-                                elif event.key == pygame.K_e:
+                                if event.key == pygame.K_e:
                                     self.can_move = True
                                 elif event.key == pygame.K_o:
                                     for person in self.player.persons:
@@ -788,13 +808,12 @@ class Main:
                                     self.player.choice_person = None
 
                         # send sms
-                        sms = '<'
+                        sms = f'<{self.can_move}|'
                         for person in self.player.persons:
-                            sms += f'{self.can_move} {person.name} {person.x} {person.y} {person.state}{person.move_to} ' \
+                            sms += f'{person.name} {person.x} {person.y} {person.state}{person.move_to} ' \
                                    f'{person.hp} {person.hit} {person.dmg} {person.crt},'
                         sms += '>'
                         self.sock.send(sms.encode())
-                        print(sms)
 
                         # recv sms
                         try:
@@ -820,7 +839,10 @@ class Main:
                                 if len(self.data) != len(self.opponent.persons):
                                     if [(j[1] // TILE, j[2] // TILE) for j in self.data] != \
                                             [person.pos for person in self.player.persons]:
-                                        self.opponent.persons = [Person(j[1], j[2], j[0]) for j in self.data]
+                                        self.opponent.persons = [Person(j[1], j[2], j[0],
+                                                                        'magic' if j[0] in
+                                                                                   self.fight_img.magic_effects
+                                                                        else 'no') for j in self.data]
 
                                 for j in range(len(self.data)):
                                     self.opponent.persons[j].x = self.data[j][1]

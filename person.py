@@ -6,81 +6,81 @@ def cords(c):
     return c[0], c[1], c[2], c[3]
 
 
-characters = {'roy': {'hp': 30,
-                      'hit': 30,
-                      'str': 30,
-                      'skl': 30,
-                      'lck': 30,
-                      'def': 30,
-                      'res': 30,
+characters = {'roy': {'hp': 20,
+                      'str': 5,
+                      'mag': 18,
+                      'skl': 5,
+                      'lck': 5,
+                      'def': 7,
+                      'res': 7,
                       'move': 4},
 
-              'lyn': {'hp': 30,
-                      'hit': 30,
-                      'str': 30,
-                      'skl': 30,
-                      'lck': 30,
-                      'def': 30,
-                      'res': 30,
+              'lyn': {'hp': 18,
+                      'str': 4,
+                      'mag': 16,
+                      'skl': 4,
+                      'lck': 7,
+                      'def': 9,
+                      'res': 5,
                       'move': 5},
 
-              'hector': {'hp': 30,
-                         'hit': 30,
-                         'str': 30,
-                         'skl': 30,
-                         'lck': 30,
-                         'def': 30,
-                         'res': 30,
+              'hector': {'hp': 19,
+                         'str': 7,
+                         'mag': 1,
+                         'skl': 4,
+                         'lck': 3,
+                         'def': 8,
+                         'res': 0,
                          'move': 3},
 
-              'eirika': {'hp': 30,
-                         'hit': 30,
-                         'str': 30,
-                         'skl': 30,
-                         'lck': 30,
-                         'def': 30,
-                         'res': 30,
+              'eirika': {'hp': 16,
+                         'str': 4,
+                         'mag': 1,
+                         'skl': 8,
+                         'lck': 5,
+                         'def': 3,
+                         'res': 1,
                          'move': 6},
 
-              'eliwood': {'hp': 30,
-                          'hit': 30,
-                          'str': 30,
-                          'skl': 30,
-                          'lck': 30,
-                          'def': 30,
-                          'res': 30,
+              'eliwood': {'hp': 18,
+                          'str': 5,
+                          'mag': 5,
+                          'skl': 5,
+                          'lck': 7,
+                          'def': 5,
+                          'res': 0,
                           'move': 6},
 
-              'marth': {'hp': 30,
-                        'hit': 30,
-                        'str': 30,
-                        'skl': 30,
-                        'lck': 30,
-                        'def': 30,
-                        'res': 30,
+              'marth': {'hp': 18,
+                        'str': 5,
+                        'mag': 0,
+                        'skl': 3,
+                        'lck': 7,
+                        'def': 7,
+                        'res': 7,
                         'move': 4},
 
-              'ike': {'hp': 30,
-                      'hit': 30,
-                      'str': 30,
-                      'skl': 30,
-                      'lck': 30,
-                      'def': 30,
-                      'res': 30,
+              'ike': {'hp': 20,
+                      'str': 4,
+                      'mag': 5,
+                      'skl': 5,
+                      'lck': 6,
+                      'def': 7,
+                      'res': 6,
                       'move': 4},
 
-              'sorcerer': {'hp': 30,
-                           'hit': 30,
-                           'str': 30,
-                           'skl': 30,
-                           'lck': 30,
-                           'def': 30,
-                           'res': 30,
+              'sorcerer': {'hp': 15,
+                           'str': 1,
+                           'mag': 10,
+                           'skl': 4,
+                           'lck': 4,
+                           'def': 0,
+                           'res': 3,
                            'move': 3}}
 
 
 class Person:
-    def __init__(self, x, y, name):
+    def __init__(self, x, y, name, type):
         print('person')
         self.x = x
         self.y = y
@@ -91,18 +91,20 @@ class Person:
         self.move_to = ''
         self.damage_for_me = 0
 
+        self.type = type
         self.hp = characters[self.name]['hp']
-        self.max_hp = 50
-        self.hit = characters[self.name]['hit']
+        self.max_hp = self.hp
+        self.hit = 90
         self.str = characters[self.name]['str']
+        self.mag = characters[self.name]['mag']
         self.skl = characters[self.name]['skl']
         self.lck = characters[self.name]['lck']
         self.def_ = characters[self.name]['def']
         self.res = characters[self.name]['res']
         self.movement = characters[self.name]['move']
 
-        self.dmg = self.str + 20
-        self.crt = self.skl + 20
+        self.dmg = self.mag if self.type == 'magic' else (self.str + 5)
+        self.crt = self.skl // 2 + 1
 
         self.can_fight_with = []
         self.attack_button = None

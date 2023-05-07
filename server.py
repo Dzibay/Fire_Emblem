@@ -51,17 +51,16 @@ class Player:
 
 def find(s):
     first = None
+    can_move = True if s[:5] == '<True' else False
     for i in range(len(s)):
-        if s[i] == '<':
+        if s[i] == '|':
             first = i
         if s[i] == '>' and first is not None:
             end = i
             res = s[first + 1:end].split(',')
             res = [i.split(' ') for i in res if i != '']
-            can_move = res[0][0]
-            res[0].remove(can_move)
             result = [[i[0], int(i[1]), int(i[2]), i[3], int(i[4]), int(i[5]), int(i[6]), int(i[7])] for i in res]
-            return True if can_move == 'True' else False, result
+            return can_move, result
     return ''
 
 

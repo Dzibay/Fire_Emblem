@@ -45,6 +45,8 @@ class Main:
         # bg
         self.bg = pygame.image.load('templates/map/map1.png')
         self.bg = pygame.transform.scale(self.bg, (1200, 800))
+        self.your_turn_img = pygame.image.load('templates/map/your_turn.png')
+        self.opponents_turn_img = pygame.image.load('templates/map/opponents_turn.png')
 
         # mouse
         self.mouse_pos = (0, 0)
@@ -74,6 +76,7 @@ class Main:
 
         # data
         self.data = ''
+        self.magic_data = [-1, 0, 0]
 
         # fight
         self.fight_upload = False
@@ -136,14 +139,27 @@ class Main:
         return False
 
     @staticmethod
-    def find_fight(s):
+    def find_fight_magic(s):
         first = None
         for i in range(len(s)):
             if s[i] == '<':
                 first = i
+            if s[i] == '|' and first is not None:
+                end = i
+                res = s[first + 1:end][6:].split(' ')
+                res = [int(i) for i in res]
+                return res
+        return ''
+
+    @staticmethod
+    def find_fight(s):
+        first = None
+        for i in range(len(s)):
+            if s[i] == '|':
+                first = i
             if s[i] == '>' and first is not None:
                 end = i
-                res = s[first + 1:end][6:].split(',')
+                res = s[first + 1:end].split(',')
                 res = [[int(i) for i in j.split(' ')] for j in res]
                 return res
         return ''
@@ -247,18 +263,6 @@ class Main:
         if self.fight_tick == 1:
             fight = Fight(self.fight_person.name, self.fight_enemy.name,
                           self.fight_img, self.fight_person.crt, self.fight_enemy.crt)
-        # send sms
-        sms = f'<fight {self.opponent.persons.index(self.fight_enemy)} {fight.person_img_id} ' \
-              f'{int(fight.moves[0])} {int(fight.person_y)} {self.fight_person.hp},' \
-              f'{self.player.persons.index(self.fight_person)} {fight.enemy_img_id} ' \
-              f'{int(fight.moves[2])} {int(fight.enemy_y)} {self.fight_enemy.hp}>'
-        self.sock.send(sms.encode())
-        # recv sms
-        try:
-            self.data = self.sock.recv(1024).decode()
-            self.not_my_fight = False
-        except:
-            pass
 
         enemy_dmg_tick = 50 + fight.enemy_dmg_tick
         if not fight.moves[0]:
@@ -276,7 +280,8 @@ class Main:
                 person_dmg_tick = 1110
                 fight_end = fight_end = 50 + fight.person_critical_attack_time + \
                                         100 + fight.enemy_critical_attack_time + 50
-        # person
+
+        start_enemy_attack = 1000
         if self.fight_tick <= 50:
             img = fight.person_stay_img
             img_ = fight.enemy_stay_img
@@ -338,7 +343,7 @@ class Main:
                     self.fight_enemy.damage_for_me = int((self.fight_person.dmg - (self.fight_enemy.res
                                                                                    if self.fight_person.type == 'magic'
                                                                                    else self.fight_enemy.def_)) * k_)
-
+            # deal damage
             for person in [self.fight_person] + [self.fight_enemy]:
                 if person.damage_for_me > 0:
                     person.hp -= 1
@@ -349,22 +354,61 @@ class Main:
                     self.fight_tick = 0
                     self.fight = False
 
-        # effect
+        # magic effect
         magic_img = None
         if self.fight_person.name in self.fight_img.magic_effects:
             if fight.moves[0]:
-                if (self.fight_tick > 70) and (self.fight_tick <= 70 + 168):
+                if (self.fight_tick > 55) and (self.fight_tick <= 55 + fight.person_critical_effect_time):
                     fight.magic_tick += 1
-                    magic_img = self.fight_img.magic_effects[self.fight_person.name]['crt'][fight.magic_tick % 168 // 3]
-                    if self.fight_tick == 70 + 168:
+                    magic_img = fight.person_critical_effect[fight.magic_tick % fight.person_critical_effect_time // 2]
+                    if self.fight_tick == 55 + fight.person_critical_effect_time:
                         fight.magic_tick = 0
+                        magic_img = None
             else:
-                if (self.fight_tick > 70) and (self.fight_tick <= 70 + 100):
+                if (self.fight_tick > 55) and (self.fight_tick <= 55 + fight.person_norm_effect_time):
                     fight.magic_tick += 1
-                    magic_img = self.fight_img.magic_effects[self.fight_person.name]['norm'][
-                        fight.magic_tick % 105 // 3]
-                    if self.fight_tick == 70 + 100:
+                    magic_img = fight.person_norm_effect[fight.magic_tick % fight.person_norm_effect_time // 2]
+                    if self.fight_tick == 55 + fight.person_norm_effect_time:
                         fight.magic_tick = 0
+                        magic_img = None
+        if self.fight_enemy.name in self.fight_img.magic_effects:
+            if fight.moves[2]:
+                if (self.fight_tick > start_enemy_attack + 5) and \
+                        (self.fight_tick <= start_enemy_attack + fight.enemy_critical_effect_time):
+                    fight.magic_tick += 1
+                    magic_img = fight.enemy_critical_effect[fight.magic_tick % fight.enemy_critical_effect_time // 2]
+                    if self.fight_tick == start_enemy_attack + fight.enemy_critical_effect_time:
+                        fight.magic_tick = 0
+                        magic_img = None
+            else:
+                if (self.fight_tick > start_enemy_attack + 5) and \
+                        (self.fight_tick <= start_enemy_attack + fight.enemy_norm_effect_time):
+                    fight.magic_tick += 1
+                    magic_img = fight.enemy_critical_effect[fight.magic_tick % fight.enemy_norm_effect_time // 2]
+                    if self.fight_tick == start_enemy_attack + fight.enemy_norm_effect_time:
+                        fight.magic_tick = 0
+                        magic_img = None
+
+        if self.fight_tick < start_enemy_attack:
+            cords_ = fight.person_magic_cords_sms
+        else:
+            cords_ = fight.enemy_magic_cords_sms
+
+        # send sms
+        sms = f'<fight {fight.magic_img_id} {cords_[0]} {cords_[1]}|' \
+              f'{self.opponent.persons.index(self.fight_enemy)} {fight.person_img_id} ' \
+              f'{int(fight.moves[0])} {int(fight.person_y)} {self.fight_person.hp},' \
+              f'{self.player.persons.index(self.fight_person)} {fight.enemy_img_id} ' \
+              f'{int(fight.moves[2])} {int(fight.enemy_y)} {self.fight_enemy.hp}>'
+        self.sock.send(sms.encode())
+
+        # recv sms
+        try:
+            self.data = self.sock.recv(1024).decode()
+            self.not_my_fight = False
+        except:
+            pass
+
         # fight baze
         main.render_persons_characters_for_fight()
 
@@ -374,17 +418,17 @@ class Main:
         fight.person_img_id = fight.all_person_img.index(img)
         fight.enemy_img_id = fight.all_enemy_img.index(img_)
 
-        self.screen.blit(img, (fight.person_x, fight.person_y))
-        self.screen.blit(img_, (fight.enemy_x, fight.enemy_y))
-        fight.person_img_id = fight.all_person_img.index(img)
-        fight.enemy_img_id = fight.all_enemy_img.index(img_)
-
         # magic
         if magic_img is not None:
-            self.screen.blit(magic_img, (0, 0) if fight.moves[0] else (600, 90))
-            fight.magic_img_id = self.fight_img.all_magic_img.index(magic_img)
+            if self.fight_tick < start_enemy_attack:
+                cords = fight.person_magic_cords
+            else:
+                cords = fight.enemy_magic_cords
+            self.screen.blit(magic_img, cords)
+            fight.magic_img_id = fight.all_effects.index(magic_img)
         else:
             fight.magic_img_id = -1
+
         # end
         if self.fight_tick > fight_end:
             self.fight_tick = 0
@@ -405,6 +449,7 @@ class Main:
         try:
             self.data = self.sock.recv(1024).decode()
             if main.is_fight(self.data):
+                self.magic_data = main.find_fight_magic(self.data)
                 self.data = main.find_fight(self.data)
                 id_1, fight.person_img_id, fight.need_moves[0], fight.person_y, self.fight_person.hp = self.data[1]
                 id_2, fight.enemy_img_id, fight.need_moves[1], fight.enemy_y, self.fight_enemy.hp = self.data[0]
@@ -414,9 +459,8 @@ class Main:
                 self.not_my_fight = False
                 self.data = main.find_sms(self.data)
                 if len(self.data) != len(self.opponent.persons):
-                    self.opponent.persons = [Person(j[1], j[2], j[0], 'magic' if j[0] in
-                                                                                 self.fight_img.magic_effects
-                    else 'no') for j in self.data]
+                    self.opponent.persons = [Person(j[1], j[2], j[0], 'magic'
+                    if j[0] in self.fight_img.magic_effects else 'no') for j in self.data]
                 for j in range(len(self.data)):
                     self.opponent.persons[j].x = self.data[j][1]
                     self.opponent.persons[j].y = self.data[j][2]
@@ -432,6 +476,11 @@ class Main:
         # enemy
         self.screen.blit(fight.all_enemy_img[fight.enemy_img_id],
                          (sizes[self.fight_enemy.name][fight.need_moves[1]]['x1'], fight.enemy_y))
+
+        # magic
+        id_, x_, y_ = self.magic_data[0], self.magic_data[1], self.magic_data[2]
+        if id_ >= 0:
+            self.screen.blit(fight.all_effects[id_], (x_, y_))
 
     def render(self):
         # bg
@@ -598,6 +647,9 @@ class Main:
                 pos_ = self.placing_persons_pos[self.placing_choice_person]
                 pygame.draw.rect(self.screen, WHITE, (pos_[0], pos_[1], 100, 100), 2)
 
+        # indicate turn
+        self.screen.blit(self.your_turn_img if self.can_move else self.opponents_turn_img, (500, 0))
+
         # fps
         text_fps = self.f1.render(str(self.clock.get_fps()), True, BLACK)
         self.screen.blit(text_fps, (1150, 0))
@@ -648,9 +700,8 @@ class Main:
             if len(self.data) != len(self.opponent.persons):
                 if [(j[1] // TILE, j[2] // TILE) for j in self.data] != \
                         [person.pos for person in self.player.persons]:
-                    self.opponent.persons = [Person(j[1], j[2], j[0], 'magic' if j[0] in
-                                                                                 self.fight_img.magic_effects
-                    else 'no') for j in self.data]
+                    self.opponent.persons = [Person(j[1], j[2], j[0], 'magic'
+                    if j[0] in self.fight_img.magic_effects else 'no') for j in self.data]
 
             for j in range(len(self.data)):
                 self.opponent.persons[j].x = self.data[j][1]
@@ -840,8 +891,7 @@ class Main:
                                     if [(j[1] // TILE, j[2] // TILE) for j in self.data] != \
                                             [person.pos for person in self.player.persons]:
                                         self.opponent.persons = [Person(j[1], j[2], j[0],
-                                                                        'magic' if j[0] in
-                                                                                   self.fight_img.magic_effects
+                                                                        'magic' if j[0] in self.fight_img.magic_effects
                                                                         else 'no') for j in self.data]
 
                                 for j in range(len(self.data)):

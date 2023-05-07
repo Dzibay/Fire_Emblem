@@ -26,6 +26,7 @@ class Main:
     def __init__(self):
         self.start_game = False
         self.run = True
+        self.can_move = True
         self.tick = 0
 
         # pygame
@@ -73,7 +74,6 @@ class Main:
 
         # data
         self.data = ''
-        self.can_move = True
 
         # fight
         self.fight_upload = False
@@ -112,7 +112,7 @@ class Main:
     def find_sms(s):
         first = None
         for i in range(len(s)):
-            if s[i] == '<':
+            if s[i] == '|':
                 first = i
             if s[i] == '>' and first is not None:
                 end = i
@@ -314,7 +314,7 @@ class Main:
                     fight.person_x += 10
                 if self.fight_tick == person_dmg_tick + 6:
                     k_ = 2 if fight.moves[2] else 1
-                    self.fight_person.hp -= int(self.fight_enemy.dmg * k_ * (1 - self.fight_person.def_ / 100))
+                    self.fight_person.damage_for_me = int(self.fight_enemy.dmg * k_ * (1 - self.fight_person.def_ / 100))
 
             if not fight.moves[1]:
                 if (self.fight_tick > enemy_dmg_tick) and (self.fight_tick < enemy_dmg_tick + 5):
@@ -323,10 +323,15 @@ class Main:
                     fight.enemy_x -= 10
                 if self.fight_tick == enemy_dmg_tick + 6:
                     k_ = 2 if fight.moves[0] else 1
-                    self.fight_enemy.hp -= int(self.fight_person.dmg * k_ * (1 - self.fight_enemy.def_ / 100))
+                    self.fight_enemy.damage_for_me = int(self.fight_person.dmg * k_ * (1 - self.fight_enemy.def_ / 100))
+
+            for person in [self.fight_person] + [self.fight_enemy]:
+                if person.damage_for_me > 0:
+                    person.hp -= 1
+                    person.damage_for_me -= 1
             if self.fight_enemy.hp <= 0:
                 fight.enemy_dead += 1
-                if fight.enemy_dead >= 100:
+                if fight.enemy_dead >= 50:
                     self.fight_tick = 0
                     self.fight = False
 
@@ -388,6 +393,8 @@ class Main:
                 self.data = main.find_fight(self.data)
                 id_1, fight.person_img_id, fight.need_moves[0], fight.person_y, self.fight_person.hp = self.data[1]
                 id_2, fight.enemy_img_id, fight.need_moves[1], fight.enemy_y, self.fight_enemy.hp = self.data[0]
+                if self.fight_person.hp <= 0:
+                    self.player.persons.remove(self.fight_person)
             else:
                 self.not_my_fight = False
                 self.data = main.find_sms(self.data)
@@ -397,7 +404,7 @@ class Main:
                     self.opponent.persons[j].x = self.data[j][1]
                     self.opponent.persons[j].y = self.data[j][2]
         except:
-            print('hp')
+            pass
 
         # fight baze
         main.render_persons_characters_for_fight()
@@ -783,14 +790,19 @@ class Main:
                         # send sms
                         sms = '<'
                         for person in self.player.persons:
-                            sms += f'{person.name} {person.x} {person.y} {person.state}{person.move_to} ' \
+                            sms += f'{self.can_move} {person.name} {person.x} {person.y} {person.state}{person.move_to} ' \
                                    f'{person.hp} {person.hit} {person.dmg} {person.crt},'
                         sms += '>'
                         self.sock.send(sms.encode())
+                        print(sms)
 
                         # recv sms
                         try:
                             data_ = self.sock.recv(1024).decode()
+                            if data_[:5] == '<True':
+                                self.can_move = True
+                            elif data_[:6] == '<False':
+                                self.can_move = False
                             if data_ == '<wait>':
                                 self.start_game = False
                             if main.is_fight(data_):

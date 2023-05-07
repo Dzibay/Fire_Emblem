@@ -45,6 +45,8 @@ class Player:
         self.is_fight = False
         self.ready = False
         self.person_names = []
+        self.can_move = False
+        self.last_sms_move = None
 
 
 def find(s):
@@ -56,8 +58,10 @@ def find(s):
             end = i
             res = s[first + 1:end].split(',')
             res = [i.split(' ') for i in res if i != '']
+            can_move = res[0][0]
+            res[0].remove(can_move)
             result = [[i[0], int(i[1]), int(i[2]), i[3], int(i[4]), int(i[5]), int(i[6]), int(i[7])] for i in res]
-            return result
+            return True if can_move == 'True' else False, result
     return ''
 
 
@@ -103,14 +107,33 @@ while run:
             elif data[:6] == '<fight':
                 player.is_fight = True
                 fight_sms = data
+                message = data.split(' ')
+                hp = message[9]
+                hp = int(hp[:hp.index('>')])
+                if hp <= 0:
+                    for player_2 in players:
+                        if player_2 != player:
+                            id_ = int(message[6])
+                            player_2.persons.remove(player_2.persons[id_])
             else:
                 player.is_fight = False
-                data = find(data)
-                player.persons = [Person(i[1], i[2], i[0], i[3], i[4], i[5], i[6], i[7]) for i in data]
+                a, data = find(data)
+                if player.last_sms_move is None:
+                    player.last_sms_move = a
+                    player.can_move = a
+                elif player.last_sms_move != a:
+                    player.can_move = a
+                    player.last_sms_move = a
+                    for player_2 in players:
+                        if player_2 != player:
+                            player_2.can_move = not a
+                try:
+                    player.persons = [Person(i[1], i[2], i[0], i[3], i[4], i[5], i[6], i[7]) for i in data]
+                except:
+                    pass
         except:
             print('cant')
 
-    print('--------')
     for player in players:
         second_player = None
         for player_2 in players:
@@ -132,7 +155,7 @@ while run:
                     if not player.is_fight:
                         sms = fight_sms
                 else:
-                    sms = '<'
+                    sms = f'<{player.can_move}|'
                     for player_2 in players:
                         if player_2 != player:
                             for person in player_2.persons:

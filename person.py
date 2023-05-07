@@ -89,6 +89,7 @@ class Person:
         self.pos = (self.x // TILE, self.y // TILE)
         self.want_move = self.pos
         self.move_to = ''
+        self.damage_for_me = 0
 
         self.hp = characters[self.name]['hp']
         self.max_hp = 50

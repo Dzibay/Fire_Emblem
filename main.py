@@ -36,8 +36,8 @@ class Main:
         self.clock = pygame.time.Clock()
 
         # socket
-        self.server_ip = '82.146.45.210'
-        # self.server_ip = 'localhost'
+        self.server_ip = 'localhost'
+        # self.server_ip = '82.146.45.210'
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
         self.sock.connect((self.server_ip, 10000))
@@ -384,7 +384,7 @@ class Main:
                 if (self.fight_tick > start_enemy_attack + 5) and \
                         (self.fight_tick <= start_enemy_attack + fight.enemy_norm_effect_time):
                     fight.magic_tick += 1
-                    magic_img = fight.enemy_critical_effect[fight.magic_tick % fight.enemy_norm_effect_time // 2]
+                    magic_img = fight.enemy_norm_effect[fight.magic_tick % fight.enemy_norm_effect_time // 2]
                     if self.fight_tick == start_enemy_attack + fight.enemy_norm_effect_time:
                         fight.magic_tick = 0
                         magic_img = None

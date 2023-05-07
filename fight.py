@@ -299,9 +299,9 @@ class Fight:
                                    magic['2' if self.moves[0] else '1']['y'])
         self.person_magic_cords_sms = (magic['2' if self.moves[0] else '1']['x1'],
                                        magic['2' if self.moves[0] else '1']['y'])
-        self.enemy_magic_cords = (magic['2' if self.moves[2] else '1']['x'],
+        self.enemy_magic_cords = (magic['2' if self.moves[2] else '1']['x1'],
                                   magic['2' if self.moves[2] else '1']['y'])
-        self.enemy_magic_cords_sms = (magic['2' if self.moves[2] else '1']['x1'],
+        self.enemy_magic_cords_sms = (magic['2' if self.moves[2] else '1']['x'],
                                       magic['2' if self.moves[2] else '1']['y'])
 
         self.fight_bg = pygame.image.load('templates/fight/bg.png').subsurface(1, 1, 240, 160)

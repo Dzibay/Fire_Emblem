@@ -2,7 +2,7 @@ import socket
 import pygame
 
 server_ip = '82.146.45.210'
-# server_ip = 'localhost'
+server_ip = 'localhost'
 
 main_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 main_socket.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
@@ -133,6 +133,7 @@ while run:
         except:
             print('cant')
 
+    print('--------')
     for player in players:
         second_player = None
         for player_2 in players:
@@ -163,6 +164,7 @@ while run:
                     sms += '>'
             player.conn.send(sms.encode())
             player.errors = 0
+            print(sms)
         except:
             player.errors += 1
             if player.errors > 200:

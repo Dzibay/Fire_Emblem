@@ -37,7 +37,7 @@ class Main:
 
         # socket
         self.server_ip = 'localhost'
-        # self.server_ip = '82.146.45.210'
+        self.server_ip = '82.146.45.210'
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
         self.sock.connect((self.server_ip, 10000))
@@ -459,8 +459,7 @@ class Main:
                 self.not_my_fight = False
                 self.data = main.find_sms(self.data)
                 if len(self.data) != len(self.opponent.persons):
-                    self.opponent.persons = [Person(j[1], j[2], j[0], 'magic'
-                    if j[0] in self.fight_img.magic_effects else 'no') for j in self.data]
+                    self.opponent.persons = [Person(j[1], j[2], j[0]) for j in self.data]
                 for j in range(len(self.data)):
                     self.opponent.persons[j].x = self.data[j][1]
                     self.opponent.persons[j].y = self.data[j][2]
@@ -687,10 +686,7 @@ class Main:
                     if self.placing_choice_person is not None:
                         self.player.persons.append(Person(self.mouse_pos[0] * TILE,
                                                           self.mouse_pos[1] * TILE,
-                                                          self.names_choice_persons[self.placing_choice_person],
-                                                          'magic' if self.names_choice_persons[
-                                                                         self.placing_choice_person] in
-                                                                     self.fight_img.magic_effects else 'no'))
+                                                          self.names_choice_persons[self.placing_choice_person]))
                         self.menu_choice_persons.remove(self.placing_choice_person)
                         self.placing_choice_person = None
 
@@ -710,8 +706,7 @@ class Main:
             if len(self.data) != len(self.opponent.persons):
                 if [(j[1] // TILE, j[2] // TILE) for j in self.data] != \
                         [person.pos for person in self.player.persons]:
-                    self.opponent.persons = [Person(j[1], j[2], j[0], 'magic'
-                    if j[0] in self.fight_img.magic_effects else 'no') for j in self.data]
+                    self.opponent.persons = [Person(j[1], j[2], j[0]) for j in self.data]
 
             for j in range(len(self.data)):
                 self.opponent.persons[j].x = self.data[j][1]
@@ -900,9 +895,7 @@ class Main:
                                 if len(self.data) != len(self.opponent.persons):
                                     if [(j[1] // TILE, j[2] // TILE) for j in self.data] != \
                                             [person.pos for person in self.player.persons]:
-                                        self.opponent.persons = [Person(j[1], j[2], j[0],
-                                                                        'magic' if j[0] in self.fight_img.magic_effects
-                                                                        else 'no') for j in self.data]
+                                        self.opponent.persons = [Person(j[1], j[2], j[0]) for j in self.data]
 
                                 for j in range(len(self.data)):
                                     self.opponent.persons[j].x = self.data[j][1]

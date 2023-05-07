@@ -13,7 +13,8 @@ characters = {'roy': {'hp': 20,
                       'lck': 5,
                       'def': 7,
                       'res': 7,
-                      'move': 4},
+                      'move': 4,
+                      'class': 'iron'},
 
               'lyn': {'hp': 18,
                       'str': 4,
@@ -22,7 +23,8 @@ characters = {'roy': {'hp': 20,
                       'lck': 7,
                       'def': 9,
                       'res': 5,
-                      'move': 5},
+                      'move': 5,
+                      'class': 'iron'},
 
               'hector': {'hp': 19,
                          'str': 4,
@@ -31,7 +33,8 @@ characters = {'roy': {'hp': 20,
                          'lck': 3,
                          'def': 8,
                          'res': 0,
-                         'move': 3},
+                         'move': 3,
+                         'class': 'axe'},
 
               'eirika': {'hp': 16,
                          'str': 4,
@@ -40,7 +43,8 @@ characters = {'roy': {'hp': 20,
                          'lck': 5,
                          'def': 3,
                          'res': 1,
-                         'move': 6},
+                         'move': 6,
+                         'class': 'lance'},
 
               'eliwood': {'hp': 18,
                           'str': 5,
@@ -49,7 +53,8 @@ characters = {'roy': {'hp': 20,
                           'lck': 7,
                           'def': 5,
                           'res': 0,
-                          'move': 6},
+                          'move': 6,
+                          'class': 'iron'},
 
               'marth': {'hp': 18,
                         'str': 5,
@@ -58,7 +63,8 @@ characters = {'roy': {'hp': 20,
                         'lck': 7,
                         'def': 7,
                         'res': 7,
-                        'move': 4},
+                        'move': 4,
+                        'class': 'iron'},
 
               'ike': {'hp': 20,
                       'str': 4,
@@ -67,7 +73,8 @@ characters = {'roy': {'hp': 20,
                       'lck': 6,
                       'def': 7,
                       'res': 6,
-                      'move': 4},
+                      'move': 4,
+                      'class': 'iron'},
 
               'sorcerer': {'hp': 15,
                            'str': 1,
@@ -76,11 +83,12 @@ characters = {'roy': {'hp': 20,
                            'lck': 4,
                            'def': 0,
                            'res': 3,
-                           'move': 3}}
+                           'move': 3,
+                           'class': 'magic'}}
 
 
 class Person:
-    def __init__(self, x, y, name, type):
+    def __init__(self, x, y, name):
         print('person')
         self.x = x
         self.y = y
@@ -91,7 +99,7 @@ class Person:
         self.move_to = ''
         self.damage_for_me = 0
 
-        self.type = type
+        self.type = characters[self.name]['class']
         self.hp = characters[self.name]['hp']
         self.max_hp = self.hp
         self.hit = 90

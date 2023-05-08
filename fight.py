@@ -201,6 +201,10 @@ magic = {
 }
 
 magic_names = ['sorcerer']
+weapon_img = {'sword': pygame.transform.scale(pygame.image.load('templates/weapon/weapon.png').subsurface((1, 1, 16, 16)), (72, 72)),
+              'axe': pygame.transform.scale(pygame.image.load('templates/weapon/weapon.png').subsurface((103, 52, 16, 16)), (72, 72)),
+              'lance': pygame.transform.scale(pygame.image.load('templates/weapon/weapon.png').subsurface((239, 18, 16, 16)), (72, 72)),
+              'magic': pygame.transform.scale(pygame.image.load('templates/weapon/weapon.png').subsurface((171, 86, 16, 16)), (72, 72))}
 
 
 class Fight_images:
@@ -277,7 +281,6 @@ class Fight:
                       True if randint(0, 100) <= (1 - person.hit) else False,
                       True if randint(0, 100) <= enemy.crt else False,
                       True if randint(0, 100) <= (1 - enemy.hit) else False]
-        print(self.moves)
 
         self.without_enemy_attack = False
         self.person_double_attack = False
@@ -285,16 +288,13 @@ class Fight:
         if abs(person.pos[0] - enemy.pos[0]) + abs(person.pos[1] - enemy.pos[1]) <= person.range_attack:
             if abs(person.pos[0] - enemy.pos[0]) + abs(person.pos[1] - enemy.pos[1]) > enemy.range_attack:
                 self.without_enemy_attack = True
-                print('without')
         if person.attack_speed - enemy.attack_speed >= 4:
             self.person_double_attack = True
             self.moves.append(True if randint(0, 100) <= (1 - person.hit) else False)
-            print('person double attack')
         elif enemy.attack_speed - person.attack_speed >= 4:
             self.enemy_double_attack = True
             self.moves.append(True if randint(0, 100) <= enemy.crt else False)
             self.moves.append(True if randint(0, 100) <= (1 - enemy.hit) else False)
-            print('enemy double attack')
 
         self.need_moves = [0, 0]
         self.tick = 0
@@ -303,6 +303,12 @@ class Fight:
         self.magic_tick = 0
         self.enemy_dead = 0
         self.person_dead = 0
+
+        # weapon
+        self.person_weapon = person.type
+        self.enemy_weapon = enemy.type
+        self.person_weapon_img = weapon_img[self.person_weapon]
+        self.enemy_weapon_img = weapon_img[self.enemy_weapon]
 
         self.person_x, self.person_y = sizes[person.name][int(self.moves[0])]['x'], \
                                        sizes[person.name][int(self.moves[0])]['y']
@@ -315,6 +321,7 @@ class Fight:
         self.person_img_id = 0
         self.enemy_img_id = 0
 
+        # magic
         self.magic_img_id = -1
         self.person_magic_cords = (magic['2' if self.moves[0] else '1']['x'],
                                    magic['2' if self.moves[0] else '1']['y'])
@@ -325,6 +332,7 @@ class Fight:
         self.enemy_magic_cords_sms = (magic['2' if self.moves[2] else '1']['x'],
                                       magic['2' if self.moves[2] else '1']['y'])
 
+        # baze
         self.fight_bg = pygame.image.load('templates/fight/bg.png').subsurface(1, 1, 240, 160)
         self.fight_bg = pygame.transform.scale(self.fight_bg, (WIDTH, HEIGHT))
         self.fight_characters = pygame.image.load('templates/fight/baze.png')

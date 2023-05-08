@@ -7,8 +7,6 @@ import socket
 from fight import Fight, Fight_images, sizes
 from random import randint
 
-import time
-
 
 def mapping(pos):
     return (pos[0] // TILE, pos[1] // TILE)
@@ -27,8 +25,7 @@ class Main:
     def __init__(self):
         self.start_game = False
         self.run = True
-        self.can_move = None
-        self.is_moved_in_this_turn = False
+        self.your_turn = None
         self.last_sms_to_move = False
         self.tick = 0
 
@@ -65,6 +62,12 @@ class Main:
         self.can_move_to = []
         self.cords = []
         self.person_positions = []
+        self.person_want_move = False
+        self.is_moved_in_this_turn = False
+
+        # attack
+        self.can_attack_to = []
+        self.person_want_attack = False
 
         # pointer
         names_point = ['start_r', 'start_d', 'u', 'r', 'u-r', 'r-d', 'end_r', 'end_d',
@@ -111,6 +114,12 @@ class Main:
         self.placing_persons_window = False
         self.placing_choice_person = None
         self.placing_persons_pos = [(20 + i * 100, 660) for i in range(20)]
+
+        # turn menu
+        self.turn_menu = False
+        self.move_btn = (30, 160, 80, 50)
+        self.attack_btn = (30, 220, 80, 50)
+        self.wait_btn = (30, 280, 80, 50)
 
         # fonts
         self.f1 = pygame.font.Font(None, 30)
@@ -207,16 +216,16 @@ class Main:
                 return res
         return ''
 
-    def get_can_move_to(self, pos, l):
+    def get_can_to(self, pos, l, not_append=None):
+        if not_append is None:
+            not_append = []
         res = [(x, y)
                for x in range(pos[0] - l, pos[0] + l + 1) if x >= 0
                for y in range(pos[1] - l, pos[1] + l + 1) if y >= 0]
         result = []
         for i in res:
             cords = get_cords(self.graph, pos, i)
-            if (i not in self.cant) and \
-                    (i not in self.person_positions) and \
-                    (len(cords) <= l + 1):
+            if (i not in self.cant) and (i not in not_append) and (len(cords) <= l + 1):
                 result.append(i)
         return result
 
@@ -233,7 +242,10 @@ class Main:
         dmg = str(fight.person_dmg) if fight.person_dmg > 9 else f'0{fight.person_dmg}'
         crt = str(self.fight_person.crt) if self.fight_person.crt > 9 else f'0{self.fight_person.crt}'
         for i in range(len(hit)):
-            self.screen.blit(fight.numbers[int(hit[i])], (120 + i * 40, 560))
+            if len(hit) < 3:
+                self.screen.blit(fight.numbers[int(hit[i])], (120 + i * 40, 560))
+            else:
+                self.screen.blit(fight.numbers[int(hit[i])], (80 + i * 40, 560))
         for i in range(len(dmg)):
             self.screen.blit(fight.numbers[int(dmg[i])], (120 + i * 40, 600))
         for i in range(len(crt)):
@@ -247,7 +259,10 @@ class Main:
         dmg = str(fight.enemy_dmg) if fight.enemy_dmg > 9 else f'0{fight.enemy_dmg}'
         crt = str(self.fight_enemy.crt) if self.fight_enemy.crt > 9 else f'0{self.fight_enemy.crt}'
         for i in range(len(hit)):
-            self.screen.blit(fight.numbers[int(hit[i])], (1115 + i * 40, 560))
+            if len(hit) < 3:
+                self.screen.blit(fight.numbers[int(hit[i])], (1115 + i * 40, 560))
+            else:
+                self.screen.blit(fight.numbers[int(hit[i])], (1075 + i * 40, 560))
         for i in range(len(dmg)):
             self.screen.blit(fight.numbers[int(dmg[i])], (1115 + i * 40, 600))
         for i in range(len(crt)):
@@ -279,6 +294,10 @@ class Main:
                 for j in range(0, self.fight_enemy.max_hp):
                     self.screen.blit(fight.hp[0 if j + i * 40 <= self.fight_enemy.hp else 1],
                                      (720 + j * 10, 726))
+
+        # weapon
+        self.screen.blit(fight.person_weapon_img, (220, 608))
+        self.screen.blit(fight.enemy_weapon_img, (620, 608))
 
     def render_fight(self):
         global fight
@@ -538,9 +557,9 @@ class Main:
 
         # mouse
         pygame.draw.rect(self.screen, BLACK, (self.mouse_pos[0] * TILE, self.mouse_pos[1] * TILE, TILE, TILE), 1)
-        if self.player.choice_person is not None and not self.is_moved_in_this_turn and self.can_move:
 
-            # choice person
+        # person move
+        if self.person_want_move:
             try:
                 p_ = self.player.persons[self.player.choice_person]
                 pygame.draw.rect(self.screen, ORANGE, (p_.get_big_pos()[0], p_.get_big_pos()[1], TILE, TILE), 3)
@@ -606,6 +625,14 @@ class Main:
             except:
                 self.player.choice_person = None
 
+        # person_attack
+        if self.person_want_attack:
+            for i in self.can_attack_to:
+                rect = pygame.Surface((TILE, TILE))
+                rect.fill(RED)
+                rect.set_alpha(100)
+                self.screen.blit(rect, (i[0] * TILE, i[1] * TILE))
+
         # persons
         for person in self.player.persons:
             # person move
@@ -651,14 +678,11 @@ class Main:
                                  (player.persons[i].x - 88, player.persons[i].y - 100))
 
         if len(self.menu_choice_persons) == 0:
-            # attack button
-            try:
-                for person in self.player.persons:
-                    if self.can_move:
-                        for i in person.attack_button:
-                            pygame.draw.rect(self.screen, WHITE, i)
-            except:
-                pass
+            if self.turn_menu:
+                pygame.draw.rect(self.screen, WHITE, (20, 150, 100, 200))
+                pygame.draw.rect(self.screen, BLUE, self.move_btn)
+                pygame.draw.rect(self.screen, RED, self.attack_btn)
+                pygame.draw.rect(self.screen, GREY, self.wait_btn)
 
             # see person info
             for person in self.player.persons + self.opponent.persons:
@@ -705,7 +729,7 @@ class Main:
                 pygame.draw.rect(self.screen, WHITE, (pos_[0], pos_[1], 100, 100), 2)
 
         # indicate turn
-        self.screen.blit(self.your_turn_img if self.can_move else self.opponents_turn_img, (500, 0))
+        self.screen.blit(self.your_turn_img if self.your_turn else self.opponents_turn_img, (500, 0))
 
         # fps
         text_fps = self.f1.render(str(self.clock.get_fps()), True, BLACK)
@@ -874,54 +898,69 @@ class Main:
                                 self.run = False
                             if event.type == pygame.KEYUP:
                                 if event.key == pygame.K_e:
-                                    self.can_move = True
+                                    self.your_turn = True
                                     self.is_moved_in_this_turn = False
-                                elif event.key == pygame.K_o:
-                                    for person in self.player.persons:
-                                        person.crt = 100
-                                elif event.key == pygame.K_l:
-                                    for person in self.player.persons:
-                                        person.crt = 5
-                                elif event.key == pygame.K_SPACE:
-                                    self.can_move = False
-                                    self.is_moved_in_this_turn = True
 
                             if event.type == pygame.MOUSEBUTTONUP and event.button == 1:
-                                if self.player.choice_person is None:
-                                    if self.can_move:
+                                if self.your_turn:
+                                    if self.player.choice_person is not None:
+                                        # person choice none
+                                        if self.mouse_pos == self.player.persons[self.player.choice_person].pos:
+                                            self.player.choice_person = None
+                                        else:
+                                            # turn menu
+                                            if self.turn_menu:
+                                                p_ = self.player.persons[self.player.choice_person]
+                                                if in_box(self.big_mouse_pos, self.move_btn) and \
+                                                        not self.is_moved_in_this_turn:
+                                                    self.person_want_move = True
+                                                    self.person_positions = [person.pos
+                                                                             for person in self.opponent.persons]
+                                                    self.can_move_to = main.get_can_to(p_.pos, p_.movement,
+                                                                                       self.person_positions)
+                                                    self.turn_menu = False
+                                                elif in_box(self.big_mouse_pos, self.attack_btn):
+                                                    self.person_want_attack = True
+                                                    self.can_attack_to = main.get_can_to(p_.pos, p_.range_attack,
+                                                                                         [p_.pos])
+                                                    self.turn_menu = False
+                                                elif in_box(self.big_mouse_pos, self.wait_btn):
+                                                    self.your_turn = False
+                                                    self.turn_menu = False
+                                            else:
+                                                # move
+                                                if self.person_want_move and self.mouse_pos in self.can_move_to:
+                                                    self.player.persons[
+                                                        self.player.choice_person].want_move = self.mouse_pos
+                                                    self.is_moved_in_this_turn = True
+                                                    self.player.choice_person = None
+
+                                                # attack
+                                                elif self.person_want_attack and self.mouse_pos in self.can_attack_to:
+                                                    for enemy in self.opponent.persons:
+                                                        if self.mouse_pos == enemy.pos:
+                                                            self.fight_tick = 0
+                                                            self.fight_person = self.player.persons[
+                                                                self.player.choice_person]
+                                                            self.fight_enemy = enemy
+                                                            self.fight = True
+                                                            self.your_turn = False
+
+                                    else:
                                         # choice person
                                         for person in self.player.persons:
                                             if self.mouse_pos == person.pos:
-                                                self.player.choice_person = self.player.persons.index(person)
-                                                self.person_positions = [person.pos for person in self.opponent.persons]
-                                                self.can_move_to = main.get_can_move_to(person.pos, person.movement)
-                                            else:
-                                                # attack
-                                                for person in self.player.persons:
-                                                    i_ = 0
-                                                    for enemy in person.can_fight_with:
-                                                        if in_box(self.big_mouse_pos, person.attack_button[i_]):
-                                                            self.fight_tick = 0
-                                                            self.fight_person = person
-                                                            self.fight_enemy = person.can_fight_with[i_]
-                                                            self.fight = True
-                                                            self.can_move = False
+                                                if self.player.choice_person is None:
+                                                    self.player.choice_person = self.player.persons.index(person)
+                                                    self.turn_menu = True
 
-                                                            break
-                                                        i_ += 1
-                                # move
-                                elif self.player.choice_person is not None and \
-                                        self.mouse_pos in self.can_move_to and \
-                                        not self.is_moved_in_this_turn and self.can_move:
-                                    if self.mouse_pos == self.player.persons[self.player.choice_person].pos:
-                                        pass
-                                    else:
-                                        self.player.persons[self.player.choice_person].want_move = self.mouse_pos
-                                        self.is_moved_in_this_turn = True
-                                    self.player.choice_person = None
+                        if self.player.choice_person is None:
+                            self.turn_menu = False
+                            self.person_want_move = False
+                            self.person_want_attack = False
 
                         # send sms
-                        sms = f'<{self.can_move}|'
+                        sms = f'<{self.your_turn}|'
                         for person in self.player.persons:
                             sms += f'{person.name} {person.x} {person.y} {person.state}{person.move_to} ' \
                                    f'{person.hp} {person.hit} {person.dmg} {person.crt},'
@@ -932,13 +971,13 @@ class Main:
                         try:
                             data_ = self.sock.recv(1024).decode()
                             if data_[:5] == '<True':
-                                self.can_move = True
+                                self.your_turn = True
                             elif data_[:6] == '<False':
-                                self.can_move = False
-                            if self.can_move != self.last_sms_to_move:
+                                self.your_turn = False
+                            if self.your_turn != self.last_sms_to_move:
                                 self.is_moved_in_this_turn = False
                                 self.player.choice_person = None
-                            self.last_sms_to_move = self.can_move
+                            self.last_sms_to_move = self.your_turn
                             if data_ == '<wait>':
                                 pass
                             if main.is_fight(data_):

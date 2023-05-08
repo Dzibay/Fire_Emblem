@@ -119,8 +119,6 @@ class Person:
         self.want_move = self.pos
         self.move_to = ''
         self.damage_for_me = 0
-        self.can_fight_with = []
-        self.attack_button = None
 
         # stats
         self.type = characters[self.name]['class']
@@ -136,6 +134,7 @@ class Person:
         self.attack_speed = characters[self.name]['speed'] - (weapon[self.type]['wt'] - characters[self.name]['con'])
         self.crt = weapon[self.type]['crt'] + (self.skl // 2)
         self.hit = weapon[self.type]['hit'] + (self.skl * 2) + (self.lck // 2)
+        self.hit = self.hit if self.hit <= 100 else 100
         self.range_attack = weapon[self.type]['range']
         self.weapon_mt = weapon[self.type]['mt']
         self.dmg = (self.mag if self.type == 'magic' else self.str) + self.weapon_mt
@@ -178,6 +177,7 @@ class Person:
 
     def move(self, cords):
         if self.pos != self.want_move:
+            print(self.pos, self.want_move)
             self.state = 'move_'
             cords.reverse()
             cord = cords[0]

@@ -272,11 +272,11 @@ class Fight_images:
 
 
 class Fight:
-    def __init__(self, person_name, enemy_name, fight_images, person_crt=0, enemy_crt=0, person_hit=0, enemy_hit=0):
-        self.moves = [True if randint(0, 100) <= person_crt else False,
-                      True if randint(0, 100) <= (1 - person_hit) else False,
-                      True if randint(0, 100) <= enemy_crt else False,
-                      True if randint(0, 100) <= (1 - enemy_hit) else False]
+    def __init__(self, person, enemy, fight_images, person_dmg=0, enemy_dmg=0):
+        self.moves = [True if randint(0, 100) <= person.crt else False,
+                      True if randint(0, 100) <= (1 - person.hit) else False,
+                      True if randint(0, 100) <= enemy.crt else False,
+                      True if randint(0, 100) <= (1 - enemy.hit) else False]
         print(self.moves)
         self.need_moves = [0, 0]
         self.tick = 0
@@ -285,12 +285,14 @@ class Fight:
         self.magic_tick = 0
         self.enemy_dead = 0
 
-        self.person_x, self.person_y = sizes[person_name][int(self.moves[0])]['x'], \
-                                       sizes[person_name][int(self.moves[0])]['y']
-        self.enemy_x, self.enemy_y = sizes[enemy_name][int(self.moves[2])]['x1'], \
-                                     sizes[enemy_name][int(self.moves[2])]['y']
-        self.person_dmg_tick = sizes[enemy_name][int(self.moves[2])]['dmg_time']
-        self.enemy_dmg_tick = sizes[person_name][int(self.moves[0])]['dmg_time']
+        self.person_x, self.person_y = sizes[person.name][int(self.moves[0])]['x'], \
+                                       sizes[person.name][int(self.moves[0])]['y']
+        self.enemy_x, self.enemy_y = sizes[enemy.name][int(self.moves[2])]['x1'], \
+                                     sizes[enemy.name][int(self.moves[2])]['y']
+        self.person_dmg_tick = sizes[enemy.name][int(self.moves[2])]['dmg_time']
+        self.enemy_dmg_tick = sizes[person.name][int(self.moves[0])]['dmg_time']
+        self.person_dmg = person_dmg
+        self.enemy_dmg = enemy_dmg
         self.person_img_id = 0
         self.enemy_img_id = 0
 
@@ -318,11 +320,11 @@ class Fight:
             self.miss_img[i] = pygame.transform.scale(self.miss_img[i], (100, 100))
 
         # persons
-        self.person_melee_attack_img = fight_images.images[person_name]['person']['norm']
-        self.person_critical_attack_img = fight_images.images[person_name]['person']['crt']
+        self.person_melee_attack_img = fight_images.images[person.name]['person']['norm']
+        self.person_critical_attack_img = fight_images.images[person.name]['person']['crt']
         self.all_person_img = self.person_melee_attack_img + self.person_critical_attack_img
-        self.enemy_melee_attack_img = fight_images.images[enemy_name]['enemy']['norm']
-        self.enemy_critical_attack_img = fight_images.images[enemy_name]['enemy']['crt']
+        self.enemy_melee_attack_img = fight_images.images[enemy.name]['enemy']['norm']
+        self.enemy_critical_attack_img = fight_images.images[enemy.name]['enemy']['crt']
         self.all_enemy_img = self.enemy_melee_attack_img + self.enemy_critical_attack_img
 
         self.person_stay_img = self.person_critical_attack_img[0] if self.moves[0] else self.person_melee_attack_img[0]
@@ -333,14 +335,14 @@ class Fight:
         self.person_critical_effect = []
         self.enemy_norm_effect = []
         self.enemy_critical_effect = []
-        if person_name in fight_images.magic_effects:
-            self.person_norm_effect = fight_images.magic_effects[person_name]['person']['norm']
-            self.person_critical_effect = fight_images.magic_effects[person_name]['person']['crt']
+        if person.name in fight_images.magic_effects:
+            self.person_norm_effect = fight_images.magic_effects[person.name]['person']['norm']
+            self.person_critical_effect = fight_images.magic_effects[person.name]['person']['crt']
             self.person_norm_effect_time = len(self.person_norm_effect) * 2
             self.person_critical_effect_time = len(self.person_critical_effect) * 2
-        if enemy_name in fight_images.magic_effects:
-            self.enemy_norm_effect = fight_images.magic_effects[enemy_name]['enemy']['norm']
-            self.enemy_critical_effect = fight_images.magic_effects[enemy_name]['enemy']['crt']
+        if enemy.name in fight_images.magic_effects:
+            self.enemy_norm_effect = fight_images.magic_effects[enemy.name]['enemy']['norm']
+            self.enemy_critical_effect = fight_images.magic_effects[enemy.name]['enemy']['crt']
             self.enemy_norm_effect_time = len(self.enemy_norm_effect) * 2
             self.enemy_critical_effect_time = len(self.enemy_critical_effect) * 2
 

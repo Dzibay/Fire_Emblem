@@ -26,7 +26,9 @@ class Main:
     def __init__(self):
         self.start_game = False
         self.run = True
-        self.can_move = True
+        self.can_move = None
+        self.is_moved_in_this_turn = False
+        self.last_sms_to_move = False
         self.tick = 0
 
         # pygame
@@ -37,7 +39,7 @@ class Main:
 
         # socket
         self.server_ip = 'localhost'
-        self.server_ip = '82.146.45.210'
+        # self.server_ip = '82.146.45.210'
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
         self.sock.connect((self.server_ip, 10000))
@@ -79,6 +81,7 @@ class Main:
         self.magic_data = [-1, 0, 0]
 
         # fight
+        self.without_enemy_attack = False
         self.fight_upload = False
         self.fight_img = None
         self.fight = False
@@ -110,6 +113,31 @@ class Main:
         self.f1 = pygame.font.Font(None, 30)
         self.f2 = pygame.font.Font(None, 50)
         self.f3 = pygame.font.Font(None, 70)
+
+    @staticmethod
+    def calculate_damage(person, enemy):
+        bonus = 0
+        if person.type == enemy.type:
+            pass
+        elif person.type == 'sword':
+            if enemy.type == 'axe':
+                bonus = 1
+            elif enemy.type == 'lance':
+                bonus = -1
+        elif person.type == 'axe':
+            if enemy.type == 'lance':
+                bonus = 1
+            elif enemy.type == 'sword':
+                bonus = -1
+        elif person.type == 'lance':
+            if enemy.type == 'sword':
+                bonus = 1
+            elif enemy.type == 'axe':
+                bonus = -1
+        dmg = person.mag if person.type == 'magic' else person.str
+        dmg = (dmg + person.weapon_dmg + bonus) * (2 if bonus == 1 else 1)
+        def_ = enemy.res if person.type == 'magic' else enemy.def_
+        return dmg - def_
 
     @staticmethod
     def find_sms(s):
@@ -189,7 +217,7 @@ class Main:
                 result.append(i)
         return result
 
-    def render_persons_characters_for_fight(self):
+    def render_persons_characters_for_fight(self, fight):
         # bg
         self.screen.blit(fight.fight_bg, (0, 0))
         self.screen.blit(fight.fight_characters, (0, 0))
@@ -199,7 +227,7 @@ class Main:
         self.screen.blit(text_name, (50, 50))
 
         hit = str(self.fight_person.hit) if self.fight_person.hit > 0 else f'0{self.fight_person.hit}'
-        dmg = str(self.fight_person.dmg) if self.fight_person.dmg > 9 else f'0{self.fight_person.dmg}'
+        dmg = str(fight.person_dmg) if fight.person_dmg > 9 else f'0{fight.person_dmg}'
         crt = str(self.fight_person.crt) if self.fight_person.crt > 9 else f'0{self.fight_person.crt}'
         for i in range(len(hit)):
             self.screen.blit(fight.numbers[int(hit[i])], (120 + i * 40, 560))
@@ -213,7 +241,7 @@ class Main:
         self.screen.blit(text_name, (1000, 50))
 
         hit = str(self.fight_enemy.hit) if self.fight_enemy.hit > 0 else f'0{self.fight_enemy.hit}'
-        dmg = str(self.fight_enemy.dmg) if self.fight_enemy.dmg > 9 else f'0{self.fight_enemy.dmg}'
+        dmg = str(fight.enemy_dmg) if fight.enemy_dmg > 9 else f'0{fight.enemy_dmg}'
         crt = str(self.fight_enemy.crt) if self.fight_enemy.crt > 9 else f'0{self.fight_enemy.crt}'
         for i in range(len(hit)):
             self.screen.blit(fight.numbers[int(hit[i])], (1115 + i * 40, 560))
@@ -261,8 +289,9 @@ class Main:
                     self.fight_tick = 0
 
         if self.fight_tick == 1:
-            fight = Fight(self.fight_person.name, self.fight_enemy.name,
-                          self.fight_img, self.fight_person.crt, self.fight_enemy.crt)
+            fight = Fight(self.fight_person, self.fight_enemy, self.fight_img,
+                          main.calculate_damage(self.fight_person, self.fight_enemy),
+                          main.calculate_damage(self.fight_enemy, self.fight_person))
 
         enemy_dmg_tick = 50 + fight.enemy_dmg_tick
         if not fight.moves[0]:
@@ -329,9 +358,7 @@ class Main:
                     fight.person_x += 10
                 if self.fight_tick == person_dmg_tick + 6:
                     k_ = 3 if fight.moves[2] else 1
-                    self.fight_person.damage_for_me = int((self.fight_enemy.dmg - (self.fight_person.res
-                                                                                   if self.fight_enemy.type == 'magic'
-                                                                                   else self.fight_person.def_)) * k_)
+                    self.fight_person.damage_for_me = fight.enemy_dmg * k_
 
             if not fight.moves[1]:
                 if (self.fight_tick > enemy_dmg_tick) and (self.fight_tick < enemy_dmg_tick + 5):
@@ -340,9 +367,8 @@ class Main:
                     fight.enemy_x -= 10
                 if self.fight_tick == enemy_dmg_tick + 6:
                     k_ = 3 if fight.moves[0] else 1
-                    self.fight_enemy.damage_for_me = int((self.fight_person.dmg - (self.fight_enemy.res
-                                                                                   if self.fight_person.type == 'magic'
-                                                                                   else self.fight_enemy.def_)) * k_)
+                    self.fight_enemy.damage_for_me = fight.person_dmg * k_
+
             # deal damage
             for person in [self.fight_person] + [self.fight_enemy]:
                 if person.damage_for_me > 0:
@@ -410,7 +436,7 @@ class Main:
             pass
 
         # fight baze
-        main.render_persons_characters_for_fight()
+        main.render_persons_characters_for_fight(fight)
 
         # persons
         self.screen.blit(img, (fight.person_x, fight.person_y))
@@ -430,7 +456,7 @@ class Main:
             fight.magic_img_id = -1
 
         # end
-        if self.fight_tick > fight_end:
+        if (self.fight_tick > fight_end) or (self.fight_tick >= start_enemy_attack and self.without_enemy_attack):
             self.fight_tick = 0
             self.fight = False
 
@@ -442,7 +468,7 @@ class Main:
                 self.run = False
 
         if not self.fight_upload:
-            fight = Fight(self.fight_person.name, self.fight_enemy.name, self.fight_img)
+            fight = Fight(self.fight_person, self.fight_enemy, self.fight_img)
             self.fight_upload = True
 
         # recv sms
@@ -467,7 +493,7 @@ class Main:
             pass
 
         # fight baze
-        main.render_persons_characters_for_fight()
+        main.render_persons_characters_for_fight(fight)
 
         # person
         self.screen.blit(fight.all_person_img[fight.person_img_id],
@@ -490,7 +516,7 @@ class Main:
 
         # mouse
         pygame.draw.rect(self.screen, BLACK, (self.mouse_pos[0] * TILE, self.mouse_pos[1] * TILE, TILE, TILE), 1)
-        if self.player.choice_person is not None:
+        if self.player.choice_person is not None and not self.is_moved_in_this_turn and self.can_move:
 
             # choice person
             try:
@@ -520,16 +546,23 @@ class Main:
                                 img = 'end_d'
                         else:
                             if (self.cords[i - 1][0] < self.cords[i][0] and self.cords[i][1] < self.cords[i + 1][1]) or \
-                                    (self.cords[i + 1][0] < self.cords[i][0] and self.cords[i][1] < self.cords[i - 1][1]):
+                                    (self.cords[i + 1][0] < self.cords[i][0] and self.cords[i][1] < self.cords[i - 1][
+                                        1]):
                                 img = 'r-d'
-                            elif (self.cords[i - 1][0] < self.cords[i][0] and self.cords[i][1] > self.cords[i + 1][1]) or \
-                                    (self.cords[i + 1][0] < self.cords[i][0] and self.cords[i][1] > self.cords[i - 1][1]):
+                            elif (self.cords[i - 1][0] < self.cords[i][0] and self.cords[i][1] > self.cords[i + 1][
+                                1]) or \
+                                    (self.cords[i + 1][0] < self.cords[i][0] and self.cords[i][1] > self.cords[i - 1][
+                                        1]):
                                 img = 'r-u'
-                            elif (self.cords[i - 1][0] > self.cords[i][0] and self.cords[i][1] < self.cords[i + 1][1]) or \
-                                    (self.cords[i + 1][0] > self.cords[i][0] and self.cords[i][1] < self.cords[i - 1][1]):
+                            elif (self.cords[i - 1][0] > self.cords[i][0] and self.cords[i][1] < self.cords[i + 1][
+                                1]) or \
+                                    (self.cords[i + 1][0] > self.cords[i][0] and self.cords[i][1] < self.cords[i - 1][
+                                        1]):
                                 img = 'u-r'
-                            elif (self.cords[i - 1][0] > self.cords[i][0] and self.cords[i][1] > self.cords[i + 1][1]) or \
-                                    (self.cords[i + 1][0] > self.cords[i][0] and self.cords[i][1] > self.cords[i - 1][1]):
+                            elif (self.cords[i - 1][0] > self.cords[i][0] and self.cords[i][1] > self.cords[i + 1][
+                                1]) or \
+                                    (self.cords[i + 1][0] > self.cords[i][0] and self.cords[i][1] > self.cords[i - 1][
+                                        1]):
                                 img = 'd-r'
                             else:
                                 if i == len(self.cords) - 2:
@@ -550,7 +583,7 @@ class Main:
                             self.screen.blit(self.pointer[img], (self.cords[i][0] * TILE, self.cords[i][1] * TILE))
             except:
                 self.player.choice_person = None
-                
+
         # persons
         for person in self.player.persons:
             # person move
@@ -676,7 +709,9 @@ class Main:
                             else:
                                 self.placing_choice_person = None
                 else:
-                    if self.placing_choice_person is not None:
+                    self.person_positions = [i.pos for i in self.opponent.persons + self.player.persons]
+                    if (self.placing_choice_person is not None) and \
+                            (self.mouse_pos not in self.person_positions + self.cant):
                         self.player.persons.append(Person(self.mouse_pos[0] * TILE,
                                                           self.mouse_pos[1] * TILE,
                                                           self.names_choice_persons[self.placing_choice_person]))
@@ -818,12 +853,16 @@ class Main:
                             if event.type == pygame.KEYUP:
                                 if event.key == pygame.K_e:
                                     self.can_move = True
+                                    self.is_moved_in_this_turn = False
                                 elif event.key == pygame.K_o:
                                     for person in self.player.persons:
-                                        person.critical = 100
+                                        person.crt = 100
                                 elif event.key == pygame.K_l:
                                     for person in self.player.persons:
-                                        person.critical = 15
+                                        person.crt = 5
+                                elif event.key == pygame.K_SPACE:
+                                    self.can_move = False
+                                    self.is_moved_in_this_turn = True
 
                             if event.type == pygame.MOUSEBUTTONUP and event.button == 1:
                                 if self.player.choice_person is None:
@@ -841,19 +880,32 @@ class Main:
                                                     for enemy in person.can_fight_with:
                                                         if in_box(self.big_mouse_pos, person.attack_button[i_]):
                                                             self.fight_tick = 0
-                                                            self.fight = True
                                                             self.fight_person = person
                                                             self.fight_enemy = person.can_fight_with[i_]
+                                                            self.fight = True
                                                             self.can_move = False
+                                                            self.without_enemy_attack = False
+                                                            if abs(self.fight_person.pos[0] - self.fight_enemy.pos[0]) + \
+                                                                    abs(self.fight_person.pos[1] - self.fight_enemy.pos[
+                                                                        1]) <= self.fight_person.range_attack:
+                                                                if abs(self.fight_person.pos[0] - self.fight_enemy.pos[
+                                                                    0]) + \
+                                                                        abs(self.fight_person.pos[1] -
+                                                                            self.fight_enemy.pos[
+                                                                                1]) > self.fight_enemy.range_attack:
+                                                                    self.without_enemy_attack = True
+                                                                    print('ye')
                                                             break
                                                         i_ += 1
                                 # move
-                                elif self.player.choice_person is not None and self.mouse_pos in self.can_move_to:
+                                elif self.player.choice_person is not None and \
+                                        self.mouse_pos in self.can_move_to and \
+                                        not self.is_moved_in_this_turn and self.can_move:
                                     if self.mouse_pos == self.player.persons[self.player.choice_person].pos:
                                         pass
                                     else:
                                         self.player.persons[self.player.choice_person].want_move = self.mouse_pos
-                                        self.can_move = False
+                                        self.is_moved_in_this_turn = True
                                     self.player.choice_person = None
 
                         # send sms
@@ -871,6 +923,10 @@ class Main:
                                 self.can_move = True
                             elif data_[:6] == '<False':
                                 self.can_move = False
+                            if self.can_move != self.last_sms_to_move:
+                                self.is_moved_in_this_turn = False
+                                self.player.choice_person = None
+                            self.last_sms_to_move = self.can_move
                             if data_ == '<wait>':
                                 pass
                             if main.is_fight(data_):
@@ -908,12 +964,10 @@ class Main:
                             a_ = []
                             b_ = []
                             for enemy in self.opponent.persons:
-
-                                if abs(person.pos[0] - enemy.pos[0]) <= 1 and abs(person.pos[1] - enemy.pos[1]) <= 1:
+                                if abs(person.pos[0] - enemy.pos[0]) + \
+                                        abs(person.pos[1] - enemy.pos[1]) <= person.range_attack:
                                     a_.append(enemy)
-                                    b_.append((enemy.pos[0] * TILE + TILE,
-                                               enemy.pos[1] * TILE - (TILE / 2),
-                                               100, 30))
+                                    b_.append((enemy.pos[0] * TILE + TILE, enemy.pos[1] * TILE - (TILE / 2), 100, 30))
                                 else:
                                     pass
                             person.can_fight_with = a_

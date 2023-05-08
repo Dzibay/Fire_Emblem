@@ -6,25 +6,27 @@ def cords(c):
     return c[0], c[1], c[2], c[3]
 
 
-characters = {'roy': {'hp': 20,
+characters = {'roy': {'hp': 18,
                       'str': 5,
-                      'mag': 18,
+                      'mag': 0,
                       'skl': 5,
-                      'lck': 5,
-                      'def': 7,
-                      'res': 7,
-                      'move': 4,
-                      'class': 'iron'},
-
-              'lyn': {'hp': 18,
-                      'str': 4,
-                      'mag': 16,
-                      'skl': 4,
                       'lck': 7,
-                      'def': 9,
-                      'res': 5,
+                      'def': 5,
+                      'res': 0,
                       'move': 5,
-                      'class': 'iron'},
+                      'class': 'sword',
+                      'range': 1},
+
+              'lyn': {'hp': 16,
+                      'str': 4,
+                      'mag': 0,
+                      'skl': 7,
+                      'lck': 5,
+                      'def': 2,
+                      'res': 0,
+                      'move': 5,
+                      'class': 'sword',
+                      'range': 1},
 
               'hector': {'hp': 19,
                          'str': 4,
@@ -34,7 +36,8 @@ characters = {'roy': {'hp': 20,
                          'def': 8,
                          'res': 0,
                          'move': 3,
-                         'class': 'axe'},
+                         'class': 'axe',
+                         'range': 1},
 
               'eirika': {'hp': 16,
                          'str': 4,
@@ -44,7 +47,8 @@ characters = {'roy': {'hp': 20,
                          'def': 3,
                          'res': 1,
                          'move': 6,
-                         'class': 'lance'},
+                         'class': 'lance',
+                         'range': 1},
 
               'eliwood': {'hp': 18,
                           'str': 5,
@@ -54,7 +58,8 @@ characters = {'roy': {'hp': 20,
                           'def': 5,
                           'res': 0,
                           'move': 6,
-                          'class': 'iron'},
+                          'class': 'sword',
+                          'range': 1},
 
               'marth': {'hp': 18,
                         'str': 5,
@@ -64,7 +69,8 @@ characters = {'roy': {'hp': 20,
                         'def': 7,
                         'res': 7,
                         'move': 4,
-                        'class': 'iron'},
+                        'class': 'sword',
+                        'range': 1},
 
               'ike': {'hp': 20,
                       'str': 4,
@@ -74,7 +80,8 @@ characters = {'roy': {'hp': 20,
                       'def': 7,
                       'res': 6,
                       'move': 4,
-                      'class': 'iron'},
+                      'class': 'sword',
+                      'range': 1},
 
               'sorcerer': {'hp': 15,
                            'str': 1,
@@ -84,7 +91,10 @@ characters = {'roy': {'hp': 20,
                            'def': 0,
                            'res': 3,
                            'move': 3,
-                           'class': 'magic'}}
+                           'class': 'magic',
+                           'range': 2}}
+
+weapon_damage = {'sword': 5, 'axe': 8, 'lance': 7, 'magic': 5}
 
 
 class Person:
@@ -100,6 +110,7 @@ class Person:
         self.damage_for_me = 0
 
         self.type = characters[self.name]['class']
+        self.weapon_dmg = weapon_damage[self.type]
         self.hp = characters[self.name]['hp']
         self.max_hp = self.hp
         self.hit = 90
@@ -110,6 +121,7 @@ class Person:
         self.def_ = characters[self.name]['def']
         self.res = characters[self.name]['res']
         self.movement = characters[self.name]['move']
+        self.range_attack = characters[self.name]['range']
 
         self.dmg = self.mag if self.type == 'magic' else (self.str + 5)
         self.crt = self.skl // 2 + 1

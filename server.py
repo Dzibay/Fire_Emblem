@@ -1,5 +1,6 @@
 import socket
 import pygame
+from random import randint
 
 server_ip = '82.146.45.210'
 server_ip = 'localhost'
@@ -51,7 +52,12 @@ class Player:
 
 def find(s):
     first = None
-    can_move = True if s[:5] == '<True' else False
+    if s[:5] == '<True':
+        can_move = True
+    elif s[:5] == '<None':
+        can_move = None
+    else:
+        can_move = False
     for i in range(len(s)):
         if s[i] == '|':
             first = i
@@ -91,6 +97,8 @@ while run:
             new_player = Player(new_socket, addr)
             players.append(new_player)
             print(f'Подключился игрок, игроков на сервере: {len(players)}')
+            if len(players) == 2:
+                players[randint(0, 1)].can_move = True
         except:
             pass
 
@@ -117,9 +125,8 @@ while run:
             else:
                 player.is_fight = False
                 a, data = find(data)
-                if player.last_sms_move is None:
-                    player.last_sms_move = a
-                    player.can_move = a
+                if a is None:
+                    player.last_sms_move = player.can_move
                 elif player.last_sms_move != a:
                     player.can_move = a
                     player.last_sms_move = a

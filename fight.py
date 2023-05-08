@@ -278,12 +278,31 @@ class Fight:
                       True if randint(0, 100) <= enemy.crt else False,
                       True if randint(0, 100) <= (1 - enemy.hit) else False]
         print(self.moves)
+
+        self.without_enemy_attack = False
+        self.person_double_attack = False
+        self.enemy_double_attack = False
+        if abs(person.pos[0] - enemy.pos[0]) + abs(person.pos[1] - enemy.pos[1]) <= person.range_attack:
+            if abs(person.pos[0] - enemy.pos[0]) + abs(person.pos[1] - enemy.pos[1]) > enemy.range_attack:
+                self.without_enemy_attack = True
+                print('without')
+        if person.attack_speed - enemy.attack_speed >= 4:
+            self.person_double_attack = True
+            self.moves.append(True if randint(0, 100) <= (1 - person.hit) else False)
+            print('person double attack')
+        elif enemy.attack_speed - person.attack_speed >= 4:
+            self.enemy_double_attack = True
+            self.moves.append(True if randint(0, 100) <= enemy.crt else False)
+            self.moves.append(True if randint(0, 100) <= (1 - enemy.hit) else False)
+            print('enemy double attack')
+
         self.need_moves = [0, 0]
         self.tick = 0
         self.dodge_tick = 0
         self.miss_tick = 0
         self.magic_tick = 0
         self.enemy_dead = 0
+        self.person_dead = 0
 
         self.person_x, self.person_y = sizes[person.name][int(self.moves[0])]['x'], \
                                        sizes[person.name][int(self.moves[0])]['y']

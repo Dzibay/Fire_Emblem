@@ -5,6 +5,7 @@ from settings import *
 from dextr import *
 import socket
 from fight import Fight, Fight_images, sizes
+from random import randint
 
 import time
 
@@ -82,6 +83,8 @@ class Main:
 
         # fight
         self.without_enemy_attack = False
+        self.person_double_attack = False
+        self.enemy_double_attack = False
         self.fight_upload = False
         self.fight_img = None
         self.fight = False
@@ -135,7 +138,7 @@ class Main:
             elif enemy.type == 'axe':
                 bonus = -1
         dmg = person.mag if person.type == 'magic' else person.str
-        dmg = (dmg + person.weapon_dmg + bonus) * (2 if bonus == 1 else 1)
+        dmg = (dmg + person.weapon_mt + bonus) * (2 if bonus == 1 else 1)
         def_ = enemy.res if person.type == 'magic' else enemy.def_
         return dmg - def_
 
@@ -376,7 +379,12 @@ class Main:
                     person.damage_for_me -= 1
             if self.fight_enemy.hp <= 0:
                 fight.enemy_dead += 1
-                if fight.enemy_dead >= 50:
+                if fight.enemy_dead >= 100:
+                    self.fight_tick = 0
+                    self.fight = False
+            elif self.fight_person.hp <= 0:
+                fight.person_dead += 1
+                if fight.person_dead >= 100:
                     self.fight_tick = 0
                     self.fight = False
 
@@ -456,9 +464,21 @@ class Main:
             fight.magic_img_id = -1
 
         # end
-        if (self.fight_tick > fight_end) or (self.fight_tick >= start_enemy_attack and self.without_enemy_attack):
+        if fight.without_enemy_attack and self.fight_tick >= start_enemy_attack:
             self.fight_tick = 0
             self.fight = False
+        elif self.fight_tick > fight_end:
+            if fight.person_double_attack:
+                self.fight_tick = 0
+                fight.moves[0] = True if randint(0, 100) <= self.fight_person.crt else False
+                fight.moves[1] = True if randint(0, 100) <= (1 - self.fight_person.hit) else False
+            elif fight.enemy_double_attack:
+                self.fight_tick = start_enemy_attack
+                fight.moves[2] = True if randint(0, 100) <= self.fight_enemy.crt else False
+                fight.moves[3] = True if randint(0, 100) <= (1 - self.fight_enemy.hit) else False
+            else:
+                self.fight_tick = 0
+                self.fight = False
 
     def render_not_my_fight(self):
         global fight
@@ -468,7 +488,9 @@ class Main:
                 self.run = False
 
         if not self.fight_upload:
-            fight = Fight(self.fight_person, self.fight_enemy, self.fight_img)
+            fight = Fight(self.fight_person, self.fight_enemy, self.fight_img,
+                          main.calculate_damage(self.fight_person, self.fight_enemy),
+                          main.calculate_damage(self.fight_enemy, self.fight_person))
             self.fight_upload = True
 
         # recv sms
@@ -884,17 +906,7 @@ class Main:
                                                             self.fight_enemy = person.can_fight_with[i_]
                                                             self.fight = True
                                                             self.can_move = False
-                                                            self.without_enemy_attack = False
-                                                            if abs(self.fight_person.pos[0] - self.fight_enemy.pos[0]) + \
-                                                                    abs(self.fight_person.pos[1] - self.fight_enemy.pos[
-                                                                        1]) <= self.fight_person.range_attack:
-                                                                if abs(self.fight_person.pos[0] - self.fight_enemy.pos[
-                                                                    0]) + \
-                                                                        abs(self.fight_person.pos[1] -
-                                                                            self.fight_enemy.pos[
-                                                                                1]) > self.fight_enemy.range_attack:
-                                                                    self.without_enemy_attack = True
-                                                                    print('ye')
+
                                                             break
                                                         i_ += 1
                                 # move

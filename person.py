@@ -14,8 +14,9 @@ characters = {'roy': {'hp': 18,
                       'def': 5,
                       'res': 0,
                       'move': 5,
-                      'class': 'sword',
-                      'range': 1},
+                      'speed': 7,
+                      'con': 6,
+                      'class': 'sword'},
 
               'lyn': {'hp': 16,
                       'str': 4,
@@ -25,41 +26,45 @@ characters = {'roy': {'hp': 18,
                       'def': 2,
                       'res': 0,
                       'move': 5,
-                      'class': 'sword',
-                      'range': 1},
+                      'speed': 9,
+                      'con': 5,
+                      'class': 'sword'},
 
               'hector': {'hp': 19,
-                         'str': 4,
-                         'mag': 1,
+                         'str': 7,
+                         'mag': 0,
                          'skl': 4,
                          'lck': 3,
                          'def': 8,
                          'res': 0,
-                         'move': 3,
-                         'class': 'axe',
-                         'range': 1},
+                         'move': 5,
+                         'speed': 5,
+                         'con': 13,
+                         'class': 'axe'},
 
               'eirika': {'hp': 16,
                          'str': 4,
-                         'mag': 1,
+                         'mag': 0,
                          'skl': 8,
                          'lck': 5,
                          'def': 3,
                          'res': 1,
-                         'move': 6,
-                         'class': 'lance',
-                         'range': 1},
+                         'move': 5,
+                         'speed': 9,
+                         'con': 5,
+                         'class': 'lance'},
 
               'eliwood': {'hp': 18,
                           'str': 5,
-                          'mag': 5,
+                          'mag': 0,
                           'skl': 5,
                           'lck': 7,
                           'def': 5,
                           'res': 0,
-                          'move': 6,
-                          'class': 'sword',
-                          'range': 1},
+                          'move': 5,
+                          'speed': 7,
+                          'con': 7,
+                          'class': 'sword'},
 
               'marth': {'hp': 18,
                         'str': 5,
@@ -67,34 +72,40 @@ characters = {'roy': {'hp': 18,
                         'skl': 3,
                         'lck': 7,
                         'def': 7,
-                        'res': 7,
+                        'res': 0,
                         'move': 4,
-                        'class': 'sword',
-                        'range': 1},
+                        'speed': 7,
+                        'con': 9,
+                        'class': 'sword'},
 
-              'ike': {'hp': 20,
-                      'str': 4,
-                      'mag': 5,
-                      'skl': 5,
+              'ike': {'hp': 19,
+                      'str': 5,
+                      'mag': 0,
+                      'skl': 6,
                       'lck': 6,
-                      'def': 7,
-                      'res': 6,
-                      'move': 4,
-                      'class': 'sword',
-                      'range': 1},
+                      'def': 5,
+                      'res': 0,
+                      'move': 6,
+                      'speed': 7,
+                      'con': 6,
+                      'class': 'sword'},
 
-              'sorcerer': {'hp': 15,
-                           'str': 1,
-                           'mag': 18,
-                           'skl': 4,
-                           'lck': 4,
-                           'def': 0,
-                           'res': 3,
-                           'move': 3,
-                           'class': 'magic',
-                           'range': 2}}
+              'sorcerer': {'hp': 16,
+                           'str': 0,
+                           'mag': 4,
+                           'skl': 5,
+                           'lck': 5,
+                           'def': 3,
+                           'res': 5,
+                           'move': 5,
+                           'speed': 6,
+                           'con': 4,
+                           'class': 'magic'}}
 
-weapon_damage = {'sword': 5, 'axe': 8, 'lance': 7, 'magic': 5}
+weapon = {'sword': {'mt': 5, 'wt': 5, 'hit': 90, 'crt': 0, 'range': 1},
+          'axe': {'mt': 8, 'wt': 10, 'hit': 75, 'crt': 0, 'range': 1},
+          'lance': {'mt': 7, 'wt': 8, 'hit': 80, 'crt': 0, 'range': 1},
+          'magic': {'mt': 5, 'wt': 4, 'hit': 95, 'crt': 0, 'range': 2}}
 
 
 class Person:
@@ -108,12 +119,13 @@ class Person:
         self.want_move = self.pos
         self.move_to = ''
         self.damage_for_me = 0
+        self.can_fight_with = []
+        self.attack_button = None
 
+        # stats
         self.type = characters[self.name]['class']
-        self.weapon_dmg = weapon_damage[self.type]
         self.hp = characters[self.name]['hp']
         self.max_hp = self.hp
-        self.hit = 90
         self.str = characters[self.name]['str']
         self.mag = characters[self.name]['mag']
         self.skl = characters[self.name]['skl']
@@ -121,13 +133,12 @@ class Person:
         self.def_ = characters[self.name]['def']
         self.res = characters[self.name]['res']
         self.movement = characters[self.name]['move']
-        self.range_attack = characters[self.name]['range']
-
-        self.dmg = self.mag if self.type == 'magic' else (self.str + 5)
-        self.crt = self.skl // 2 + 1
-
-        self.can_fight_with = []
-        self.attack_button = None
+        self.attack_speed = characters[self.name]['speed'] - (weapon[self.type]['wt'] - characters[self.name]['con'])
+        self.crt = weapon[self.type]['crt'] + (self.skl // 2)
+        self.hit = weapon[self.type]['hit'] + (self.skl * 2) + (self.lck // 2)
+        self.range_attack = weapon[self.type]['range']
+        self.weapon_mt = weapon[self.type]['mt']
+        self.dmg = (self.mag if self.type == 'magic' else self.str) + self.weapon_mt
 
         # person
         self.stay_images = [pygame.transform.scale(pygame.image.load(f'templates/persons/{name}/person/map_idle.png').

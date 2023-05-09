@@ -4,7 +4,7 @@ from player import Player
 from settings import *
 from dextr import *
 import socket
-from fight import Fight, Fight_images, sizes
+from fight import Fight, Fight_images, sizes, triangle
 from random import randint
 
 
@@ -102,7 +102,9 @@ class Main:
         self.menu_tick = 0
         self.menu_btn_cords = (450, 550, 300, 50)
         self.menu_person_choice_cords = [(i, j, 100, 100) for j in range(50, 530, 120) for i in range(250, 950, 120)]
-        self.names_choice_persons = ['roy', 'lyn', 'hector', 'eirika', 'eliwood', 'marth', 'ike', 'sorcerer']
+        self.names_choice_persons = ['roy', 'lyn', 'hector',
+                                     'eirika', 'ephraim', 'eliwood',
+                                     'marth', 'ike', 'hero', 'sorcerer']
         self.menu_person_img = [
             pygame.image.load(f'templates/persons/{i}/person/map_idle.png').subsurface((0, 0, 48, 48))
             for i in self.names_choice_persons]
@@ -128,24 +130,9 @@ class Main:
 
     @staticmethod
     def calculate_damage(person, enemy):
-        bonus = 0
+        bonus = 1 if triangle(person.type, enemy.type) else -1
         if person.type == enemy.type:
-            pass
-        elif person.type == 'sword':
-            if enemy.type == 'axe':
-                bonus = 1
-            elif enemy.type == 'lance':
-                bonus = -1
-        elif person.type == 'axe':
-            if enemy.type == 'lance':
-                bonus = 1
-            elif enemy.type == 'sword':
-                bonus = -1
-        elif person.type == 'lance':
-            if enemy.type == 'sword':
-                bonus = 1
-            elif enemy.type == 'axe':
-                bonus = -1
+            bonus = 0
         dmg = person.mag if person.type == 'magic' else person.str
         dmg = (dmg + person.weapon_mt + bonus) * (2 if bonus == 1 else 1)
         def_ = enemy.res if person.type == 'magic' else enemy.def_
@@ -238,7 +225,7 @@ class Main:
         text_name = self.f3.render(self.fight_person.name, True, WHITE)
         self.screen.blit(text_name, (50, 50))
 
-        hit = str(self.fight_person.hit) if self.fight_person.hit > 0 else f'0{self.fight_person.hit}'
+        hit = str(fight.person_hit) if fight.person_hit > 0 else f'0{fight.person_hit}'
         dmg = str(fight.person_dmg) if fight.person_dmg > 9 else f'0{fight.person_dmg}'
         crt = str(self.fight_person.crt) if self.fight_person.crt > 9 else f'0{self.fight_person.crt}'
         for i in range(len(hit)):
@@ -255,7 +242,7 @@ class Main:
         text_name = self.f3.render(self.fight_enemy.name, True, WHITE)
         self.screen.blit(text_name, (1000, 50))
 
-        hit = str(self.fight_enemy.hit) if self.fight_enemy.hit > 0 else f'0{self.fight_enemy.hit}'
+        hit = str(fight.enemy_hit) if fight.enemy_hit > 0 else f'0{fight.enemy_hit}'
         dmg = str(fight.enemy_dmg) if fight.enemy_dmg > 9 else f'0{fight.enemy_dmg}'
         crt = str(self.fight_enemy.crt) if self.fight_enemy.crt > 9 else f'0{self.fight_enemy.crt}'
         for i in range(len(hit)):
@@ -275,11 +262,11 @@ class Main:
         for i in range(0, 2 if self.fight_person.max_hp > 40 else 1):
             if self.fight_person.max_hp > 40:
                 for j in range(0, self.fight_person.max_hp):
-                    self.screen.blit(fight.hp[0 if j + i * 40 <= self.fight_person.hp else 1],
+                    self.screen.blit(fight.hp[0 if j + i * 40 < self.fight_person.hp else 1],
                                      (110 + j * 10, 705 if i == 0 else 745))
             else:
                 for j in range(0, self.fight_person.max_hp):
-                    self.screen.blit(fight.hp[0 if j + i * 40 <= self.fight_person.hp else 1],
+                    self.screen.blit(fight.hp[0 if j + i * 40 < self.fight_person.hp else 1],
                                      (110 + j * 10, 726))
 
         text_hp = str(self.fight_enemy.hp) if self.fight_enemy.hp > 0 else '0'
@@ -288,16 +275,18 @@ class Main:
         for i in range(0, 2 if self.fight_enemy.max_hp > 40 else 1):
             if self.fight_enemy.max_hp > 40:
                 for j in range(0, self.fight_enemy.max_hp):
-                    self.screen.blit(fight.hp[0 if j + i * 40 <= self.fight_enemy.hp else 1],
+                    self.screen.blit(fight.hp[0 if j + i * 40 < self.fight_enemy.hp else 1],
                                      (720 + j * 10, 705 if i == 0 else 745))
             else:
                 for j in range(0, self.fight_enemy.max_hp):
-                    self.screen.blit(fight.hp[0 if j + i * 40 <= self.fight_enemy.hp else 1],
+                    self.screen.blit(fight.hp[0 if j + i * 40 < self.fight_enemy.hp else 1],
                                      (720 + j * 10, 726))
 
         # weapon
         self.screen.blit(fight.person_weapon_img, (220, 608))
         self.screen.blit(fight.enemy_weapon_img, (620, 608))
+        self.screen.blit(fight.person_weapon_arrow[self.tick % 30 // 10 if self.tick % 60 < 30 else 0], (272, 635))
+        self.screen.blit(fight.enemy_weapon_arrow[self.tick % 30 // 10 if self.tick % 60 < 30 else 0], (672, 635))
 
     def render_fight(self):
         global fight
@@ -305,10 +294,6 @@ class Main:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 self.run = False
-            if event.type == pygame.KEYUP:
-                if event.key == pygame.K_SPACE:
-                    self.fight = False
-                    self.fight_tick = 0
 
         if self.fight_tick == 1:
             fight = Fight(self.fight_person, self.fight_enemy, self.fight_img,
@@ -396,16 +381,9 @@ class Main:
                 if person.damage_for_me > 0:
                     person.hp -= 1
                     person.damage_for_me -= 1
-            if self.fight_enemy.hp <= 0:
-                fight.enemy_dead += 1
-                if fight.enemy_dead >= 100:
-                    self.fight_tick = 0
-                    self.fight = False
-            elif self.fight_person.hp <= 0:
-                fight.person_dead += 1
-                if fight.person_dead >= 100:
-                    self.fight_tick = 0
-                    self.fight = False
+            if self.fight_enemy.hp <= 0 and (self.fight_tick >= start_enemy_attack):
+                self.fight_tick = 0
+                self.fight = False
 
         # magic effect
         magic_img = None
@@ -482,19 +460,37 @@ class Main:
         else:
             fight.magic_img_id = -1
 
+        # dodge
+        if fight.moves[1]:
+            if (self.fight_tick > 50 + fight.person_dmg_tick) and (
+                    self.fight_tick <= 50 + fight.person_dmg_tick + 40):
+                self.screen.blit(fight.miss(), (850, 300))
+        if fight.moves[1]:
+            if (self.fight_tick > start_enemy_attack + fight.enemy_dmg_tick - 10) and (
+                    self.fight_tick <= start_enemy_attack + fight.enemy_dmg_tick + 40 - 10):
+                self.screen.blit(fight.miss(), (250, 300))
+
         # end
-        if fight.without_enemy_attack and self.fight_tick >= start_enemy_attack:
+        if fight.indicate_double_attack:
+            if fight.person_double_attack and self.fight_tick >= start_enemy_attack:
+                self.fight_tick = 0
+                self.fight = False
+            elif fight.enemy_double_attack and self.fight_tick >= fight_end:
+                self.fight_tick = 0
+                self.fight = False
+        elif fight.without_enemy_attack and self.fight_tick >= start_enemy_attack:
             self.fight_tick = 0
             self.fight = False
         elif self.fight_tick > fight_end:
-            if fight.person_double_attack:
-                self.fight_tick = 0
+            fight.indicate_double_attack = True
+            if fight.person_double_attack and self.fight_person.hp > 0:
+                self.fight_tick = 5
                 fight.moves[0] = True if randint(0, 100) <= self.fight_person.crt else False
-                fight.moves[1] = True if randint(0, 100) <= (1 - self.fight_person.hit) else False
-            elif fight.enemy_double_attack:
+                fight.moves[1] = True if randint(0, 100) <= (1 - fight.person_hit) else False
+            elif fight.enemy_double_attack and self.fight_person.hp > 0:
                 self.fight_tick = start_enemy_attack
                 fight.moves[2] = True if randint(0, 100) <= self.fight_enemy.crt else False
-                fight.moves[3] = True if randint(0, 100) <= (1 - self.fight_enemy.hit) else False
+                fight.moves[3] = True if randint(0, 100) <= (1 - fight.enemy_hit) else False
             else:
                 self.fight_tick = 0
                 self.fight = False
@@ -678,6 +674,7 @@ class Main:
                                  (player.persons[i].x - 88, player.persons[i].y - 100))
 
         if len(self.menu_choice_persons) == 0:
+            # turn menu
             if self.turn_menu:
                 pygame.draw.rect(self.screen, WHITE, (20, 150, 100, 200))
                 pygame.draw.rect(self.screen, BLUE, self.move_btn)

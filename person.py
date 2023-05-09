@@ -54,6 +54,18 @@ characters = {'roy': {'hp': 18,
                          'con': 5,
                          'class': 'lance'},
 
+              'ephraim': {'hp': 20,
+                          'str': 6,
+                          'mag': 0,
+                          'skl': 6,
+                          'lck': 5,
+                          'def': 6,
+                          'res': 1,
+                          'move': 5,
+                          'speed': 1,
+                          'con': 8,
+                          'class': 'lance'},
+
               'eliwood': {'hp': 18,
                           'str': 5,
                           'mag': 0,
@@ -89,6 +101,18 @@ characters = {'roy': {'hp': 18,
                       'speed': 7,
                       'con': 6,
                       'class': 'sword'},
+
+              'hero': {'hp': 22,
+                       'str': 6,
+                       'mag': 0,
+                       'skl': 9,
+                       'lck': 6,
+                       'def': 8,
+                       'res': 2,
+                       'move': 6,
+                       'speed': 10,
+                       'con': 10,
+                       'class': 'sword'},
 
               'sorcerer': {'hp': 16,
                            'str': 0,
@@ -131,12 +155,14 @@ class Person:
         self.def_ = characters[self.name]['def']
         self.res = characters[self.name]['res']
         self.movement = characters[self.name]['move']
-        self.attack_speed = characters[self.name]['speed'] - (weapon[self.type]['wt'] - characters[self.name]['con'])
-        self.crt = weapon[self.type]['crt'] + (self.skl // 2)
-        self.hit = weapon[self.type]['hit'] + (self.skl * 2) + (self.lck // 2)
-        self.hit = self.hit if self.hit <= 100 else 100
         self.range_attack = weapon[self.type]['range']
         self.weapon_mt = weapon[self.type]['mt']
+
+        a_ = weapon[self.type]['wt'] - characters[self.name]['con']
+        self.attack_speed = characters[self.name]['speed'] - (a_ if a_ > 0 else 0)
+        self.crt = weapon[self.type]['crt'] + (self.skl // 2)
+        self.hit = weapon[self.type]['hit'] + (self.skl * 2) + (self.lck // 2)
+        self.avoid = self.attack_speed * 2 + self.lck
         self.dmg = (self.mag if self.type == 'magic' else self.str) + self.weapon_mt
 
         # person

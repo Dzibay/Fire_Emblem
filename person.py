@@ -16,7 +16,7 @@ characters = {'roy': {'hp': 18,
                       'move': 5,
                       'speed': 7,
                       'con': 6,
-                      'class': 'sword'},
+                      'weapon': 'iron_sword'},
 
               'lyn': {'hp': 16,
                       'str': 4,
@@ -28,7 +28,7 @@ characters = {'roy': {'hp': 18,
                       'move': 5,
                       'speed': 9,
                       'con': 5,
-                      'class': 'sword'},
+                      'weapon': 'iron_sword'},
 
               'hector': {'hp': 19,
                          'str': 7,
@@ -40,7 +40,7 @@ characters = {'roy': {'hp': 18,
                          'move': 5,
                          'speed': 5,
                          'con': 13,
-                         'class': 'axe'},
+                         'weapon': 'iron_axe'},
 
               'eirika': {'hp': 16,
                          'str': 4,
@@ -52,7 +52,7 @@ characters = {'roy': {'hp': 18,
                          'move': 5,
                          'speed': 9,
                          'con': 5,
-                         'class': 'lance'},
+                         'weapon': 'iron_lance'},
 
               'ephraim': {'hp': 20,
                           'str': 6,
@@ -64,7 +64,7 @@ characters = {'roy': {'hp': 18,
                           'move': 5,
                           'speed': 1,
                           'con': 8,
-                          'class': 'lance'},
+                          'weapon': 'iron_lance'},
 
               'eliwood': {'hp': 18,
                           'str': 5,
@@ -76,7 +76,7 @@ characters = {'roy': {'hp': 18,
                           'move': 5,
                           'speed': 7,
                           'con': 7,
-                          'class': 'sword'},
+                          'weapon': 'iron_sword'},
 
               'marth': {'hp': 18,
                         'str': 5,
@@ -88,7 +88,7 @@ characters = {'roy': {'hp': 18,
                         'move': 4,
                         'speed': 7,
                         'con': 9,
-                        'class': 'sword'},
+                        'weapon': 'iron_sword'},
 
               'ike': {'hp': 19,
                       'str': 5,
@@ -100,7 +100,7 @@ characters = {'roy': {'hp': 18,
                       'move': 6,
                       'speed': 7,
                       'con': 6,
-                      'class': 'sword'},
+                      'weapon': 'iron_sword'},
 
               'hero': {'hp': 22,
                        'str': 6,
@@ -112,7 +112,7 @@ characters = {'roy': {'hp': 18,
                        'move': 6,
                        'speed': 10,
                        'con': 10,
-                       'class': 'sword'},
+                       'weapon': 'iron_sword'},
 
               'sorcerer': {'hp': 16,
                            'str': 0,
@@ -124,12 +124,12 @@ characters = {'roy': {'hp': 18,
                            'move': 5,
                            'speed': 6,
                            'con': 4,
-                           'class': 'magic'}}
+                           'weapon': 'fire'}}
 
-weapon = {'sword': {'mt': 5, 'wt': 5, 'hit': 90, 'crt': 0, 'range': 1},
-          'axe': {'mt': 8, 'wt': 10, 'hit': 75, 'crt': 0, 'range': 1},
-          'lance': {'mt': 7, 'wt': 8, 'hit': 80, 'crt': 0, 'range': 1},
-          'magic': {'mt': 5, 'wt': 4, 'hit': 95, 'crt': 0, 'range': 2}}
+weapon = {'iron_sword': {'mt': 5, 'wt': 5, 'hit': 90, 'crt': 0, 'range': 1, 'class': 'sword'},
+          'iron_axe': {'mt': 8, 'wt': 10, 'hit': 75, 'crt': 0, 'range': 1, 'class': 'axe'},
+          'iron_lance': {'mt': 7, 'wt': 8, 'hit': 80, 'crt': 0, 'range': 1, 'class': 'lance'},
+          'fire': {'mt': 5, 'wt': 4, 'hit': 95, 'crt': 0, 'range': 2, 'class': 'magic'}}
 
 
 class Person:
@@ -145,7 +145,8 @@ class Person:
         self.damage_for_me = 0
 
         # stats
-        self.type = characters[self.name]['class']
+        self.weapon = characters[self.name]['weapon']
+        self.type = weapon[self.weapon]['class']
         self.hp = characters[self.name]['hp']
         self.max_hp = self.hp
         self.str = characters[self.name]['str']
@@ -155,13 +156,13 @@ class Person:
         self.def_ = characters[self.name]['def']
         self.res = characters[self.name]['res']
         self.movement = characters[self.name]['move']
-        self.range_attack = weapon[self.type]['range']
-        self.weapon_mt = weapon[self.type]['mt']
+        self.range_attack = weapon[self.weapon]['range']
+        self.weapon_mt = weapon[self.weapon]['mt']
 
-        a_ = weapon[self.type]['wt'] - characters[self.name]['con']
+        a_ = weapon[self.weapon]['wt'] - characters[self.name]['con']
         self.attack_speed = characters[self.name]['speed'] - (a_ if a_ > 0 else 0)
-        self.crt = weapon[self.type]['crt'] + (self.skl // 2)
-        self.hit = weapon[self.type]['hit'] + (self.skl * 2) + (self.lck // 2)
+        self.crt = weapon[self.weapon]['crt'] + (self.skl // 2)
+        self.hit = weapon[self.weapon]['hit'] + (self.skl * 2) + (self.lck // 2)
         self.avoid = self.attack_speed * 2 + self.lck
         self.dmg = (self.mag if self.type == 'magic' else self.str) + self.weapon_mt
 
@@ -203,7 +204,6 @@ class Person:
 
     def move(self, cords):
         if self.pos != self.want_move:
-            print(self.pos, self.want_move)
             self.state = 'move_'
             cords.reverse()
             cord = cords[0]

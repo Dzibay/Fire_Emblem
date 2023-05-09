@@ -68,6 +68,7 @@ class Main:
         # attack
         self.can_attack_to = []
         self.person_want_attack = False
+        self.is_attacked_in_this_turn = False
 
         # pointer
         names_point = ['start_r', 'start_d', 'u', 'r', 'u-r', 'r-d', 'end_r', 'end_d',
@@ -119,9 +120,12 @@ class Main:
 
         # turn menu
         self.turn_menu = False
-        self.move_btn = (30, 160, 80, 50)
-        self.attack_btn = (30, 220, 80, 50)
-        self.wait_btn = (30, 280, 80, 50)
+        self.turn_menu_rect = (20, 150, 200, 300)
+        self.move_btn = (20, 150, 200, 70)
+        self.attack_btn = (20, 220, 200, 70)
+        self.wait_btn = (20, 290, 200, 70)
+        self.menu_arrow = [pygame.transform.scale(pygame.image.load('templates/pointer/selectArrow.png').
+                                                  subsurface(i*8, 0, 8, 8), (40, 40)) for i in range(6)]
 
         # fonts
         self.f1 = pygame.font.Font(None, 30)
@@ -460,14 +464,14 @@ class Main:
         else:
             fight.magic_img_id = -1
 
-        # dodge
+        # miss
         if fight.moves[1]:
             if (self.fight_tick > 50 + fight.person_dmg_tick) and (
                     self.fight_tick <= 50 + fight.person_dmg_tick + 40):
                 self.screen.blit(fight.miss(), (850, 300))
-        if fight.moves[1]:
-            if (self.fight_tick > start_enemy_attack + fight.enemy_dmg_tick - 10) and (
-                    self.fight_tick <= start_enemy_attack + fight.enemy_dmg_tick + 40 - 10):
+        if fight.moves[3]:
+            if (self.fight_tick > start_enemy_attack + fight.enemy_dmg_tick) and (
+                    self.fight_tick <= start_enemy_attack + fight.enemy_dmg_tick + 40):
                 self.screen.blit(fight.miss(), (250, 300))
 
         # end
@@ -676,10 +680,32 @@ class Main:
         if len(self.menu_choice_persons) == 0:
             # turn menu
             if self.turn_menu:
-                pygame.draw.rect(self.screen, WHITE, (20, 150, 100, 200))
-                pygame.draw.rect(self.screen, BLUE, self.move_btn)
-                pygame.draw.rect(self.screen, RED, self.attack_btn)
-                pygame.draw.rect(self.screen, GREY, self.wait_btn)
+                pygame.draw.rect(self.screen, BLUE, self.turn_menu_rect)
+
+                choice_rect = pygame.Surface((200, 30))
+                choice_rect.fill(GREY)
+                choice_rect.set_alpha(80)
+                if in_box(self.big_mouse_pos, self.move_btn):
+                    self.screen.blit(choice_rect, (self.move_btn[0], self.move_btn[1] + 20))
+                    self.screen.blit(self.menu_arrow[self.tick % 12 // 2 if self.tick % 36 < 12 else 0],
+                                     (self.move_btn[0] + 150, self.move_btn[1] + 15))
+                elif in_box(self.big_mouse_pos, self.attack_btn):
+                    self.screen.blit(choice_rect, (self.attack_btn[0], self.attack_btn[1] + 20))
+                    self.screen.blit(self.menu_arrow[self.tick % 12 // 2 if self.tick % 36 < 12 else 0],
+                                     (self.attack_btn[0] + 150, self.attack_btn[1] + 15))
+                elif in_box(self.big_mouse_pos, self.wait_btn):
+                    self.screen.blit(choice_rect, (self.wait_btn[0], self.wait_btn[1] + 20))
+                    self.screen.blit(self.menu_arrow[self.tick % 12 // 2 if self.tick % 36 < 12 else 0],
+                                     (self.wait_btn[0] + 150, self.wait_btn[1] + 15))
+
+                pygame.draw.rect(self.screen, WHITE, self.turn_menu_rect, 5)
+
+                text_move = self.f2.render('Move', True, WHITE)
+                text_attack = self.f2.render('Attack', True, WHITE)
+                text_wait = self.f2.render('Wait', True, WHITE)
+                self.screen.blit(text_move, (self.move_btn[0] + 50, self.move_btn[1] + 19))
+                self.screen.blit(text_attack, (self.attack_btn[0] + 35, self.attack_btn[1] + 19))
+                self.screen.blit(text_wait, (self.wait_btn[0] + 50, self.wait_btn[1] + 19))
 
             # see person info
             for person in self.player.persons + self.opponent.persons:
@@ -916,7 +942,8 @@ class Main:
                                                     self.can_move_to = main.get_can_to(p_.pos, p_.movement,
                                                                                        self.person_positions)
                                                     self.turn_menu = False
-                                                elif in_box(self.big_mouse_pos, self.attack_btn):
+                                                elif in_box(self.big_mouse_pos, self.attack_btn) and \
+                                                        not self.is_attacked_in_this_turn:
                                                     self.person_want_attack = True
                                                     self.can_attack_to = main.get_can_to(p_.pos, p_.range_attack,
                                                                                          [p_.pos])
@@ -941,7 +968,8 @@ class Main:
                                                                 self.player.choice_person]
                                                             self.fight_enemy = enemy
                                                             self.fight = True
-                                                            self.your_turn = False
+                                                            self.is_attacked_in_this_turn = True
+                                                            self.player.choice_person = None
 
                                     else:
                                         # choice person

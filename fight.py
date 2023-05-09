@@ -7,7 +7,7 @@ sizes = {'roy': [{'width': 124,
                   'w': 11,
                   'h': 8,
                   'frames': 82,
-                  'x': 205,
+                  'x': 230,
                   'y': 70,
                   'x1': 420,
                   'size': (550, 450),
@@ -51,9 +51,9 @@ sizes = {'roy': [{'width': 124,
                      'w': 7,
                      'h': 6,
                      'frames': 33,
-                     'x': 230,
+                     'x': 240,
                      'y': 110,
-                     'x1': 455,
+                     'x1': 430,
                      'size': (530, 450),
                      'dmg_time': 40},
 
@@ -139,9 +139,9 @@ sizes = {'roy': [{'width': 124,
                     'w': 8,
                     'h': 4,
                     'frames': 29,
-                    'x': 325,
+                    'x': 345,
                     'y': 270,
-                    'x1': 440,
+                    'x1': 425,
                     'size': (430, 300),
                     'dmg_time': 20},
 
@@ -161,9 +161,9 @@ sizes = {'roy': [{'width': 124,
                   'w': 5,
                   'h': 5,
                   'frames': 23,
-                  'x': 320,
-                  'y': 220,
-                  'x1': 450,
+                  'x': 330,
+                  'y': 210,
+                  'x1': 440,
                   'size': (430, 315),
                   'dmg_time': 30},
 
@@ -183,9 +183,9 @@ sizes = {'roy': [{'width': 124,
                    'w': 8,
                    'h': 7,
                    'frames': 55,
-                   'x': 260,
+                   'x': 285,
                    'y': 60,
-                   'x1': 440,
+                   'x1': 415,
                    'size': (500, 485),
                    'dmg_time': 30},
 
@@ -205,9 +205,9 @@ sizes = {'roy': [{'width': 124,
                        'w': 8,
                        'h': 2,
                        'frames': 16,
-                       'x': 240,
-                       'y': 300,
-                       'x1': 665,
+                       'x': 255,
+                       'y': 295,
+                       'x1': 645,
                        'size': (300, 225),
                        'dmg_time': 25},
 
@@ -246,14 +246,14 @@ magic = {
 
 magic_names = ['sorcerer']
 weapon_img = {
-    'sword': pygame.transform.scale(pygame.image.load('templates/weapon/weapon.png').subsurface((16, 0, 16, 16)),
-                                    (72, 72)),
-    'axe': pygame.transform.scale(pygame.image.load('templates/weapon/weapon.png').subsurface((119, 51, 16, 16)),
-                                  (72, 72)),
-    'lance': pygame.transform.scale(pygame.image.load('templates/weapon/weapon.png').subsurface((34, 34, 16, 16)),
-                                    (72, 72)),
-    'magic': pygame.transform.scale(pygame.image.load('templates/weapon/weapon.png').subsurface((51, 102, 16, 16)),
-                                    (72, 72))}
+    'iron_sword': pygame.transform.scale(pygame.image.load('templates/weapon/weapon.png').subsurface((16, 0, 16, 16)),
+                                         (72, 72)),
+    'iron_axe': pygame.transform.scale(pygame.image.load('templates/weapon/weapon.png').subsurface((119, 51, 16, 16)),
+                                       (72, 72)),
+    'iron_lance': pygame.transform.scale(pygame.image.load('templates/weapon/weapon.png').subsurface((34, 34, 16, 16)),
+                                         (72, 72)),
+    'fire': pygame.transform.scale(pygame.image.load('templates/weapon/weapon.png').subsurface((51, 102, 16, 16)),
+                                   (72, 72))}
 
 
 def triangle(weapon_1, weapon_2):
@@ -348,9 +348,10 @@ class Fight:
         self.person_hit = person.hit + (15 if triangle(person.type, enemy.type) else -15) - enemy.avoid
         self.enemy_hit = enemy.hit + (15 if triangle(enemy.type, person.type) else -15) - person.avoid
         self.moves = [True if randint(0, 100) <= person.crt else False,
-                      True if randint(0, 100) <= (1 - self.person_hit) else False,
+                      True if randint(0, 100) <= (100 - self.person_hit) else False,
                       True if randint(0, 100) <= enemy.crt else False,
-                      True if randint(0, 100) <= (1 - self.enemy_hit) else False]
+                      True if randint(0, 100) <= (100 - self.enemy_hit) else False]
+        print(self.moves)
         # self.moves = [True, False, False, False]
 
         self.without_enemy_attack = False
@@ -375,10 +376,8 @@ class Fight:
         self.magic_tick = 0
 
         # weapon
-        self.person_weapon = person.type
-        self.enemy_weapon = enemy.type
-        self.person_weapon_img = weapon_img[self.person_weapon]
-        self.enemy_weapon_img = weapon_img[self.enemy_weapon]
+        self.person_weapon_img = weapon_img[person.weapon]
+        self.enemy_weapon_img = weapon_img[enemy.weapon]
 
         self.person_x, self.person_y = sizes[person.name][int(self.moves[0])]['x'], \
                                        sizes[person.name][int(self.moves[0])]['y']

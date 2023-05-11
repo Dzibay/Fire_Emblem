@@ -1,5 +1,5 @@
 import pygame
-from person import Person
+from person import Person, weapon
 from player import Player
 from settings import *
 from dextr import *
@@ -152,7 +152,7 @@ class Main:
                 end = i
                 res = s[first + 1:end].split(',')
                 res = [i.split(' ') for i in res if len(i) > 0]
-                result = [(i[0], int(i[1]), int(i[2]), i[3], int(i[4]), int(i[5]), int(i[6]), int(i[7])) for i in res]
+                result = [(i[0], int(i[1]), int(i[2]), i[3], int(i[4]), int(i[5]), int(i[6]), int(i[7]), i[8]) for i in res]
                 return result
         return None
 
@@ -538,10 +538,10 @@ class Main:
 
         # person
         self.screen.blit(fight.all_person_img[fight.person_img_id],
-                         (sizes[self.fight_person.name][fight.need_moves[0]]['x'], fight.person_y))
+                         (sizes[self.fight_person.name][self.fight_person.type][fight.need_moves[0]]['x'], fight.person_y))
         # enemy
         self.screen.blit(fight.all_enemy_img[fight.enemy_img_id],
-                         (sizes[self.fight_enemy.name][fight.need_moves[1]]['x1'], fight.enemy_y))
+                         (sizes[self.fight_enemy.name][self.fight_enemy.type][fight.need_moves[1]]['x1'], fight.enemy_y))
 
         # magic
         id_, x_, y_ = self.magic_data[0], self.magic_data[1], self.magic_data[2]
@@ -841,6 +841,8 @@ class Main:
                                     self.menu_choice_persons.remove(i)
                                 else:
                                     self.menu_choice_persons.append(i)
+            elif event.type == pygame.MOUSEBUTTONUP and event.button == 2:
+                print('ha')
 
         data_ = self.sock.recv(1024).decode()
         if data_[:5] == '<wait' and data_[:6] != '<wait>':
@@ -923,7 +925,11 @@ class Main:
                                 if event.key == pygame.K_e:
                                     self.your_turn = True
                                     self.is_moved_in_this_turn = False
-
+                                elif event.key == pygame.K_o:
+                                    if self.player.choice_person is not None:
+                                        self.player.persons[self.player.choice_person].weapon = 'iron_sword'
+                                        self.player.persons[self.player.choice_person].type = 'sword'
+                                        print('sword')
                             if event.type == pygame.MOUSEBUTTONUP and event.button == 1:
                                 if self.your_turn:
                                     if self.player.choice_person is not None:
@@ -969,6 +975,7 @@ class Main:
                                                             self.fight_enemy = enemy
                                                             self.fight = True
                                                             self.is_attacked_in_this_turn = True
+                                                            self.is_moved_in_this_turn = True
                                                             self.player.choice_person = None
 
                                     else:
@@ -988,7 +995,7 @@ class Main:
                         sms = f'<{self.your_turn}|'
                         for person in self.player.persons:
                             sms += f'{person.name} {person.x} {person.y} {person.state}{person.move_to} ' \
-                                   f'{person.hp} {person.hit} {person.dmg} {person.crt},'
+                                   f'{person.hp} {person.hit} {person.dmg} {person.crt} {person.weapon},'
                         sms += '>'
                         self.sock.send(sms.encode())
 
@@ -1001,6 +1008,7 @@ class Main:
                                 self.your_turn = False
                             if self.your_turn != self.last_sms_to_move:
                                 self.is_moved_in_this_turn = False
+                                self.is_attacked_in_this_turn = False
                                 self.player.choice_person = None
                             self.last_sms_to_move = self.your_turn
                             if data_ == '<wait>':
@@ -1031,6 +1039,8 @@ class Main:
                                     self.opponent.persons[j].hit = self.data[j][5]
                                     self.opponent.persons[j].dmg = self.data[j][6]
                                     self.opponent.persons[j].crt = self.data[j][7]
+                                    self.opponent.persons[j].weapon = self.data[j][8]
+                                    self.opponent.persons[j].type = weapon[self.data[j][8]]['class']
 
                         except:
                             pass

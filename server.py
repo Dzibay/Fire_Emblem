@@ -23,10 +23,11 @@ fight_sms = ''
 
 
 class Person:
-    def __init__(self, x, y, name, state, hp, hit, dmg, crt):
+    def __init__(self, x, y, name, state, hp, hit, dmg, crt, weapon):
         self.name = name
         self.pos = (x, y)
         self.state = state
+        self.weapon = weapon
 
         self.hp = hp
         self.hit = hit
@@ -65,7 +66,7 @@ def find(s):
             end = i
             res = s[first + 1:end].split(',')
             res = [i.split(' ') for i in res if i != '']
-            result = [[i[0], int(i[1]), int(i[2]), i[3], int(i[4]), int(i[5]), int(i[6]), int(i[7])] for i in res]
+            result = [[i[0], int(i[1]), int(i[2]), i[3], int(i[4]), int(i[5]), int(i[6]), int(i[7]), i[8]] for i in res]
             return can_move, result
     return ''
 
@@ -134,7 +135,7 @@ while run:
                         if player_2 != player:
                             player_2.can_move = not a
                 try:
-                    player.persons = [Person(i[1], i[2], i[0], i[3], i[4], i[5], i[6], i[7]) for i in data]
+                    player.persons = [Person(i[1], i[2], i[0], i[3], i[4], i[5], i[6], i[7], i[8]) for i in data]
                 except:
                     pass
         except:
@@ -167,7 +168,7 @@ while run:
                         if player_2 != player:
                             for person in player_2.persons:
                                 sms += f'{person.name} {person.pos[0]} {person.pos[1]} {person.state} ' \
-                                       f'{person.hp} {person.hit} {person.dmg} {person.crt},'
+                                       f'{person.hp} {person.hit} {person.dmg} {person.crt} {person.weapon},'
                     sms += '>'
             player.conn.send(sms.encode())
             player.errors = 0

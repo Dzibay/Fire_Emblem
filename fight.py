@@ -2,225 +2,248 @@ from settings import *
 import pygame
 from random import randint
 
-sizes = {'roy': [{'width': 124,
-                  'height': 102,
-                  'w': 11,
-                  'h': 8,
-                  'frames': 82,
-                  'x': 230,
-                  'y': 70,
-                  'x1': 420,
-                  'size': (550, 450),
-                  'dmg_time': 70},
+sizes = {'roy': {'sword': [{'width': 124,
+                            'height': 102,
+                            'w': 11,
+                            'h': 8,
+                            'frames': 82,
+                            'x': 230,
+                            'y': 70,
+                            'x1': 420,
+                            'size': (550, 450),
+                            'dmg_time': 70},
 
-                 {'width': 142,
-                  'height': 102,
-                  'w': 12,
-                  'h': 8,
-                  'frames': 96,
-                  'x': 130,
-                  'y': 70,
-                  'x1': 410,
-                  'size': (650, 450),
-                  'dmg_time': 95}],
+                           {'width': 142,
+                            'height': 102,
+                            'w': 12,
+                            'h': 8,
+                            'frames': 96,
+                            'x': 130,
+                            'y': 70,
+                            'x1': 410,
+                            'size': (650, 450),
+                            'dmg_time': 95}]},
 
-         'lyn': [{'width': 118,
-                  'height': 119,
-                  'w': 7,
-                  'h': 6,
-                  'frames': 37,
-                  'x': 280,
-                  'y': 55,
-                  'x1': 390,
-                  'size': (530, 530),
-                  'dmg_time': 25},
+         'lyn': {'sword': [{'width': 118,
+                            'height': 119,
+                            'w': 7,
+                            'h': 6,
+                            'frames': 37,
+                            'x': 280,
+                            'y': 55,
+                            'x1': 390,
+                            'size': (530, 530),
+                            'dmg_time': 25},
 
-                 {'width': 220,
-                  'height': 144,
-                  'w': 9,
-                  'h': 13,
-                  'frames': 115,
-                  'x': 60,
-                  'y': 90,
-                  'x1': 160,
-                  'size': (970, 650),
-                  'dmg_time': 75}],
+                           {'width': 220,
+                            'height': 144,
+                            'w': 9,
+                            'h': 13,
+                            'frames': 115,
+                            'x': 60,
+                            'y': 90,
+                            'x1': 160,
+                            'size': (970, 650),
+                            'dmg_time': 75}]},
 
-         'hector': [{'width': 117,
-                     'height': 99,
-                     'w': 7,
-                     'h': 6,
-                     'frames': 33,
-                     'x': 240,
-                     'y': 110,
-                     'x1': 430,
-                     'size': (530, 450),
-                     'dmg_time': 40},
+         'hector': {'axe': [{'width': 117,
+                             'height': 99,
+                             'w': 7,
+                             'h': 6,
+                             'frames': 33,
+                             'x': 240,
+                             'y': 110,
+                             'x1': 430,
+                             'size': (530, 450),
+                             'dmg_time': 40},
 
-                    {'width': 118,
-                     'height': 99,
-                     'w': 7,
-                     'h': 6,
-                     'frames': 32,
-                     'x': 230,
-                     'y': 110,
-                     'x1': 435,
-                     'size': (530, 450),
-                     'dmg_time': 40}],
+                            {'width': 118,
+                             'height': 99,
+                             'w': 7,
+                             'h': 6,
+                             'frames': 32,
+                             'x': 230,
+                             'y': 110,
+                             'x1': 435,
+                             'size': (530, 450),
+                             'dmg_time': 40}]},
 
-         'eirika': [{'width': 114,
-                     'height': 67,
-                     'w': 6,
-                     'h': 5,
-                     'frames': 28,
-                     'x': 240,
-                     'y': 220,
-                     'x1': 450,
-                     'size': (515, 300),
-                     'dmg_time': 25},
+         'eirika': {'lance': [{'width': 114,
+                               'height': 67,
+                               'w': 6,
+                               'h': 5,
+                               'frames': 28,
+                               'x': 240,
+                               'y': 220,
+                               'x1': 450,
+                               'size': (515, 300),
+                               'dmg_time': 25},
 
-                    {'width': 116,
-                     'height': 70,
-                     'w': 6,
-                     'h': 6,
-                     'frames': 32,
-                     'x': 240,
-                     'y': 225,
-                     'x1': 450,
-                     'size': (515, 300),
-                     'dmg_time': 30}],
+                              {'width': 116,
+                               'height': 70,
+                               'w': 6,
+                               'h': 6,
+                               'frames': 32,
+                               'x': 240,
+                               'y': 225,
+                               'x1': 450,
+                               'size': (515, 300),
+                               'dmg_time': 30}]},
 
-         'ephraim': [{'width': 114,
-                      'height': 68,
-                      'w': 6,
-                      'h': 6,
-                      'frames': 31,
-                      'x': 230,
-                      'y': 220,
-                      'x1': 455,
-                      'size': (515, 300),
-                      'dmg_time': 45},
+         'ephraim': {'lance': [{'width': 114,
+                                'height': 68,
+                                'w': 6,
+                                'h': 6,
+                                'frames': 31,
+                                'x': 230,
+                                'y': 220,
+                                'x1': 455,
+                                'size': (515, 300),
+                                'dmg_time': 45},
 
-                     {'width': 122,
-                      'height': 80,
-                      'w': 6,
-                      'h': 5,
-                      'frames': 30,
-                      'x': 195,
-                      'y': 170,
-                      'x1': 460,
-                      'size': (550, 350),
-                      'dmg_time': 35}],
+                               {'width': 122,
+                                'height': 80,
+                                'w': 6,
+                                'h': 5,
+                                'frames': 30,
+                                'x': 195,
+                                'y': 170,
+                                'x1': 460,
+                                'size': (550, 350),
+                                'dmg_time': 35}]},
 
-         'eliwood': [{'width': 144,
-                      'height': 106,
-                      'w': 7,
-                      'h': 6,
-                      'frames': 40,
-                      'x': 220,
-                      'y': 50,
-                      'x1': 330,
-                      'size': (650, 480),
-                      'dmg_time': 40},
+         'eliwood': {'sword': [{'width': 144,
+                                'height': 106,
+                                'w': 7,
+                                'h': 6,
+                                'frames': 40,
+                                'x': 220,
+                                'y': 50,
+                                'x1': 330,
+                                'size': (650, 480),
+                                'dmg_time': 40},
 
-                     {'width': 205,
-                      'height': 126,
-                      'w': 8,
-                      'h': 8,
-                      'frames': 59,
-                      'x': 95,
-                      'y': 50,
-                      'x1': 180,
-                      'size': (920, 570),
-                      'dmg_time': 80}],
+                               {'width': 205,
+                                'height': 126,
+                                'w': 8,
+                                'h': 8,
+                                'frames': 59,
+                                'x': 95,
+                                'y': 50,
+                                'x1': 180,
+                                'size': (920, 570),
+                                'dmg_time': 80}],
 
-         'marth': [{'width': 96,
-                    'height': 67,
-                    'w': 8,
-                    'h': 4,
-                    'frames': 29,
-                    'x': 345,
-                    'y': 270,
-                    'x1': 425,
-                    'size': (430, 300),
-                    'dmg_time': 20},
+                     'lance': [{'width': 143,
+                                'height': 89,
+                                'w': 6,
+                                'h': 6,
+                                'frames': 35,
+                                'x': 240,
+                                'y': 145,
+                                'x1': 305,
+                                'size': (650, 400),
+                                'dmg_time': 35},
 
-                   {'width': 114,
-                    'height': 101,
-                    'w': 9,
-                    'h': 8,
-                    'frames': 70,
-                    'x': 250,
-                    'y': 80,
-                    'x1': 435,
-                    'size': (515, 450),
-                    'dmg_time': 75}],
+                               {'width': 153,
+                                'height': 82,
+                                'w': 7,
+                                'h': 6,
+                                'frames': 40,
+                                'x': 190,
+                                'y': 185,
+                                'x1': 340,
+                                'size': (685, 360),
+                                'dmg_time': 40}]
+                     },
 
-         'ike': [{'width': 96,
-                  'height': 70,
-                  'w': 5,
-                  'h': 5,
-                  'frames': 23,
-                  'x': 330,
-                  'y': 210,
-                  'x1': 440,
-                  'size': (430, 315),
-                  'dmg_time': 30},
+         'marth': {'sword': [{'width': 96,
+                              'height': 67,
+                              'w': 8,
+                              'h': 4,
+                              'frames': 29,
+                              'x': 345,
+                              'y': 270,
+                              'x1': 425,
+                              'size': (430, 300),
+                              'dmg_time': 20},
 
-                 {'width': 150,
-                  'height': 125,
-                  'w': 7,
-                  'h': 7,
-                  'frames': 44,
-                  'x': 300,
-                  'y': -25,
-                  'x1': 240,
-                  'size': (675, 560),
-                  'dmg_time': 40}],
+                             {'width': 114,
+                              'height': 101,
+                              'w': 9,
+                              'h': 8,
+                              'frames': 70,
+                              'x': 250,
+                              'y': 80,
+                              'x1': 435,
+                              'size': (515, 450),
+                              'dmg_time': 75}]},
 
-         'hero': [{'width': 111,
-                   'height': 108,
-                   'w': 8,
-                   'h': 7,
-                   'frames': 55,
-                   'x': 285,
-                   'y': 60,
-                   'x1': 415,
-                   'size': (500, 485),
-                   'dmg_time': 30},
+         'ike': {'sword': [{'width': 96,
+                            'height': 70,
+                            'w': 5,
+                            'h': 5,
+                            'frames': 23,
+                            'x': 330,
+                            'y': 210,
+                            'x1': 440,
+                            'size': (430, 315),
+                            'dmg_time': 30},
 
-                  {'width': 118,
-                   'height': 109,
-                   'w': 14,
-                   'h': 14,
-                   'frames': 186,
-                   'x': 250,
-                   'y': 50,
-                   'x1': 410,
-                   'size': (530, 490),
-                   'dmg_time': 130}],
+                           {'width': 150,
+                            'height': 125,
+                            'w': 7,
+                            'h': 7,
+                            'frames': 44,
+                            'x': 300,
+                            'y': -25,
+                            'x1': 240,
+                            'size': (675, 560),
+                            'dmg_time': 40}]},
 
-         'sorcerer': [{'width': 68,
-                       'height': 51,
-                       'w': 8,
-                       'h': 2,
-                       'frames': 16,
-                       'x': 255,
-                       'y': 295,
-                       'x1': 645,
-                       'size': (300, 225),
-                       'dmg_time': 25},
+         'hero': {'sword': [{'width': 111,
+                             'height': 108,
+                             'w': 8,
+                             'h': 7,
+                             'frames': 55,
+                             'x': 285,
+                             'y': 60,
+                             'x1': 415,
+                             'size': (500, 485),
+                             'dmg_time': 30},
 
-                      {'width': 80,
-                       'height': 111,
-                       'w': 8,
-                       'h': 8,
-                       'frames': 61,
-                       'x': 220,
-                       'y': 60,
-                       'x1': 620,
-                       'size': (360, 500),
-                       'dmg_time': 105}],
+                            {'width': 118,
+                             'height': 109,
+                             'w': 14,
+                             'h': 14,
+                             'frames': 186,
+                             'x': 250,
+                             'y': 50,
+                             'x1': 410,
+                             'size': (530, 490),
+                             'dmg_time': 130}]},
+
+         'sorcerer': {'magic': [{'width': 68,
+                                 'height': 51,
+                                 'w': 8,
+                                 'h': 2,
+                                 'frames': 16,
+                                 'x': 255,
+                                 'y': 295,
+                                 'x1': 645,
+                                 'size': (300, 225),
+                                 'dmg_time': 25},
+
+                                {'width': 80,
+                                 'height': 111,
+                                 'w': 8,
+                                 'h': 8,
+                                 'frames': 61,
+                                 'x': 220,
+                                 'y': 60,
+                                 'x1': 620,
+                                 'size': (360, 500),
+                                 'dmg_time': 105}]},
          }
 
 magic = {
@@ -312,47 +335,62 @@ class Fight_images:
                                                                  for i in self.magic_effects[name]['enemy']['crt']]
 
                 # persons
-                self.images[name] = {'person': {'norm': [], 'crt': []}, 'enemy': {'norm': [], 'crt': []}}
-                # enemy
-                enemy_melee_attack_img = [pygame.image.load(f'templates/persons/{name}/normal_attack.png').
-                                          subsurface(sizes[name][0]['width'] * x, sizes[name][0]['height'] * y,
-                                                     sizes[name][0]['width'], sizes[name][0]['height'])
-                                          for y in range(0, sizes[name][0]['h'])
-                                          for x in range(0, sizes[name][0]['w'])][:sizes[name][0]['frames']]
-                for i in range(len(enemy_melee_attack_img)):
-                    enemy_melee_attack_img[i] = pygame.transform.scale(enemy_melee_attack_img[i],
-                                                                       sizes[name][0]['size'])
+                self.images[name] = {weapon: {'person': {'norm': [], 'crt': []}, 'enemy': {'norm': [], 'crt': []}}
+                                     for weapon in ['sword', 'axe', 'lance', 'magic']}
+                for weapon in ['sword', 'axe', 'lance', 'magic']:
+                    self.images[name][weapon] = {'person': {'norm': [], 'crt': []}, 'enemy': {'norm': [], 'crt': []}}
+                    # enemy
 
-                enemy_critical_attack_img = [pygame.image.load(f'templates/persons/{name}/critical_attack.png').
-                                             subsurface(sizes[name][1]['width'] * x, sizes[name][1]['height'] * y,
-                                                        sizes[name][1]['width'], sizes[name][1]['height'])
-                                             for y in range(0, sizes[name][1]['h'])
-                                             for x in range(0, sizes[name][1]['w'])][:sizes[name][1]['frames']]
-                for i in range(len(enemy_critical_attack_img)):
-                    enemy_critical_attack_img[i] = pygame.transform.scale(enemy_critical_attack_img[i],
-                                                                          sizes[name][1]['size'])
+                    try:
+                        enemy_melee_attack_img = [pygame.image.load(
+                            f'templates/persons/{name}/{weapon}/normal_attack.png').
+                                                  subsurface(sizes[name][weapon][0]['width'] * x, sizes[name][weapon][0]['height'] * y,
+                                                             sizes[name][weapon][0]['width'], sizes[name][weapon][0]['height'])
+                                                  for y in range(0, sizes[name][weapon][0]['h'])
+                                                  for x in range(0, sizes[name][weapon][0]['w'])][:sizes[name][weapon][0]['frames']]
+                        for i in range(len(enemy_melee_attack_img)):
+                            enemy_melee_attack_img[i] = pygame.transform.scale(enemy_melee_attack_img[i],
+                                                                               sizes[name][weapon][0]['size'])
+                    except:
+                        enemy_melee_attack_img = []
 
-                # person
-                person_melee_attack_img = [pygame.transform.flip(img, True, False) for img in enemy_melee_attack_img]
-                person_critical_attack_img = [pygame.transform.flip(img, True, False) for img in
-                                              enemy_critical_attack_img]
+                    try:
+                        enemy_critical_attack_img = [pygame.image.load(
+                            f'templates/persons/{name}/{weapon}/critical_attack.png').
+                                                     subsurface(sizes[name][weapon][1]['width'] * x,
+                                                                sizes[name][weapon][1]['height'] * y,
+                                                                sizes[name][weapon][1]['width'], sizes[name][weapon][1]['height'])
+                                                     for y in range(0, sizes[name][weapon][1]['h'])
+                                                     for x in range(0, sizes[name][weapon][1]['w'])][:sizes[name][weapon][1]['frames']]
+                        for i in range(len(enemy_critical_attack_img)):
+                            enemy_critical_attack_img[i] = pygame.transform.scale(enemy_critical_attack_img[i],
+                                                                                  sizes[name][weapon][1]['size'])
+                    except:
+                        enemy_critical_attack_img = []
 
-                self.images[name]['person']['norm'] = person_melee_attack_img
-                self.images[name]['person']['crt'] = person_critical_attack_img
-                self.images[name]['enemy']['norm'] = enemy_melee_attack_img
-                self.images[name]['enemy']['crt'] = enemy_critical_attack_img
+                    # person
+                    person_melee_attack_img = [pygame.transform.flip(img, True, False) for img in
+                                               enemy_melee_attack_img]
+                    person_critical_attack_img = [pygame.transform.flip(img, True, False) for img in
+                                                  enemy_critical_attack_img]
+
+                    self.images[name][weapon]['person']['norm'] = person_melee_attack_img
+                    self.images[name][weapon]['person']['crt'] = person_critical_attack_img
+                    self.images[name][weapon]['enemy']['norm'] = enemy_melee_attack_img
+                    self.images[name][weapon]['enemy']['crt'] = enemy_critical_attack_img
 
 
 class Fight:
     def __init__(self, person, enemy, fight_images, person_dmg=0, enemy_dmg=0):
+        print(fight_images.images)
         self.person_hit = person.hit + (15 if triangle(person.type, enemy.type) else -15) - enemy.avoid
         self.enemy_hit = enemy.hit + (15 if triangle(enemy.type, person.type) else -15) - person.avoid
-        self.moves = [True if randint(0, 100) <= person.crt else False,
-                      True if randint(0, 100) <= (100 - self.person_hit) else False,
-                      True if randint(0, 100) <= enemy.crt else False,
-                      True if randint(0, 100) <= (100 - self.enemy_hit) else False]
-        print(self.moves)
-        # self.moves = [True, False, False, False]
+        # self.moves = [True if randint(0, 100) <= person.crt else False,
+        #               True if randint(0, 100) <= (100 - self.person_hit) else False,
+        #               True if randint(0, 100) <= enemy.crt else False,
+        #               True if randint(0, 100) <= (100 - self.enemy_hit) else False]
+        # print(self.moves)
+        self.moves = [False, False, True, False]
 
         self.without_enemy_attack = False
         self.person_double_attack = False
@@ -379,12 +417,12 @@ class Fight:
         self.person_weapon_img = weapon_img[person.weapon]
         self.enemy_weapon_img = weapon_img[enemy.weapon]
 
-        self.person_x, self.person_y = sizes[person.name][int(self.moves[0])]['x'], \
-                                       sizes[person.name][int(self.moves[0])]['y']
-        self.enemy_x, self.enemy_y = sizes[enemy.name][int(self.moves[2])]['x1'], \
-                                     sizes[enemy.name][int(self.moves[2])]['y']
-        self.person_dmg_tick = sizes[enemy.name][int(self.moves[2])]['dmg_time']
-        self.enemy_dmg_tick = sizes[person.name][int(self.moves[0])]['dmg_time']
+        self.person_x, self.person_y = sizes[person.name][person.type][int(self.moves[0])]['x'], \
+                                       sizes[person.name][person.type][int(self.moves[0])]['y']
+        self.enemy_x, self.enemy_y = sizes[enemy.name][enemy.type][int(self.moves[2])]['x1'], \
+                                     sizes[enemy.name][enemy.type][int(self.moves[2])]['y']
+        self.person_dmg_tick = sizes[enemy.name][enemy.type][int(self.moves[2])]['dmg_time']
+        self.enemy_dmg_tick = sizes[person.name][person.type][int(self.moves[0])]['dmg_time']
         self.person_dmg = person_dmg
         self.enemy_dmg = enemy_dmg
         self.person_img_id = 0
@@ -422,11 +460,11 @@ class Fight:
             self.miss_img[i] = pygame.transform.scale(self.miss_img[i], (100, 100))
 
         # persons
-        self.person_melee_attack_img = fight_images.images[person.name]['person']['norm']
-        self.person_critical_attack_img = fight_images.images[person.name]['person']['crt']
+        self.person_melee_attack_img = fight_images.images[person.name][person.type]['person']['norm']
+        self.person_critical_attack_img = fight_images.images[person.name][person.type]['person']['crt']
         self.all_person_img = self.person_melee_attack_img + self.person_critical_attack_img
-        self.enemy_melee_attack_img = fight_images.images[enemy.name]['enemy']['norm']
-        self.enemy_critical_attack_img = fight_images.images[enemy.name]['enemy']['crt']
+        self.enemy_melee_attack_img = fight_images.images[enemy.name][enemy.type]['enemy']['norm']
+        self.enemy_critical_attack_img = fight_images.images[enemy.name][enemy.type]['enemy']['crt']
         self.all_enemy_img = self.enemy_melee_attack_img + self.enemy_critical_attack_img
 
         self.person_stay_img = self.person_critical_attack_img[0] if self.moves[0] else self.person_melee_attack_img[0]

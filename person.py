@@ -76,7 +76,7 @@ characters = {'roy': {'hp': 18,
                           'move': 5,
                           'speed': 7,
                           'con': 7,
-                          'weapon': 'iron_sword'},
+                          'weapon': 'iron_lance'},
 
               'marth': {'hp': 18,
                         'str': 5,
@@ -133,7 +133,7 @@ weapon = {'iron_sword': {'mt': 5, 'wt': 5, 'hit': 90, 'crt': 0, 'range': 1, 'cla
 
 
 class Person:
-    def __init__(self, x, y, name):
+    def __init__(self, x, y, name, choice_weapon=None):
         print('person')
         self.x = x
         self.y = y

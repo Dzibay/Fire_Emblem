@@ -1,10 +1,10 @@
 import pygame
-from person import Person
+from person import Person, characters, weapon
 from player import Player
 from settings import *
 from dextr import *
 import socket
-from fight import Fight, Fight_images, sizes, triangle
+from fight import Fight, Fight_images, sizes, triangle, weapon_img
 from random import randint
 
 
@@ -99,6 +99,8 @@ class Main:
         self.fight_img = Fight_images()
 
         # menu
+        self.menu_person_settings = None
+        self.menu_person_settings_exit = (700, 600, 200, 50)
         self.sms = '<wait>'
         self.menu_tick = 0
         self.menu_btn_cords = (450, 550, 300, 50)
@@ -106,6 +108,7 @@ class Main:
         self.names_choice_persons = ['roy', 'lyn', 'hector',
                                      'eirika', 'ephraim', 'eliwood',
                                      'marth', 'ike', 'hero', 'sorcerer']
+        self.menu_choice_persons_weapon = {name: characters[name]['weapon'] for name in self.names_choice_persons}
         self.menu_person_img = [
             pygame.image.load(f'templates/persons/{i}/person/map_idle.png').subsurface((0, 0, 48, 48))
             for i in self.names_choice_persons]
@@ -152,7 +155,7 @@ class Main:
                 end = i
                 res = s[first + 1:end].split(',')
                 res = [i.split(' ') for i in res if len(i) > 0]
-                result = [(i[0], int(i[1]), int(i[2]), i[3], int(i[4]), int(i[5]), int(i[6]), int(i[7])) for i in res]
+                result = [(i[0], int(i[1]), int(i[2]), i[3], int(i[4]), int(i[5]), int(i[6]), int(i[7]), i[8]) for i in res]
                 return result
         return None
 
@@ -538,10 +541,10 @@ class Main:
 
         # person
         self.screen.blit(fight.all_person_img[fight.person_img_id],
-                         (sizes[self.fight_person.name][fight.need_moves[0]]['x'], fight.person_y))
+                         (sizes[self.fight_person.name][self.fight_person.type][fight.need_moves[0]]['x'], fight.person_y))
         # enemy
         self.screen.blit(fight.all_enemy_img[fight.enemy_img_id],
-                         (sizes[self.fight_enemy.name][fight.need_moves[1]]['x1'], fight.enemy_y))
+                         (sizes[self.fight_enemy.name][self.fight_enemy.type][fight.need_moves[1]]['x1'], fight.enemy_y))
 
         # magic
         id_, x_, y_ = self.magic_data[0], self.magic_data[1], self.magic_data[2]
@@ -819,12 +822,21 @@ class Main:
             pass
 
     def menu(self):
+        list_of_weapon = [i for i in weapon]
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 self.run = False
             elif self.sms[:8] != '<my_pers':
                 if event.type == pygame.MOUSEBUTTONUP and event.button == 1:
-                    if in_box(self.big_mouse_pos, self.menu_btn_cords):
+                    if self.menu_person_settings is not None:
+                        if in_box(self.big_mouse_pos, self.menu_person_settings_exit):
+                            self.menu_person_settings = None
+                        else:
+                            for i in range(len(list_of_weapon)):
+                                if in_box(self.big_mouse_pos, (600, 200 + i*75, 200, 72)):
+                                    self.menu_choice_persons_weapon[self.names_choice_persons[
+                                        self.menu_person_settings]] = list_of_weapon[i]
+                    elif in_box(self.big_mouse_pos, self.menu_btn_cords):
                         self.menu_choice_persons = [self.menu_person_choice_cords.index(j) for j in
                                                     self.menu_choice_persons]
                         self.menu_choice_persons = [i for i in self.menu_choice_persons if
@@ -841,6 +853,10 @@ class Main:
                                     self.menu_choice_persons.remove(i)
                                 else:
                                     self.menu_choice_persons.append(i)
+                elif event.type == pygame.MOUSEBUTTONUP and event.button == 3:
+                    for i in self.menu_person_choice_cords:
+                        if in_box(self.big_mouse_pos, i):
+                            self.menu_person_settings = self.menu_person_choice_cords.index(i)
 
         data_ = self.sock.recv(1024).decode()
         if data_[:5] == '<wait' and data_[:6] != '<wait>':
@@ -856,17 +872,30 @@ class Main:
         # draw
         self.screen.fill(GREY)
         if self.sms[:8] != '<my_pers':
-            for i in range(len(self.menu_person_choice_cords)):
-                c_ = BLUE if self.menu_person_choice_cords[i] in self.menu_choice_persons else WHITE
-                pygame.draw.rect(self.screen, c_, self.menu_person_choice_cords[i])
-                try:
-                    self.screen.blit(self.menu_person_img[i],
-                                     (self.menu_person_choice_cords[i][0] - 50,
-                                      self.menu_person_choice_cords[i][1] - 50))
-                except:
-                    pass
+            if self.menu_person_settings is not None:
+                text_name = self.f3.render(self.names_choice_persons[self.menu_person_settings], True, WHITE)
+                self.screen.blit(text_name, (500, 100))
+                pygame.draw.rect(self.screen, RED, self.menu_person_settings_exit)
+                w_ = weapon_img[self.menu_choice_persons_weapon[self.names_choice_persons[self.menu_person_settings]]]
+                w_ = pygame.transform.scale(w_, (130, 130))
+                pygame.draw.rect(self.screen, WHITE, (300, 300, 150, 150))
+                self.screen.blit(w_, (300, 300))
 
-            pygame.draw.rect(self.screen, GREEN, self.menu_btn_cords)
+                for weapon_ in weapon:
+                    i = list_of_weapon.index(weapon_)
+                    pygame.draw.rect(self.screen, WHITE, (600, 200 + i*75, 200, 72))
+                    self.screen.blit(weapon_img[weapon_], (600, 195 + i*75))
+            else:
+                for i in range(len(self.menu_person_choice_cords)):
+                    c_ = BLUE if self.menu_person_choice_cords[i] in self.menu_choice_persons else WHITE
+                    pygame.draw.rect(self.screen, c_, self.menu_person_choice_cords[i])
+                    try:
+                        self.screen.blit(self.menu_person_img[i],
+                                         (self.menu_person_choice_cords[i][0] - 50,
+                                          self.menu_person_choice_cords[i][1] - 50))
+                    except:
+                        pass
+                pygame.draw.rect(self.screen, GREEN, self.menu_btn_cords)
         else:
             self.menu_tick += 1
             i_ = self.menu_tick % 160 // 20
@@ -923,7 +952,11 @@ class Main:
                                 if event.key == pygame.K_e:
                                     self.your_turn = True
                                     self.is_moved_in_this_turn = False
-
+                                elif event.key == pygame.K_o:
+                                    if self.player.choice_person is not None:
+                                        self.player.persons[self.player.choice_person].weapon = 'iron_sword'
+                                        self.player.persons[self.player.choice_person].type = 'sword'
+                                        print('sword')
                             if event.type == pygame.MOUSEBUTTONUP and event.button == 1:
                                 if self.your_turn:
                                     if self.player.choice_person is not None:
@@ -969,6 +1002,7 @@ class Main:
                                                             self.fight_enemy = enemy
                                                             self.fight = True
                                                             self.is_attacked_in_this_turn = True
+                                                            self.is_moved_in_this_turn = True
                                                             self.player.choice_person = None
 
                                     else:
@@ -988,7 +1022,7 @@ class Main:
                         sms = f'<{self.your_turn}|'
                         for person in self.player.persons:
                             sms += f'{person.name} {person.x} {person.y} {person.state}{person.move_to} ' \
-                                   f'{person.hp} {person.hit} {person.dmg} {person.crt},'
+                                   f'{person.hp} {person.hit} {person.dmg} {person.crt} {person.weapon},'
                         sms += '>'
                         self.sock.send(sms.encode())
 
@@ -1001,6 +1035,7 @@ class Main:
                                 self.your_turn = False
                             if self.your_turn != self.last_sms_to_move:
                                 self.is_moved_in_this_turn = False
+                                self.is_attacked_in_this_turn = False
                                 self.player.choice_person = None
                             self.last_sms_to_move = self.your_turn
                             if data_ == '<wait>':
@@ -1031,6 +1066,8 @@ class Main:
                                     self.opponent.persons[j].hit = self.data[j][5]
                                     self.opponent.persons[j].dmg = self.data[j][6]
                                     self.opponent.persons[j].crt = self.data[j][7]
+                                    self.opponent.persons[j].weapon = self.data[j][8]
+                                    self.opponent.persons[j].type = weapon[self.data[j][8]]['class']
 
                         except:
                             pass

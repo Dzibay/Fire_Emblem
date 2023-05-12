@@ -59,7 +59,7 @@ class Main:
 
         # settings unit
         self.settings_unit = False
-        self.settings_unit_rect = (700, 20, 480, 760)
+        self.settings_unit_rect = (250, 130, 300, 300)
 
         # move
         self.graph, self.cant = generate_graph('levels/lvl1.txt')
@@ -775,23 +775,23 @@ class Main:
 
         # settings person
         if self.settings_unit:
-            # info
-            pygame.draw.rect(self.screen, GREY, self.settings_unit_rect)
-            pygame.draw.rect(self.screen, WHITE, (self.settings_unit_rect[0], self.settings_unit_rect[1], 250, 250))
-            text_name = self.f2.render(self.player.persons[self.player.choice_person].name, True, WHITE)
-            self.screen.blit(text_name, (self.settings_unit_rect[0] + self.settings_unit_rect[2] // 2 + 30,
-                                         self.settings_unit_rect[1] + 30))
+            # info person
+            pygame.draw.rect(self.screen, BLUE, (700, 450, 400, 300))
+            pygame.draw.rect(self.screen, WHITE, (700, 450, 400, 300), 5)
 
-            # choice weapon
-            pygame.draw.rect(self.screen, WHITE, (720, 300, 200, 72))
-            self.screen.blit(weapon_img[self.player.persons[self.player.choice_person].weapon], (715, 295))
+            text_name = self.f3.render(self.player.persons[self.player.choice_person].name, True, WHITE)
+            self.screen.blit(text_name, (750, 470))
 
-            # all person weapon
+            pygame.draw.rect(self.screen, WHITE, (1020, 458, 72, 72))
+            self.screen.blit(weapon_img[self.player.persons[self.player.choice_person].weapon], (1015, 453))
+
+            # weapon
+            pygame.draw.rect(self.screen, BLUE, self.settings_unit_rect)
+            pygame.draw.rect(self.screen, WHITE, self.settings_unit_rect, 5)
             p_ = self.player.persons[self.player.choice_person]
             for i in range(len(self.menu_choice_persons_weapon[p_.name])):
-                c_ = WHITE if self.menu_choice_persons_weapon[p_.name][i] != p_.weapon else BLACK
-                pygame.draw.rect(self.screen, c_, (950, 300 + i*80, 200, 72))
-                self.screen.blit(weapon_img[self.menu_choice_persons_weapon[p_.name][i]], (945, 295 + i*80))
+                pygame.draw.rect(self.screen, WHITE, (260, 140 + i*80, 280, 72))
+                self.screen.blit(weapon_img[self.menu_choice_persons_weapon[p_.name][i]], (255, 135 + i*80))
 
     def place_persons(self):
         for event in pygame.event.get():
@@ -884,7 +884,6 @@ class Main:
                         self.menu_choice_persons_weapon = {self.names_choice_persons[i]: self.menu_choice_persons_weapon[
                                                                    self.names_choice_persons[i]]
                                                            for i in self.menu_choice_persons}
-                        print(self.menu_choice_persons_weapon)
                         self.sms = f'<my_pers |'
                         for i in self.menu_choice_persons:
                             self.sms += self.names_choice_persons[i] + ','
@@ -1005,10 +1004,10 @@ class Main:
                                     if in_box(self.big_mouse_pos, self.settings_unit_rect):
                                         p_ = self.player.persons[self.player.choice_person]
                                         for i in range(len(self.menu_choice_persons_weapon[p_.name])):
-                                            r_ = (950, 300 + i * 80, 200, 72)
+                                            r_ = (260, 140 + i*80, 280, 72)
                                             if in_box(self.big_mouse_pos, r_):
                                                 p_.weapon = self.menu_choice_persons_weapon[p_.name][i]
-                                                p_.type = weapon[self.menu_choice_persons_weapon[p_.name][i]]['class']
+                                                p_.change_weapon()
                                     else:
                                         self.settings_unit = False
                                 else:

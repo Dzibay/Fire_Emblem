@@ -199,6 +199,16 @@ class Person:
         self.enemy_move_right_images = [
             pygame.transform.flip(i, True, False) for i in self.move_left_images]
 
+    def change_weapon(self):
+        self.weapon_mt = weapon[self.weapon]['mt']
+        self.type = weapon[self.weapon]['class']
+        self.range_attack = weapon[self.weapon]['range']
+        a_ = weapon[self.weapon]['wt'] - characters[self.name]['con']
+        self.attack_speed = characters[self.name]['speed'] - (a_ if a_ > 0 else 0)
+        self.crt = weapon[self.weapon]['crt'] + (self.skl // 2)
+        self.hit = weapon[self.weapon]['hit'] + (self.skl * 2) + (self.lck // 2)
+        self.dmg = (self.mag if self.type == 'magic' else self.str) + self.weapon_mt
+
     def get_big_pos(self):
         return (self.pos[0] * TILE, self.pos[1] * TILE)
 

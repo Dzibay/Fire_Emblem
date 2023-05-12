@@ -145,7 +145,7 @@ class Person:
         self.damage_for_me = 0
 
         # stats
-        self.weapon = characters[self.name]['weapon']
+        self.weapon = choice_weapon if choice_weapon is not None else characters[self.name]['weapon']
         self.type = weapon[self.weapon]['class']
         self.hp = characters[self.name]['hp']
         self.max_hp = self.hp

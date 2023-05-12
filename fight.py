@@ -382,15 +382,15 @@ class Fight_images:
 
 class Fight:
     def __init__(self, person, enemy, fight_images, person_dmg=0, enemy_dmg=0):
-        print(fight_images.images)
+        print(person.weapon)
         self.person_hit = person.hit + (15 if triangle(person.type, enemy.type) else -15) - enemy.avoid
         self.enemy_hit = enemy.hit + (15 if triangle(enemy.type, person.type) else -15) - person.avoid
-        # self.moves = [True if randint(0, 100) <= person.crt else False,
-        #               True if randint(0, 100) <= (100 - self.person_hit) else False,
-        #               True if randint(0, 100) <= enemy.crt else False,
-        #               True if randint(0, 100) <= (100 - self.enemy_hit) else False]
-        # print(self.moves)
-        self.moves = [False, False, True, False]
+        self.moves = [True if randint(0, 100) <= person.crt else False,
+                      True if randint(0, 100) <= (100 - self.person_hit) else False,
+                      True if randint(0, 100) <= enemy.crt else False,
+                      True if randint(0, 100) <= (100 - self.enemy_hit) else False]
+        print(self.moves)
+        # self.moves = [False, False, True, False]
 
         self.without_enemy_attack = False
         self.person_double_attack = False

@@ -121,6 +121,10 @@ class Main:
             self.menu_person_img[i] = pygame.transform.scale(self.menu_person_img[i], (200, 200))
         self.menu_choice_persons = []
 
+        # persons
+        self.person_faces = {i: pygame.transform.scale(pygame.image.load(f'templates/persons/{i}/{i}_mugshot.png'),
+                                                       (300, 300)) for i in self.names_choice_persons}
+
         # placing persons
         self.placing_persons_window = False
         self.placing_choice_person = None
@@ -220,12 +224,12 @@ class Main:
         if not_append is None:
             not_append = []
         res = [(x, y)
-               for x in range(pos[0] - l, pos[0] + l + 1) if x >= 0
-               for y in range(pos[1] - l, pos[1] + l + 1) if y >= 0]
+               for x in range(pos[0] - l[len(l)-1], pos[0] + l[len(l)-1] + 1) if x >= 0
+               for y in range(pos[1] - l[len(l)-1], pos[1] + l[len(l)-1] + 1) if y >= 0]
         result = []
         for i in res:
             cords = get_cords(self.graph, pos, i)
-            if (i not in self.cant) and (i not in not_append) and (len(cords) <= l + 1):
+            if (i not in self.cant) and (i not in not_append) and (len(cords)-1 in l):
                 result.append(i)
         return result
 
@@ -724,37 +728,19 @@ class Main:
 
             # see person info
             for person in self.player.persons + self.opponent.persons:
-
-                # rect
                 if self.mouse_pos == person.pos:
-                    if person in self.player.persons:
-                        pygame.draw.rect(self.screen, BLUE, (975, 50, 200, 300))
-                    else:
-                        pygame.draw.rect(self.screen, RED, (975, 50, 200, 300))
+                    # rect
+                    pygame.draw.rect(self.screen, SKY_BLUE, (20, 680, 250, 100))
 
                     # name
-                    text_name = self.f2.render(person.name, True, WHITE)
-                    self.screen.blit(text_name, (990, 60))
+                    text_name = self.f2.render(person.name, True, BLACK)
+                    self.screen.blit(text_name, (155, 680))
 
                     # hp
-                    text_hp = self.f2.render(str(person.hp), True, WHITE)
-                    self.screen.blit(text_hp, (990, 100))
-                    for i in range(person.hp // 10):
-                        pygame.draw.rect(self.screen, GREEN, (1055 + i * 10, 105, 5, 20))
-
-                    # characters
-                    text_hit_ = self.f2.render('HIT', True, WHITE)
-                    text_hit = self.f2.render(str(person.hit), True, WHITE)
-                    text_damage = self.f2.render('DMG', True, WHITE)
-                    text_dmg = self.f2.render(str(person.dmg), True, WHITE)
-                    text_critical = self.f2.render('CRT', True, WHITE)
-                    text_crt = self.f2.render(str(person.crt), True, WHITE)
-                    self.screen.blit(text_hit_, (1000, 150))
-                    self.screen.blit(text_damage, (1000, 200))
-                    self.screen.blit(text_critical, (1000, 250))
-                    self.screen.blit(text_hit, (1100, 150))
-                    self.screen.blit(text_dmg, (1100, 200))
-                    self.screen.blit(text_crt, (1100, 250))
+                    text_hp = self.f2.render('HP', True, BLACK)
+                    text_person_hp = self.f2.render(f'{person.hp}/{person.max_hp}', True, BLACK)
+                    self.screen.blit(text_hp, (110, 720))
+                    self.screen.blit(text_person_hp, (160, 720))
 
         # person placing window
         if self.placing_persons_window:
@@ -776,19 +762,20 @@ class Main:
         # settings person
         if self.settings_unit:
             # info person
+            p_ = self.player.persons[self.player.choice_person]
+            self.screen.blit(self.person_faces[p_.name], (750, 150))
             pygame.draw.rect(self.screen, BLUE, (700, 450, 400, 300))
             pygame.draw.rect(self.screen, WHITE, (700, 450, 400, 300), 5)
 
-            text_name = self.f3.render(self.player.persons[self.player.choice_person].name, True, WHITE)
+            text_name = self.f3.render(p_.name, True, WHITE)
             self.screen.blit(text_name, (750, 470))
 
             pygame.draw.rect(self.screen, WHITE, (1020, 458, 72, 72))
-            self.screen.blit(weapon_img[self.player.persons[self.player.choice_person].weapon], (1015, 453))
+            self.screen.blit(weapon_img[p_.weapon], (1015, 453))
 
             # weapon
             pygame.draw.rect(self.screen, BLUE, self.settings_unit_rect)
             pygame.draw.rect(self.screen, WHITE, self.settings_unit_rect, 5)
-            p_ = self.player.persons[self.player.choice_person]
             for i in range(len(self.menu_choice_persons_weapon[p_.name])):
                 pygame.draw.rect(self.screen, WHITE, (260, 140 + i*80, 280, 72))
                 self.screen.blit(weapon_img[self.menu_choice_persons_weapon[p_.name][i]], (255, 135 + i*80))
@@ -902,6 +889,7 @@ class Main:
                             self.menu_person_settings = self.menu_person_choice_cords.index(i)
                             self.menu_list_of_weapon = [j for j in weapon if weapon[j]['class'] in sizes[
                                                             self.names_choice_persons[self.menu_person_settings]]]
+                            self.menu_choice_persons.append(i)
 
         data_ = self.sock.recv(1024).decode()
         if data_[:5] == '<wait' and data_[:6] != '<wait>':
@@ -1027,7 +1015,7 @@ class Main:
                                                         self.person_want_move = True
                                                         self.person_positions = [person.pos
                                                                                  for person in self.opponent.persons]
-                                                        self.can_move_to = main.get_can_to(p_.pos, p_.movement,
+                                                        self.can_move_to = main.get_can_to(p_.pos, [i for i in range(p_.movement)],
                                                                                            self.person_positions)
                                                         self.turn_menu = False
                                                     elif in_box(self.big_mouse_pos, self.attack_btn) and \
@@ -1121,8 +1109,10 @@ class Main:
                                     self.opponent.persons[j].hit = self.data[j][5]
                                     self.opponent.persons[j].dmg = self.data[j][6]
                                     self.opponent.persons[j].crt = self.data[j][7]
+                                    w_ = self.opponent.persons[j].weapon
                                     self.opponent.persons[j].weapon = self.data[j][8]
-                                    self.opponent.persons[j].type = weapon[self.data[j][8]]['class']
+                                    if self.opponent.persons[j].weapon != w_:
+                                        self.opponent.persons[j].change_weapon()
 
                         except:
                             pass
@@ -1133,7 +1123,7 @@ class Main:
                             b_ = []
                             for enemy in self.opponent.persons:
                                 if abs(person.pos[0] - enemy.pos[0]) + \
-                                        abs(person.pos[1] - enemy.pos[1]) <= person.range_attack:
+                                        abs(person.pos[1] - enemy.pos[1]) in person.range_attack:
                                     a_.append(enemy)
                                     b_.append((enemy.pos[0] * TILE + TILE, enemy.pos[1] * TILE - (TILE / 2), 100, 30))
                                 else:

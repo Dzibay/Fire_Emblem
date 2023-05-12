@@ -126,10 +126,11 @@ characters = {'roy': {'hp': 18,
                            'con': 4,
                            'weapon': 'fire'}}
 
-weapon = {'iron_sword': {'mt': 5, 'wt': 5, 'hit': 90, 'crt': 0, 'range': 1, 'class': 'sword'},
-          'iron_axe': {'mt': 8, 'wt': 10, 'hit': 75, 'crt': 0, 'range': 1, 'class': 'axe'},
-          'iron_lance': {'mt': 7, 'wt': 8, 'hit': 80, 'crt': 0, 'range': 1, 'class': 'lance'},
-          'fire': {'mt': 5, 'wt': 4, 'hit': 95, 'crt': 0, 'range': 2, 'class': 'magic'}}
+weapon = {'iron_sword': {'mt': 5, 'wt': 5, 'hit': 90, 'crt': 0, 'range': [1], 'class': 'sword'},
+          'iron_axe': {'mt': 8, 'wt': 10, 'hit': 75, 'crt': 0, 'range': [1], 'class': 'axe'},
+          'iron_lance': {'mt': 7, 'wt': 8, 'hit': 80, 'crt': 0, 'range': [1], 'class': 'lance'},
+          'bow': {'mt': 6, 'wt': 5, 'hit': 80, 'crt': 0, 'range': [2], 'class': 'bow'},
+          'fire': {'mt': 5, 'wt': 4, 'hit': 95, 'crt': 0, 'range': [1, 2], 'class': 'magic'}}
 
 
 class Person:

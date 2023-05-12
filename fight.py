@@ -44,7 +44,29 @@ sizes = {'roy': {'sword': [{'width': 124,
                             'y': 90,
                             'x1': 160,
                             'size': (970, 650),
-                            'dmg_time': 75}]},
+                            'dmg_time': 75}],
+
+                 'bow': [{'width': 136,
+                          'height': 52,
+                          'w': 3,
+                          'h': 5,
+                          'frames': 15,
+                          'x': 400,
+                          'y': 285,
+                          'x1': 190,
+                          'size': (610, 235),
+                          'dmg_time': 25},
+
+                         {'width': 143,
+                          'height': 52,
+                          'w': 3,
+                          'h': 9,
+                          'frames': 26,
+                          'x': 365,
+                          'y': 285,
+                          'x1': 185,
+                          'size': (650, 235),
+                          'dmg_time': 50}]},
 
          'hector': {'axe': [{'width': 117,
                              'height': 99,
@@ -275,6 +297,8 @@ weapon_img = {
                                        (72, 72)),
     'iron_lance': pygame.transform.scale(pygame.image.load('templates/weapon/weapon.png').subsurface((34, 34, 16, 16)),
                                          (72, 72)),
+    'bow': pygame.transform.scale(pygame.image.load('templates/weapon/weapon.png').subsurface((51, 85, 16, 16)),
+                                  (72, 72)),
     'fire': pygame.transform.scale(pygame.image.load('templates/weapon/weapon.png').subsurface((51, 102, 16, 16)),
                                    (72, 72))}
 
@@ -297,6 +321,10 @@ def triangle(weapon_1, weapon_2):
             return True
         elif weapon_2 == 'axe':
             return False
+    elif weapon_1 == 'bow':
+        return False
+    elif weapon_2 == 'bow' and weapon_1 is not 'magic':
+        return True
 
 
 class Fight_images:
@@ -336,18 +364,21 @@ class Fight_images:
 
                 # persons
                 self.images[name] = {weapon: {'person': {'norm': [], 'crt': []}, 'enemy': {'norm': [], 'crt': []}}
-                                     for weapon in ['sword', 'axe', 'lance', 'magic']}
-                for weapon in ['sword', 'axe', 'lance', 'magic']:
+                                     for weapon in ['sword', 'axe', 'lance', 'bow', 'magic']}
+                for weapon in ['sword', 'axe', 'lance', 'bow', 'magic']:
                     self.images[name][weapon] = {'person': {'norm': [], 'crt': []}, 'enemy': {'norm': [], 'crt': []}}
                     # enemy
 
                     try:
                         enemy_melee_attack_img = [pygame.image.load(
                             f'templates/persons/{name}/{weapon}/normal_attack.png').
-                                                  subsurface(sizes[name][weapon][0]['width'] * x, sizes[name][weapon][0]['height'] * y,
-                                                             sizes[name][weapon][0]['width'], sizes[name][weapon][0]['height'])
+                                                  subsurface(sizes[name][weapon][0]['width'] * x,
+                                                             sizes[name][weapon][0]['height'] * y,
+                                                             sizes[name][weapon][0]['width'],
+                                                             sizes[name][weapon][0]['height'])
                                                   for y in range(0, sizes[name][weapon][0]['h'])
-                                                  for x in range(0, sizes[name][weapon][0]['w'])][:sizes[name][weapon][0]['frames']]
+                                                  for x in range(0, sizes[name][weapon][0]['w'])][
+                                                 :sizes[name][weapon][0]['frames']]
                         for i in range(len(enemy_melee_attack_img)):
                             enemy_melee_attack_img[i] = pygame.transform.scale(enemy_melee_attack_img[i],
                                                                                sizes[name][weapon][0]['size'])
@@ -359,9 +390,11 @@ class Fight_images:
                             f'templates/persons/{name}/{weapon}/critical_attack.png').
                                                      subsurface(sizes[name][weapon][1]['width'] * x,
                                                                 sizes[name][weapon][1]['height'] * y,
-                                                                sizes[name][weapon][1]['width'], sizes[name][weapon][1]['height'])
+                                                                sizes[name][weapon][1]['width'],
+                                                                sizes[name][weapon][1]['height'])
                                                      for y in range(0, sizes[name][weapon][1]['h'])
-                                                     for x in range(0, sizes[name][weapon][1]['w'])][:sizes[name][weapon][1]['frames']]
+                                                     for x in range(0, sizes[name][weapon][1]['w'])][
+                                                    :sizes[name][weapon][1]['frames']]
                         for i in range(len(enemy_critical_attack_img)):
                             enemy_critical_attack_img[i] = pygame.transform.scale(enemy_critical_attack_img[i],
                                                                                   sizes[name][weapon][1]['size'])
@@ -382,7 +415,7 @@ class Fight_images:
 
 class Fight:
     def __init__(self, person, enemy, fight_images, person_dmg=0, enemy_dmg=0):
-        print(person.weapon)
+        print(fight_images.images)
         self.person_hit = person.hit + (15 if triangle(person.type, enemy.type) else -15) - enemy.avoid
         self.enemy_hit = enemy.hit + (15 if triangle(enemy.type, person.type) else -15) - person.avoid
         self.moves = [True if randint(0, 100) <= person.crt else False,
@@ -396,9 +429,10 @@ class Fight:
         self.person_double_attack = False
         self.enemy_double_attack = False
         self.indicate_double_attack = False
-        if abs(person.pos[0] - enemy.pos[0]) + abs(person.pos[1] - enemy.pos[1]) <= person.range_attack:
-            if abs(person.pos[0] - enemy.pos[0]) + abs(person.pos[1] - enemy.pos[1]) > enemy.range_attack:
-                self.without_enemy_attack = True
+        self.distance_fight = False
+        range_persons = abs(person.pos[0] - enemy.pos[0]) + abs(person.pos[1] - enemy.pos[1])
+        if range_persons not in enemy.range_attack:
+            self.without_enemy_attack = True
         if person.attack_speed - enemy.attack_speed >= 4:
             self.person_double_attack = True
             self.moves.append(True if randint(0, 100) <= (1 - person.hit) else False)
@@ -406,6 +440,8 @@ class Fight:
             self.enemy_double_attack = True
             self.moves.append(True if randint(0, 100) <= enemy.crt else False)
             self.moves.append(True if randint(0, 100) <= (1 - enemy.hit) else False)
+        if range_persons > 1:
+            self.distance_fight = True
 
         self.need_moves = [0, 0]
         self.tick = 0
@@ -421,6 +457,9 @@ class Fight:
                                        sizes[person.name][person.type][int(self.moves[0])]['y']
         self.enemy_x, self.enemy_y = sizes[enemy.name][enemy.type][int(self.moves[2])]['x1'], \
                                      sizes[enemy.name][enemy.type][int(self.moves[2])]['y']
+        if self.distance_fight:
+            self.person_x -= 200
+            self.enemy_x += 200
         self.person_dmg_tick = sizes[enemy.name][enemy.type][int(self.moves[2])]['dmg_time']
         self.enemy_dmg_tick = sizes[person.name][person.type][int(self.moves[0])]['dmg_time']
         self.person_dmg = person_dmg
@@ -444,11 +483,21 @@ class Fight:
                                   magic['2' if self.moves[2] else '1']['y'])
         self.enemy_magic_cords_sms = (magic['2' if self.moves[2] else '1']['x'],
                                       magic['2' if self.moves[2] else '1']['y'])
+        if self.distance_fight:
+            if self.person_magic_cords != (0, 0):
+                self.person_magic_cords = (self.person_magic_cords[0] + 200, self.person_magic_cords[1])
+                self.person_magic_cords_sms = (self.person_magic_cords_sms[0] - 200, self.person_magic_cords_sms[1])
+            if self.enemy_magic_cords != (0, 0):
+                self.enemy_magic_cords = (self.enemy_magic_cords[0] - 200, self.enemy_magic_cords[1])
+                self.enemy_magic_cords_sms = (self.enemy_magic_cords_sms[0] + 200, self.enemy_magic_cords_sms[1])
 
         # baze
         self.fight_bg = pygame.image.load('templates/fight/bg.png').subsurface(1, 1, 240, 160)
+        if self.distance_fight:
+            self.fight_characters = pygame.image.load('templates/fight/distance_baze.png')
+        else:
+            self.fight_characters = pygame.image.load('templates/fight/baze.png')
         self.fight_bg = pygame.transform.scale(self.fight_bg, (WIDTH, HEIGHT))
-        self.fight_characters = pygame.image.load('templates/fight/baze.png')
         self.fight_characters = pygame.transform.scale(self.fight_characters, (WIDTH, HEIGHT))
         self.numbers = [pygame.transform.scale(
             pygame.image.load('templates/fight/numbers.png').subsurface(i * 8, 0, 8, 8), (40, 40)) for i in range(10)]

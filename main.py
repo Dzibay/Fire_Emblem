@@ -122,8 +122,9 @@ class Main:
         self.menu_choice_persons = []
 
         # persons
-        self.person_faces = {i: pygame.transform.scale(pygame.image.load(f'templates/persons/{i}/{i}_mugshot.png'),
-                                                       (300, 300)) for i in self.names_choice_persons}
+        f_ = {i: pygame.image.load(f'templates/persons/{i}/{i}_mugshot.png') for i in self.names_choice_persons}
+        self.person_faces = {i: pygame.transform.scale(f_[i], (300, 300)) for i in f_}
+        self.mini_person_faces = {i: pygame.transform.scale(f_[i], (100, 100)) for i in f_}
 
         # placing persons
         self.placing_persons_window = False
@@ -139,6 +140,16 @@ class Main:
         self.wait_btn = (20, 360, 200, 70)
         self.menu_arrow = [pygame.transform.scale(pygame.image.load('templates/pointer/selectArrow.png').
                                                   subsurface(i*8, 0, 8, 8), (40, 40)) for i in range(6)]
+
+        # map person info
+        self.map_person_hp = {'start': pygame.transform.scale(pygame.image.load('templates/map/map_hp.jpg').
+                                                              subsurface(0, 0, 7, 7), (15, 15)),
+                              '1': pygame.transform.scale(pygame.image.load('templates/map/map_hp.jpg').
+                                                          subsurface(8, 0, 7, 7), (15, 15)),
+                              '0': pygame.transform.scale(pygame.image.load('templates/map/map_hp.jpg').
+                                                          subsurface(16, 0, 7, 7), (15, 15)),
+                              'end': pygame.transform.scale(pygame.image.load('templates/map/map_hp.jpg').
+                                                            subsurface(24, 0, 7, 7), (15, 15))}
 
         # fonts
         self.f1 = pygame.font.Font(None, 30)
@@ -730,17 +741,24 @@ class Main:
             for person in self.player.persons + self.opponent.persons:
                 if self.mouse_pos == person.pos:
                     # rect
-                    pygame.draw.rect(self.screen, SKY_BLUE, (20, 680, 250, 100))
+                    pygame.draw.rect(self.screen, SKY_BLUE, (20, 680, 260, 100))
+                    self.screen.blit(self.mini_person_faces[person.name], (20, 680))
 
                     # name
                     text_name = self.f2.render(person.name, True, BLACK)
-                    self.screen.blit(text_name, (155, 680))
+                    self.screen.blit(text_name, (145, 685))
 
                     # hp
                     text_hp = self.f2.render('HP', True, BLACK)
                     text_person_hp = self.f2.render(f'{person.hp}/{person.max_hp}', True, BLACK)
-                    self.screen.blit(text_hp, (110, 720))
-                    self.screen.blit(text_person_hp, (160, 720))
+                    self.screen.blit(text_hp, (125, 725))
+                    self.screen.blit(text_person_hp, (185, 725))
+
+                    for i in range(10):
+                        if i * 10 < person.hp:
+                            self.screen.blit(self.map_person_hp['1'], (125 + 15*i, 760))
+                        else:
+                            self.screen.blit(self.map_person_hp['0'], (125 + 15 * i, 760))
 
         # person placing window
         if self.placing_persons_window:

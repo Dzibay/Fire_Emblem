@@ -639,12 +639,12 @@ class Main:
                                         img = 'start_u'
                                     elif self.cords[i][1] > self.cords[i + 1][1]:
                                         img = 'start_d'
-                        if img is None:
+                        if img is not None:
                             if self.cords[i - 1][0] < self.cords[i][0] or self.cords[i - 1][0] > self.cords[i][0]:
                                 img = 'r'
                             else:
                                 img = 'u'
-                        if img is not None:
+
                             self.screen.blit(self.pointer[img], (self.cords[i][0] * TILE, self.cords[i][1] * TILE))
             except:
                 self.player.choice_person = None
@@ -755,10 +755,15 @@ class Main:
                     self.screen.blit(text_person_hp, (185, 725))
 
                     for i in range(10):
-                        if i * 10 < person.hp:
-                            self.screen.blit(self.map_person_hp['1'], (125 + 15*i, 760))
+                        if i == 0:
+                            img_ = self.map_person_hp['start']
+                        elif i == 9 and 100 / person.max_hp * person.hp > 90:
+                            img_ = self.map_person_hp['end']
+                        elif (i-1) * 10 < 100 / person.max_hp * person.hp:
+                            img_ = self.map_person_hp['1']
                         else:
-                            self.screen.blit(self.map_person_hp['0'], (125 + 15 * i, 760))
+                            img_ = self.map_person_hp['0']
+                        self.screen.blit(img_, (122 + 15 * i, 760))
 
         # person placing window
         if self.placing_persons_window:
@@ -797,6 +802,13 @@ class Main:
             for i in range(len(self.menu_choice_persons_weapon[p_.name])):
                 pygame.draw.rect(self.screen, WHITE, (260, 140 + i*80, 280, 72))
                 self.screen.blit(weapon_img[self.menu_choice_persons_weapon[p_.name][i]], (255, 135 + i*80))
+
+        # info for attack
+        if self.person_want_attack:
+            for person in self.opponent.persons:
+                if in_box(self.big_mouse_pos, (person.get_big_pos()[0], person.get_big_pos()[1], TILE, TILE)):
+                    pygame.draw.rect(self.screen, BLUE, (875, 100, 300, 450))
+                    pygame.draw.rect(self.screen, WHITE, (875, 100, 300, 450), 5)
 
     def place_persons(self):
         for event in pygame.event.get():

@@ -122,8 +122,9 @@ class Main:
         self.menu_choice_persons = []
 
         # persons
-        self.person_faces = {i: pygame.transform.scale(pygame.image.load(f'templates/persons/{i}/{i}_mugshot.png'),
-                                                       (300, 300)) for i in self.names_choice_persons}
+        f_ = {i: pygame.image.load(f'templates/persons/{i}/{i}_mugshot.png') for i in self.names_choice_persons}
+        self.person_faces = {i: pygame.transform.scale(f_[i], (300, 300)) for i in f_}
+        self.mini_person_faces = {i: pygame.transform.scale(f_[i], (100, 100)) for i in f_}
 
         # placing persons
         self.placing_persons_window = False
@@ -138,7 +139,17 @@ class Main:
         self.attack_btn = (20, 290, 200, 70)
         self.wait_btn = (20, 360, 200, 70)
         self.menu_arrow = [pygame.transform.scale(pygame.image.load('templates/pointer/selectArrow.png').
-                                                  subsurface(i*8, 0, 8, 8), (40, 40)) for i in range(6)]
+                                                  subsurface(i * 8, 0, 8, 8), (40, 40)) for i in range(6)]
+
+        # map person info
+        self.map_person_hp = {'start': pygame.transform.scale(pygame.image.load('templates/map/map_hp.jpg').
+                                                              subsurface(0, 0, 7, 7), (15, 15)),
+                              '1': pygame.transform.scale(pygame.image.load('templates/map/map_hp.jpg').
+                                                          subsurface(8, 0, 7, 7), (15, 15)),
+                              '0': pygame.transform.scale(pygame.image.load('templates/map/map_hp.jpg').
+                                                          subsurface(16, 0, 7, 7), (15, 15)),
+                              'end': pygame.transform.scale(pygame.image.load('templates/map/map_hp.jpg').
+                                                            subsurface(24, 0, 7, 7), (15, 15))}
 
         # fonts
         self.f1 = pygame.font.Font(None, 30)
@@ -165,7 +176,8 @@ class Main:
                 end = i
                 res = s[first + 1:end].split(',')
                 res = [i.split(' ') for i in res if len(i) > 0]
-                result = [(i[0], int(i[1]), int(i[2]), i[3], int(i[4]), int(i[5]), int(i[6]), int(i[7]), i[8]) for i in res]
+                result = [(i[0], int(i[1]), int(i[2]), i[3], int(i[4]), int(i[5]), int(i[6]), int(i[7]), i[8]) for i in
+                          res]
                 return result
         return None
 
@@ -224,12 +236,12 @@ class Main:
         if not_append is None:
             not_append = []
         res = [(x, y)
-               for x in range(pos[0] - l[len(l)-1], pos[0] + l[len(l)-1] + 1) if x >= 0
-               for y in range(pos[1] - l[len(l)-1], pos[1] + l[len(l)-1] + 1) if y >= 0]
+               for x in range(pos[0] - l[len(l) - 1], pos[0] + l[len(l) - 1] + 1) if x >= 0
+               for y in range(pos[1] - l[len(l) - 1], pos[1] + l[len(l) - 1] + 1) if y >= 0]
         result = []
         for i in res:
             cords = get_cords(self.graph, pos, i)
-            if (i not in self.cant) and (i not in not_append) and (len(cords)-1 in l):
+            if (i not in self.cant) and (i not in not_append) and (len(cords) - 1 in l):
                 result.append(i)
         return result
 
@@ -551,10 +563,12 @@ class Main:
 
         # person
         self.screen.blit(fight.all_person_img[fight.person_img_id],
-                         (sizes[self.fight_person.name][self.fight_person.type][fight.need_moves[0]]['x'], fight.person_y))
+                         (sizes[self.fight_person.name][self.fight_person.type][fight.need_moves[0]]['x'],
+                          fight.person_y))
         # enemy
         self.screen.blit(fight.all_enemy_img[fight.enemy_img_id],
-                         (sizes[self.fight_enemy.name][self.fight_enemy.type][fight.need_moves[1]]['x1'], fight.enemy_y))
+                         (
+                         sizes[self.fight_enemy.name][self.fight_enemy.type][fight.need_moves[1]]['x1'], fight.enemy_y))
 
         # magic
         id_, x_, y_ = self.magic_data[0], self.magic_data[1], self.magic_data[2]
@@ -628,12 +642,12 @@ class Main:
                                         img = 'start_u'
                                     elif self.cords[i][1] > self.cords[i + 1][1]:
                                         img = 'start_d'
-                        if img is None:
+                        if img is not None:
                             if self.cords[i - 1][0] < self.cords[i][0] or self.cords[i - 1][0] > self.cords[i][0]:
                                 img = 'r'
                             else:
                                 img = 'u'
-                        if img is not None:
+
                             self.screen.blit(self.pointer[img], (self.cords[i][0] * TILE, self.cords[i][1] * TILE))
             except:
                 self.player.choice_person = None
@@ -730,17 +744,29 @@ class Main:
             for person in self.player.persons + self.opponent.persons:
                 if self.mouse_pos == person.pos:
                     # rect
-                    pygame.draw.rect(self.screen, SKY_BLUE, (20, 680, 250, 100))
+                    pygame.draw.rect(self.screen, SKY_BLUE, (20, 680, 260, 100))
+                    self.screen.blit(self.mini_person_faces[person.name], (20, 680))
 
                     # name
                     text_name = self.f2.render(person.name, True, BLACK)
-                    self.screen.blit(text_name, (155, 680))
+                    self.screen.blit(text_name, (145, 685))
 
                     # hp
                     text_hp = self.f2.render('HP', True, BLACK)
                     text_person_hp = self.f2.render(f'{person.hp}/{person.max_hp}', True, BLACK)
-                    self.screen.blit(text_hp, (110, 720))
-                    self.screen.blit(text_person_hp, (160, 720))
+                    self.screen.blit(text_hp, (125, 725))
+                    self.screen.blit(text_person_hp, (185, 725))
+
+                    for i in range(10):
+                        if i == 0:
+                            img_ = self.map_person_hp['start']
+                        elif i == 9 and 100 / person.max_hp * person.hp > 90:
+                            img_ = self.map_person_hp['end']
+                        elif (i - 1) * 10 < 100 / person.max_hp * person.hp:
+                            img_ = self.map_person_hp['1']
+                        else:
+                            img_ = self.map_person_hp['0']
+                        self.screen.blit(img_, (122 + 15 * i, 760))
 
         # person placing window
         if self.placing_persons_window:
@@ -777,8 +803,8 @@ class Main:
             pygame.draw.rect(self.screen, BLUE, self.settings_unit_rect)
             pygame.draw.rect(self.screen, WHITE, self.settings_unit_rect, 5)
             for i in range(len(self.menu_choice_persons_weapon[p_.name])):
-                pygame.draw.rect(self.screen, WHITE, (260, 140 + i*80, 280, 72))
-                self.screen.blit(weapon_img[self.menu_choice_persons_weapon[p_.name][i]], (255, 135 + i*80))
+                pygame.draw.rect(self.screen, WHITE, (260, 140 + i * 80, 280, 72))
+                self.screen.blit(weapon_img[self.menu_choice_persons_weapon[p_.name][i]], (255, 135 + i * 80))
 
     def place_persons(self):
         for event in pygame.event.get():
@@ -854,7 +880,7 @@ class Main:
                         else:
                             # weapon choice
                             for i in range(len(self.menu_list_of_weapon)):
-                                if in_box(self.big_mouse_pos, (600, 200 + i*75, 200, 72)):
+                                if in_box(self.big_mouse_pos, (600, 200 + i * 75, 200, 72)):
                                     l_ = self.menu_choice_persons_weapon[self.names_choice_persons[
                                         self.menu_person_settings]]
                                     if self.menu_list_of_weapon[i] not in l_:
@@ -868,9 +894,10 @@ class Main:
                         self.menu_choice_persons = [i for i in self.menu_choice_persons if
                                                     i < len(self.menu_person_img)]
                         self.placing_persons_window = True
-                        self.menu_choice_persons_weapon = {self.names_choice_persons[i]: self.menu_choice_persons_weapon[
-                                                                   self.names_choice_persons[i]]
-                                                           for i in self.menu_choice_persons}
+                        self.menu_choice_persons_weapon = {
+                            self.names_choice_persons[i]: self.menu_choice_persons_weapon[
+                                self.names_choice_persons[i]]
+                            for i in self.menu_choice_persons}
                         self.sms = f'<my_pers |'
                         for i in self.menu_choice_persons:
                             self.sms += self.names_choice_persons[i] + ','
@@ -888,7 +915,7 @@ class Main:
                         if in_box(self.big_mouse_pos, i):
                             self.menu_person_settings = self.menu_person_choice_cords.index(i)
                             self.menu_list_of_weapon = [j for j in weapon if weapon[j]['class'] in sizes[
-                                                            self.names_choice_persons[self.menu_person_settings]]]
+                                self.names_choice_persons[self.menu_person_settings]]]
                             self.menu_choice_persons.append(i)
 
         data_ = self.sock.recv(1024).decode()
@@ -913,13 +940,13 @@ class Main:
                 # person list weapon
                 l_ = self.menu_choice_persons_weapon[self.names_choice_persons[self.menu_person_settings]]
                 for i in range(len(l_)):
-                    pygame.draw.rect(self.screen, WHITE, (300, 200 + i*75, 200, 72))
-                    self.screen.blit(weapon_img[l_[i]], (300, 195 + i*75))
+                    pygame.draw.rect(self.screen, WHITE, (300, 200 + i * 75, 200, 72))
+                    self.screen.blit(weapon_img[l_[i]], (300, 195 + i * 75))
                 # list all weapon
                 for i in range(len(self.menu_list_of_weapon)):
                     c_ = BLACK if self.menu_list_of_weapon[i] in l_ else WHITE
-                    pygame.draw.rect(self.screen, c_, (600, 200 + i*75, 200, 72))
-                    self.screen.blit(weapon_img[self.menu_list_of_weapon[i]], (600, 195 + i*75))
+                    pygame.draw.rect(self.screen, c_, (600, 200 + i * 75, 200, 72))
+                    self.screen.blit(weapon_img[self.menu_list_of_weapon[i]], (600, 195 + i * 75))
             else:
                 for i in range(len(self.menu_person_choice_cords)):
                     c_ = BLUE if self.menu_person_choice_cords[i] in self.menu_choice_persons else WHITE
@@ -992,7 +1019,7 @@ class Main:
                                     if in_box(self.big_mouse_pos, self.settings_unit_rect):
                                         p_ = self.player.persons[self.player.choice_person]
                                         for i in range(len(self.menu_choice_persons_weapon[p_.name])):
-                                            r_ = (260, 140 + i*80, 280, 72)
+                                            r_ = (260, 140 + i * 80, 280, 72)
                                             if in_box(self.big_mouse_pos, r_):
                                                 p_.weapon = self.menu_choice_persons_weapon[p_.name][i]
                                                 p_.change_weapon()
@@ -1015,7 +1042,8 @@ class Main:
                                                         self.person_want_move = True
                                                         self.person_positions = [person.pos
                                                                                  for person in self.opponent.persons]
-                                                        self.can_move_to = main.get_can_to(p_.pos, [i for i in range(p_.movement)],
+                                                        self.can_move_to = main.get_can_to(p_.pos, [i for i in
+                                                                                                    range(p_.movement)],
                                                                                            self.person_positions)
                                                         self.turn_menu = False
                                                     elif in_box(self.big_mouse_pos, self.attack_btn) and \

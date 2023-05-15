@@ -42,6 +42,18 @@ characters = {'roy': {'hp': 18,
                          'con': 13,
                          'weapon': 'iron_axe'},
 
+              'warrior': {'hp': 28,
+                          'str': 8,
+                          'mag': 0,
+                          'skl': 5,
+                          'lck': 0,
+                          'def': 5,
+                          'res': 0,
+                          'move': 6,
+                          'speed': 6,
+                          'con': 13,
+                          'weapon': 'iron_axe'},
+
               'eirika': {'hp': 16,
                          'str': 4,
                          'mag': 0,
@@ -124,13 +136,26 @@ characters = {'roy': {'hp': 18,
                            'move': 5,
                            'speed': 6,
                            'con': 4,
-                           'weapon': 'fire'}}
+                           'weapon': 'flux'},
+
+              'sagem': {'hp': 16,
+                        'str': 0,
+                        'mag': 4,
+                        'skl': 5,
+                        'lck': 5,
+                        'def': 3,
+                        'res': 5,
+                        'move': 5,
+                        'speed': 6,
+                        'con': 4,
+                        'weapon': 'flux'}
+              }
 
 weapon = {'iron_sword': {'mt': 5, 'wt': 5, 'hit': 90, 'crt': 0, 'range': [1], 'class': 'sword'},
           'iron_axe': {'mt': 8, 'wt': 10, 'hit': 75, 'crt': 0, 'range': [1], 'class': 'axe'},
           'iron_lance': {'mt': 7, 'wt': 8, 'hit': 80, 'crt': 0, 'range': [1], 'class': 'lance'},
           'bow': {'mt': 6, 'wt': 5, 'hit': 80, 'crt': 0, 'range': [2], 'class': 'bow'},
-          'fire': {'mt': 5, 'wt': 4, 'hit': 95, 'crt': 0, 'range': [1, 2], 'class': 'magic'}}
+          'flux': {'mt': 5, 'wt': 4, 'hit': 95, 'crt': 0, 'range': [1, 2], 'class': 'magic'}}
 
 
 class Person:

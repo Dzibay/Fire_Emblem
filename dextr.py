@@ -44,11 +44,11 @@ def generate_graph(file):
             cords_ = []
             if cord[0] != 0 and cords[(cord[0] - 1, cord[1])] is not None:
                 cords_.append((cord[0] - 1, cord[1]))
-            if cord[0] != 14 and cords[(cord[0] + 1, cord[1])] is not None:
+            if cord[0] != 15 and cords[(cord[0] + 1, cord[1])] is not None:
                 cords_.append((cord[0] + 1, cord[1]))
             if cord[1] != 0 and cords[(cord[0], cord[1] - 1)] is not None:
                 cords_.append((cord[0], cord[1] - 1))
-            if cord[1] != 9 and cords[(cord[0], cord[1] + 1)] is not None:
+            if cord[1] != 19 and cords[(cord[0], cord[1] + 1)] is not None:
                 cords_.append((cord[0], cord[1] + 1))
             cords[cord] = cords_
 

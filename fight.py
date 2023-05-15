@@ -90,6 +90,50 @@ sizes = {'roy': {'sword': [{'width': 124,
                              'size': (530, 450),
                              'dmg_time': 40}]},
 
+         'warrior': {'axe': [{'width': 113,
+                              'height': 87,
+                              'w': 5,
+                              'h': 4,
+                              'frames': 19,
+                              'x': 240,
+                              'y': 170,
+                              'x1': 430,
+                              'size': (510, 390),
+                              'dmg_time': 18},
+
+                             {'width': 117,
+                              'height': 89,
+                              'w': 9,
+                              'h': 8,
+                              'frames': 72,
+                              'x': 245,
+                              'y': 160,
+                              'x1': 435,
+                              'size': (525, 400),
+                              'dmg_time': 72}],
+
+                     'bow': [{'width': 165,
+                              'height': 52,
+                              'w': 3,
+                              'h': 5,
+                              'frames': 15,
+                              'x': 270,
+                              'y': 285,
+                              'x1': 205,
+                              'size': (740, 235),
+                              'dmg_time': 26},
+
+                             {'width': 164,
+                              'height': 72,
+                              'w': 5,
+                              'h': 4,
+                              'frames': 20,
+                              'x': 240,
+                              'y': 200,
+                              'x1': 185,
+                              'size': (740, 325),
+                              'dmg_time': 32}]},
+
          'eirika': {'lance': [{'width': 114,
                                'height': 67,
                                'w': 6,
@@ -266,30 +310,51 @@ sizes = {'roy': {'sword': [{'width': 124,
                                  'x1': 620,
                                  'size': (360, 500),
                                  'dmg_time': 105}]},
+
+         'sagem': {'magic': [{'width': 74,
+                              'height': 60,
+                              'w': 8,
+                              'h': 5,
+                              'frames': 38,
+                              'x': 240,
+                              'y': 315,
+                              'x1': 630,
+                              'size': (330, 270),
+                              'dmg_time': 30},
+
+                             {'width': 74,
+                              'height': 60,
+                              'w': 8,
+                              'h': 8,
+                              'frames': 60,
+                              'x': 240,
+                              'y': 315,
+                              'x1': 630,
+                              'size': (330, 270),
+                              'dmg_time': 70}]},
          }
 
 magic = {
-    '1': {
-        'width': 65,
-        'height': 99,
-        'w': 5,
-        'h': 7,
-        'frames': 35,
-        'x': 600,
-        'y': 90,
-        'x1': 250},
-    '2': {
-        'width': 240,
-        'height': 128,
-        'w': 6,
-        'h': 10,
-        'frames': 56,
-        'x': 0,
-        'y': 0,
-        'x1': 0}
+    'flux': {'width': 65,
+             'height': 99,
+             'w': 5,
+             'h': 7,
+             'frames': 35,
+             'x': 600,
+             'y': 85,
+             'x1': 260},
+
+    'fire': {'width': 65,
+             'height': 99,
+             'w': 5,
+             'h': 7,
+             'frames': 35,
+             'x': 600,
+             'y': 85,
+             'x1': 250}
 }
 
-magic_names = ['sorcerer']
+magic_names = ['sorcerer', 'sagem']
 weapon_img = {
     'iron_sword': pygame.transform.scale(pygame.image.load('templates/weapon/weapon.png').subsurface((16, 0, 16, 16)),
                                          (72, 72)),
@@ -299,8 +364,13 @@ weapon_img = {
                                          (72, 72)),
     'bow': pygame.transform.scale(pygame.image.load('templates/weapon/weapon.png').subsurface((51, 85, 16, 16)),
                                   (72, 72)),
-    'fire': pygame.transform.scale(pygame.image.load('templates/weapon/weapon.png').subsurface((51, 102, 16, 16)),
+    'flux': pygame.transform.scale(pygame.image.load('templates/weapon/weapon.png').subsurface((51, 119, 16, 16)),
                                    (72, 72))}
+
+weapon_arrow = {'up': [pygame.transform.scale(pygame.image.load('templates/fight/up_arrow.png').
+                                              subsurface(x * 7, 0, 7, 10), (32, 45)) for x in range(3)],
+                'down': [pygame.transform.scale(pygame.image.load('templates/fight/down_arrow.png').
+                                                subsurface(x * 7, 0, 7, 10), (32, 45)) for x in range(3)]}
 
 
 def triangle(weapon_1, weapon_2):
@@ -323,7 +393,7 @@ def triangle(weapon_1, weapon_2):
             return False
     elif weapon_1 == 'bow':
         return False
-    elif weapon_2 == 'bow' and weapon_1 is not 'magic':
+    elif weapon_2 == 'bow' and weapon_1 != 'magic':
         return True
 
 
@@ -331,36 +401,28 @@ class Fight_images:
     def __init__(self):
         self.images = {}
         self.magic_effects = {}
+        self.upload_images = False
 
     def uppload_images(self, names):
         for name in names:
             if name not in self.images:
-                # magic
-                if name in magic_names:
-                    self.magic_effects[name] = {'person': {'norm': [], 'crt': []}, 'enemy': {'norm': [], 'crt': []}}
-                    # enemy magic
-                    self.magic_effects[name]['enemy'] = {'norm': [pygame.transform.scale(
-                        pygame.image.load(f'templates/persons/{name}/normal_effect.png').
-                        subsurface(x * magic['1']['width'], y * magic['1']['height'],
-                                   magic['1']['width'], magic['1']['height']), (290, 450))
-                                                                     for y in range(magic['1']['h'])
-                                                                     for x in range(magic['1']['w'])][
-                                                                 :magic['1']['frames']],
+                if name in magic_names and not self.upload_images:
+                    self.upload_images = True
+                    # magic
+                    for magic_ in ['flux']:
+                        self.magic_effects[magic_] = {'person': [], 'enemy': []}
+                        # enemy magic
+                        self.magic_effects[magic_]['enemy'] = [pygame.transform.scale(
+                            pygame.image.load(f'templates/magic/{magic_}.png').
+                            subsurface(x * magic[f'{magic_}']['width'], y * magic[f'{magic_}']['height'],
+                                       magic[f'{magic_}']['width'], magic[f'{magic_}']['height']), (290, 450))
+                                                                           for y in range(magic[f'{magic_}']['h'])
+                                                                           for x in range(magic[f'{magic_}']['w'])][
+                                                                       :magic[f'{magic_}']['frames']]
 
-                                                         'crt': [pygame.transform.scale(
-                                                             pygame.image.load(
-                                                                 f'templates/persons/{name}/critical_effect.png').
-                                                             subsurface(x * magic['2']['width'],
-                                                                        y * magic['2']['height'],
-                                                                        magic['2']['width'], magic['2']['height']),
-                                                             (WIDTH, HEIGHT)) for y in range(magic['2']['h'])
-                                                                    for x in range(magic['2']['w'])][
-                                                                :magic['2']['frames']]}
-                    # person magic
-                    self.magic_effects[name]['person']['norm'] = [pygame.transform.flip(i, True, False)
-                                                                  for i in self.magic_effects[name]['enemy']['norm']]
-                    self.magic_effects[name]['person']['crt'] = [pygame.transform.flip(i, True, False)
-                                                                 for i in self.magic_effects[name]['enemy']['crt']]
+                        # person magic
+                        self.magic_effects[magic_]['person'] = [pygame.transform.flip(i, True, False)
+                                                                for i in self.magic_effects[magic_]['enemy']]
 
                 # persons
                 self.images[name] = {weapon: {'person': {'norm': [], 'crt': []}, 'enemy': {'norm': [], 'crt': []}}
@@ -423,7 +485,7 @@ class Fight:
                       True if randint(0, 100) <= enemy.crt else False,
                       True if randint(0, 100) <= (100 - self.enemy_hit) else False]
         print(self.moves)
-        # self.moves = [False, False, True, False]
+        # self.moves = [True, False, False, False]
 
         self.without_enemy_attack = False
         self.person_double_attack = False
@@ -442,6 +504,7 @@ class Fight:
             self.moves.append(True if randint(0, 100) <= (1 - enemy.hit) else False)
         if range_persons > 1:
             self.distance_fight = True
+        print(self.distance_fight)
 
         self.need_moves = [0, 0]
         self.tick = 0
@@ -466,23 +529,34 @@ class Fight:
         self.enemy_dmg = enemy_dmg
         self.person_img_id = 0
         self.enemy_img_id = 0
-        self.weapon_arrow = {'up': [pygame.transform.scale(pygame.image.load('templates/fight/up_arrow.png').
-                                                           subsurface(x * 7, 0, 7, 10), (32, 45)) for x in range(3)],
-                             'down': [pygame.transform.scale(pygame.image.load('templates/fight/down_arrow.png').
-                                                             subsurface(x * 7, 0, 7, 10), (32, 45)) for x in range(3)]}
-        self.person_weapon_arrow = self.weapon_arrow['up' if triangle(person.type, enemy.type) else 'down']
-        self.enemy_weapon_arrow = self.weapon_arrow['up' if triangle(enemy.type, person.type) else 'down']
+        self.person_weapon_arrow = weapon_arrow['up' if triangle(person.type, enemy.type) else 'down']
+        self.enemy_weapon_arrow = weapon_arrow['up' if triangle(enemy.type, person.type) else 'down']
 
         # magic
         self.magic_img_id = -1
-        self.person_magic_cords = (magic['2' if self.moves[0] else '1']['x'],
-                                   magic['2' if self.moves[0] else '1']['y'])
-        self.person_magic_cords_sms = (magic['2' if self.moves[0] else '1']['x1'],
-                                       magic['2' if self.moves[0] else '1']['y'])
-        self.enemy_magic_cords = (magic['2' if self.moves[2] else '1']['x1'],
-                                  magic['2' if self.moves[2] else '1']['y'])
-        self.enemy_magic_cords_sms = (magic['2' if self.moves[2] else '1']['x'],
-                                      magic['2' if self.moves[2] else '1']['y'])
+        self.person_magic_cords = (1, 1)
+        self.person_magic_cords_sms = (1, 1)
+        self.enemy_magic_cords = (1, 1)
+        self.enemy_magic_cords_sms = (1, 1)
+        self.person_magic_effect = []
+        self.enemy_magic_effect = []
+
+        if person.type == 'magic':
+            self.person_magic_cords = (magic[person.weapon]['x'], magic[person.weapon]['y'])
+            self.person_magic_cords_sms = (magic[person.weapon]['x1'], magic[person.weapon]['y'])
+
+            self.person_magic_effect = fight_images.magic_effects[person.weapon]['person']
+            self.person_magic_effect_time = len(self.person_magic_effect) * 2
+
+        if enemy.type == 'magic':
+            self.enemy_magic_cords = (magic[enemy.weapon]['x1'], magic[enemy.weapon]['y'])
+            self.enemy_magic_cords_sms = (magic[enemy.weapon]['x'], magic[enemy.weapon]['y'])
+
+            self.enemy_magic_effect = fight_images.magic_effects[enemy.weapon]['enemy']
+            self.enemy_magic_effect_time = len(self.enemy_magic_effect) * 2
+
+        self.all_effects = self.person_magic_effect + self.enemy_magic_effect
+
         if self.distance_fight:
             if self.person_magic_cords != (0, 0):
                 self.person_magic_cords = (self.person_magic_cords[0] + 200, self.person_magic_cords[1])
@@ -518,24 +592,6 @@ class Fight:
 
         self.person_stay_img = self.person_critical_attack_img[0] if self.moves[0] else self.person_melee_attack_img[0]
         self.enemy_stay_img = self.enemy_critical_attack_img[0] if self.moves[2] else self.enemy_melee_attack_img[0]
-
-        # magic
-        self.person_norm_effect = []
-        self.person_critical_effect = []
-        self.enemy_norm_effect = []
-        self.enemy_critical_effect = []
-        if person.name in fight_images.magic_effects:
-            self.person_norm_effect = fight_images.magic_effects[person.name]['person']['norm']
-            self.person_critical_effect = fight_images.magic_effects[person.name]['person']['crt']
-            self.person_norm_effect_time = len(self.person_norm_effect) * 2
-            self.person_critical_effect_time = len(self.person_critical_effect) * 2
-        if enemy.name in fight_images.magic_effects:
-            self.enemy_norm_effect = fight_images.magic_effects[enemy.name]['enemy']['norm']
-            self.enemy_critical_effect = fight_images.magic_effects[enemy.name]['enemy']['crt']
-            self.enemy_norm_effect_time = len(self.enemy_norm_effect) * 2
-            self.enemy_critical_effect_time = len(self.enemy_critical_effect) * 2
-        self.all_effects = self.person_norm_effect + self.person_critical_effect + \
-                           self.enemy_norm_effect + self.enemy_critical_effect
 
         # attack time
         self.person_melee_attack_time = len(self.person_melee_attack_img) * 2

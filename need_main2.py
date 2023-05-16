@@ -860,16 +860,16 @@ class Main:
                     else:
                         self.placing_persons_window = True
                 else:
-                    if event.key == pygame.K_UP:
+                    if event.key == pygame.K_w:
                         if self.cam_pos[1] > 0:
                             self.cam_pos[1] -= 1
-                    elif event.key == pygame.K_DOWN:
+                    elif event.key == pygame.K_s:
                         if self.cam_pos[1] + 10 < 20:
                             self.cam_pos[1] += 1
-                    elif event.key == pygame.K_RIGHT:
+                    elif event.key == pygame.K_d:
                         if self.cam_pos[0] + 15 < 16:
                             self.cam_pos[0] += 1
-                    elif event.key == pygame.K_LEFT:
+                    elif event.key == pygame.K_a:
                         if self.cam_pos[0] > 0:
                             self.cam_pos[0] -= 1
                     self.bg = self.big_bg.subsurface(self.cam_pos[0] * TILE,
@@ -1073,21 +1073,21 @@ class Main:
                                     self.your_turn = True
                                     self.is_moved_in_this_turn = False
                                 else:
-                                    if event.key == pygame.K_UP:
+                                    if event.key == pygame.K_w:
                                         if self.cam_pos[1] > 0:
                                             self.cam_pos[1] -= 1
-                                    elif event.key == pygame.K_DOWN:
+                                    elif event.key == pygame.K_s:
                                         if self.cam_pos[1] + 10 < 20:
                                             self.cam_pos[1] += 1
-                                    elif event.key == pygame.K_RIGHT:
+                                    elif event.key == pygame.K_d:
                                         if self.cam_pos[0] + 15 < 16:
                                             self.cam_pos[0] += 1
-                                    elif event.key == pygame.K_LEFT:
+                                    elif event.key == pygame.K_a:
                                         if self.cam_pos[0] > 0:
                                             self.cam_pos[0] -= 1
                                     self.bg = self.big_bg.subsurface(self.cam_pos[0] * TILE,
                                                                      self.cam_pos[1] * TILE, 1200, 800)
-                            if event.type == pygame.MOUSEBUTTONUP and event.button == 1:
+                            elif event.type == pygame.MOUSEBUTTONUP and event.button == 1:
                                 if self.settings_unit:
                                     if in_box(self.big_mouse_pos, self.settings_unit_rect):
                                         p_ = self.player.persons[self.player.choice_person]

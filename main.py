@@ -153,7 +153,7 @@ class Main:
                                                           subsurface(16, 0, 7, 7), (15, 15)),
                               'end': pygame.transform.scale(pygame.image.load('templates/map/map_hp.jpg').
                                                             subsurface(24, 0, 7, 7), (15, 15))}
-        self.fight_info = pygame.image.load('templates/map/fight_info.png')
+        self.fight_info = pygame.transform.scale(pygame.image.load('templates/map/fight_info.png'), (300, 450))
 
         # fonts
         self.f1 = pygame.font.Font(None, 30)
@@ -811,43 +811,33 @@ class Main:
 
                     # person
                     person_name = self.f2.render(p_.name, True, WHITE)
-                    self.screen.blit(person_name, (1005, 125))
-                    self.screen.blit(weapon_img[p_.weapon], (875, 100))
+                    self.screen.blit(person_name, (1005, 140))
+                    self.screen.blit(weapon_img[p_.weapon], (875, 105))
                     self.screen.blit(weapon_arrow['up' if triangle(p_.type, enemy.type) else 'down']
-                                     [self.tick % 30 // 10 if self.tick % 60 < 30 else 0], (920, 125))
+                                     [self.tick % 30 // 10 if self.tick % 60 < 30 else 0], (920, 130))
                     person_hp = f.render(str(p_.hp), True, WHITE)
                     person_mt = f.render(str(p_.weapon_mt), True, WHITE)
                     person_hit = f.render(str(p_.hit), True, WHITE)
                     person_crt = f.render(str(p_.crt), True, WHITE)
-                    self.screen.blit(person_hp, (1100, 195))
-                    self.screen.blit(person_mt, (1100, 255))
-                    self.screen.blit(person_hit, (1100, 320))
-                    self.screen.blit(person_crt, (1100, 380))
+                    self.screen.blit(person_hp, (1100, 185))
+                    self.screen.blit(person_mt, (1100, 245))
+                    self.screen.blit(person_hit, (1100, 305))
+                    self.screen.blit(person_crt, (1100, 365))
 
                     # enemy
                     enemy_name = self.f2.render(enemy.name, True, WHITE)
-                    self.screen.blit(enemy_name, (940, 445))
-                    self.screen.blit(weapon_img[enemy.weapon], (1090, 425))
+                    self.screen.blit(enemy_name, (940, 440))
+                    self.screen.blit(weapon_img[enemy.weapon], (1090, 400))
                     self.screen.blit(weapon_arrow['up' if triangle(enemy.type, p_.type) else 'down']
-                                     [self.tick % 30 // 10 if self.tick % 60 < 30 else 0], (1135, 455))
+                                     [self.tick % 30 // 10 if self.tick % 60 < 30 else 0], (1135, 440))
                     enemy_hp = f.render(str(enemy.hp), True, WHITE)
                     enemy_mt = f.render(str(enemy.weapon_mt), True, WHITE)
                     enemy_hit = f.render(str(enemy.hit), True, WHITE)
                     enemy_crt = f.render(str(enemy.crt), True, WHITE)
-                    self.screen.blit(enemy_hp, (900, 195))
-                    self.screen.blit(enemy_mt, (900, 255))
-                    self.screen.blit(enemy_hit, (900, 320))
-                    self.screen.blit(enemy_crt, (900, 380))
-
-                    # characters
-                    hp = self.f3.render('HP', True, ORANGE)
-                    mt = f.render('Mt', True, ORANGE)
-                    hit = f.render('Hit', True, ORANGE)
-                    crt = f.render('Crit', True, ORANGE)
-                    self.screen.blit(hp, (995, 188))
-                    self.screen.blit(mt, (995, 253))
-                    self.screen.blit(hit, (995, 318))
-                    self.screen.blit(crt, (980, 378))
+                    self.screen.blit(enemy_hp, (900, 185))
+                    self.screen.blit(enemy_mt, (900, 245))
+                    self.screen.blit(enemy_hit, (900, 305))
+                    self.screen.blit(enemy_crt, (900, 365))
 
     def place_persons(self):
         for event in pygame.event.get():

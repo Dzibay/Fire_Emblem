@@ -6,7 +6,6 @@ from dextr import *
 import socket
 from fight import Fight, Fight_images, sizes, triangle, weapon_img, weapon_arrow
 from random import randint
-import time
 
 
 def mapping(pos):
@@ -769,11 +768,11 @@ class Main:
         # person placing window
         if self.placing_persons_window:
             pygame.draw.rect(self.screen, BLUE, (0, 650, WIDTH, 150))
-            for i in self.menu_choice_persons:
-                img = self.menu_person_img[i]
+            for i in range(len(self.menu_choice_persons)):
+                img = self.menu_person_img[self.menu_choice_persons[i]]
                 self.screen.blit(img, (self.placing_persons_pos[i][0] - 50, self.placing_persons_pos[i][1] - 50))
             if self.placing_choice_person is not None:
-                pos_ = self.placing_persons_pos[self.placing_choice_person]
+                pos_ = self.placing_persons_pos[self.menu_choice_persons.index(self.placing_choice_person)]
                 pygame.draw.rect(self.screen, WHITE, (pos_[0], pos_[1], 100, 100), 2)
 
         # indicate turn
@@ -869,11 +868,11 @@ class Main:
                                                      self.cam_pos[1] * TILE, 1200, 800)
             elif event.type == pygame.MOUSEBUTTONUP and event.button == 1:
                 if self.placing_persons_window:
-                    for i in self.menu_choice_persons:
+                    for i in range(len(self.menu_choice_persons)):
                         if in_box(self.big_mouse_pos,
                                   (self.placing_persons_pos[i][0], self.placing_persons_pos[i][1], 100, 100)):
-                            if self.placing_choice_person != i:
-                                self.placing_choice_person = i
+                            if self.placing_choice_person != self.menu_choice_persons[i]:
+                                self.placing_choice_person = self.menu_choice_persons[i]
                             else:
                                 self.placing_choice_person = None
                 else:
@@ -950,6 +949,7 @@ class Main:
                                                     self.menu_choice_persons]
                         self.menu_choice_persons = [i for i in self.menu_choice_persons if
                                                     i < len(self.menu_person_img)]
+                        print(self.menu_choice_persons)
                         self.placing_persons_window = True
                         self.menu_choice_persons_weapon = {
                             self.names_choice_persons[i]: self.menu_choice_persons_weapon[

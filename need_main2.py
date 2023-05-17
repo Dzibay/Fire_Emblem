@@ -6,6 +6,7 @@ from dextr import *
 import socket
 from fight import Fight, Fight_images, sizes, triangle, weapon_img, weapon_arrow
 from random import randint
+import time
 
 
 def mapping(pos):
@@ -154,6 +155,12 @@ class Main:
                               'end': pygame.transform.scale(pygame.image.load('templates/map/map_hp.jpg').
                                                             subsurface(24, 0, 7, 7), (15, 15))}
         self.fight_info = pygame.transform.scale(pygame.image.load('templates/map/fight_info.png'), (300, 450))
+
+        # map highlight
+        self.highlight_blue = [pygame.transform.scale(pygame.image.load('templates/highlights/blue.png').
+                                                      subsurface(i * 16, 1, 15, 15), (TILE, TILE)) for i in range(16)]
+        self.highlight_red = [pygame.transform.scale(pygame.image.load('templates/highlights/red.png').
+                                                     subsurface(i * 16, 1, 15, 15), (TILE, TILE)) for i in range(16)]
 
         # fonts
         self.f1 = pygame.font.Font(None, 30)
@@ -566,9 +573,9 @@ class Main:
                      self.mouse_pos[1] + self.cam_pos[1])
         # bg
         self.screen.blit(self.bg, (0, 0))
-        for x in range(0, WIDTH, TILE):
-            for y in range(0, HEIGHT, TILE):
-                pygame.draw.rect(self.screen, WHITE, (x, y, TILE, TILE), 1)
+        # for x in range(0, WIDTH, TILE):
+        #     for y in range(0, HEIGHT, TILE):
+        #         pygame.draw.rect(self.screen, WHITE, (x, y, TILE, TILE), 1)
 
         # mouse
         pygame.draw.rect(self.screen, BLACK, (self.mouse_pos[0] * TILE, self.mouse_pos[1] * TILE, TILE, TILE), 1)
@@ -582,10 +589,8 @@ class Main:
 
                 # can move to
                 for i in self.can_move_to:
-                    rect = pygame.Surface((TILE, TILE))
-                    rect.fill(BLUE)
-                    rect.set_alpha(100)
-                    self.screen.blit(rect, ((i[0] - self.cam_pos[0]) * TILE, (i[1] - self.cam_pos[1]) * TILE))
+                    self.screen.blit(self.highlight_blue[self.tick % 80 // 5],
+                                     ((i[0] - self.cam_pos[0]) * TILE, (i[1] - self.cam_pos[1]) * TILE))
 
                 # pointer
                 if mouse_pos in self.can_move_to:
@@ -645,10 +650,8 @@ class Main:
         # person_attack
         if self.person_want_attack:
             for i in self.can_attack_to:
-                rect = pygame.Surface((TILE, TILE))
-                rect.fill(RED)
-                rect.set_alpha(100)
-                self.screen.blit(rect, ((i[0] - self.cam_pos[0]) * TILE, (i[1] - self.cam_pos[1]) * TILE))
+                self.screen.blit(self.highlight_red[self.tick % 80 // 5],
+                                 ((i[0] - self.cam_pos[0]) * TILE, (i[1] - self.cam_pos[1]) * TILE))
 
         # persons
         for person in self.player.persons:
@@ -875,8 +878,10 @@ class Main:
                                 self.placing_choice_person = None
                 else:
                     self.person_positions = [i.pos for i in self.opponent.persons + self.player.persons]
+                    mouse_pos = (self.mouse_pos[0] + self.cam_pos[0],
+                                 self.mouse_pos[1] + self.cam_pos[1])
                     if (self.placing_choice_person is not None) and \
-                            (self.mouse_pos not in self.person_positions + self.cant):
+                            (mouse_pos not in self.person_positions + self.cant):
                         name_ = self.names_choice_persons[self.placing_choice_person]
                         self.player.persons.append(Person(self.mouse_pos[0] * TILE + self.cam_pos[0] * TILE,
                                                           self.mouse_pos[1] * TILE + self.cam_pos[1] * TILE,
@@ -911,6 +916,10 @@ class Main:
                 self.opponent.persons[j].hit = self.data[j][5]
                 self.opponent.persons[j].dmg = self.data[j][6]
                 self.opponent.persons[j].crt = self.data[j][7]
+                w_ = self.opponent.persons[j].weapon
+                self.opponent.persons[j].weapon = self.data[j][8]
+                if self.opponent.persons[j].weapon != w_:
+                    self.opponent.persons[j].change_weapon()
 
         except:
             pass
@@ -1077,7 +1086,8 @@ class Main:
                                             self.cam_pos[0] -= 1
                                     self.bg = self.big_bg.subsurface(self.cam_pos[0] * TILE,
                                                                      self.cam_pos[1] * TILE, 1200, 800)
-                            elif event.type == pygame.MOUSEBUTTONUP and event.button == 1:
+
+                            if event.type == pygame.MOUSEBUTTONUP and event.button == 1:
                                 if self.settings_unit:
                                     if in_box(self.big_mouse_pos, self.settings_unit_rect):
                                         p_ = self.player.persons[self.player.choice_person]
@@ -1148,7 +1158,6 @@ class Main:
                                                     if self.player.choice_person is None:
                                                         self.player.choice_person = self.player.persons.index(person)
                                                         self.turn_menu = True
-
                         if self.player.choice_person is None:
                             self.turn_menu = False
                             self.person_want_move = False
@@ -1234,6 +1243,7 @@ class Main:
                     if self.not_my_fight:
                         pass
                     else:
+
                         if self.start_game:
                             main.render()
                 pygame.display.update()

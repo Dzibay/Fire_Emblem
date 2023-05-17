@@ -128,7 +128,7 @@ while run:
                 a, data = find(data)
                 if a is None:
                     player.last_sms_move = player.can_move
-                elif player.last_sms_move != a:
+                elif player.last_sms_move != a and player.can_move:
                     player.can_move = a
                     player.last_sms_move = a
                     for player_2 in players:
@@ -141,7 +141,6 @@ while run:
         except:
             print('cant')
 
-    print('--------')
     for player in players:
         second_player = None
         for player_2 in players:
@@ -172,7 +171,6 @@ while run:
                     sms += '>'
             player.conn.send(sms.encode())
             player.errors = 0
-            print(sms)
         except:
             player.errors += 1
             if player.errors > 200:

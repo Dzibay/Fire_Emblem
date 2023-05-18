@@ -130,7 +130,7 @@ sizes = {'roy': {'sword': [{'width': 124,
                               'size': (740, 325),
                               'dmg_time': 32}]},
 
-         'eirika': {'lance': [{'width': 114,
+         'eirika': {'sword': [{'width': 114,
                                'height': 67,
                                'w': 6,
                                'h': 5,

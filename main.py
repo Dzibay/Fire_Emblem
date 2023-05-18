@@ -50,6 +50,10 @@ class Main:
         self.your_turn_img = pygame.image.load('templates/map/your_turn.png')
         self.opponents_turn_img = pygame.image.load('templates/map/opponents_turn.png')
 
+        # numbers and abc
+        self.numbers = [pygame.transform.scale(
+            pygame.image.load('templates/numbers/numbers.png').subsurface(i * 8, 0, 8, 8), (40, 40)) for i in range(10)]
+
         # mouse
         self.mouse_pos = (0, 0)
         self.big_mouse_pos = (0, 0)
@@ -141,7 +145,7 @@ class Main:
         self.move_btn = (20, 220, 200, 70)
         self.attack_btn = (20, 290, 200, 70)
         self.wait_btn = (20, 360, 200, 70)
-        self.menu_arrow = [pygame.transform.scale(pygame.image.load('templates/pointer/selectArrow.png').
+        self.menu_arrow = [pygame.transform.scale(pygame.image.load('templates/map/selectArrow.png').
                                                   subsurface(i * 8, 0, 8, 8), (40, 40)) for i in range(6)]
 
         # map person info
@@ -156,25 +160,36 @@ class Main:
         self.fight_info = pygame.transform.scale(pygame.image.load('templates/map/fight_info.png'), (300, 450))
 
         # map highlight
-        self.highlight_blue = [pygame.transform.scale(pygame.image.load('templates/highlights/blue.png').
-                                                      subsurface(i * 16, 1, 15, 15), (TILE, TILE)) for i in range(16)]
-        self.highlight_red = [pygame.transform.scale(pygame.image.load('templates/highlights/red.png').
-                                                     subsurface(i * 16, 1, 15, 15), (TILE, TILE)) for i in range(16)]
+        self.highlight = {
+            'blue': [pygame.transform.scale(pygame.image.load('templates/highlights/blue.png').
+                                            subsurface(i * 16, 1, 15, 15), (TILE, TILE)) for i in range(16)],
+            'red': [pygame.transform.scale(pygame.image.load('templates/highlights/red.png').
+                                           subsurface(i * 16, 1, 15, 15), (TILE, TILE)) for i in range(16)]}
+
+        # cursor
+        self.cursor = {'norm': [pygame.transform.scale(pygame.image.load('templates/map/cursor.png').
+                                                       subsurface((x * 32, 0, 32, 32)), (TILE, TILE))
+                                for x in range(4)],
+                       'enemy': [pygame.transform.scale(pygame.image.load('templates/map/cursor.png').
+                                                        subsurface((x * 32, 32, 32, 32)), (TILE, TILE))
+                                 for x in range(4)],
+                       'none': [pygame.transform.scale(pygame.image.load('templates/map/cursor.png').
+                                                       subsurface((x * 32, 64, 32, 32)), (TILE, TILE))
+                                for x in range(4)],
+                       'heal': [pygame.transform.scale(pygame.image.load('templates/map/cursor.png').
+                                                       subsurface((x * 32, 96, 32, 32)), (TILE, TILE))
+                                for x in range(4)]}
 
         # fonts
         self.f1 = pygame.font.Font(None, 30)
         self.f2 = pygame.font.Font(None, 50)
         self.f3 = pygame.font.Font(None, 70)
 
-    @staticmethod
-    def calculate_damage(person, enemy):
-        bonus = 1 if triangle(person.type, enemy.type) else -1
-        if person.type == enemy.type:
-            bonus = 0
-        dmg = person.mag if person.type == 'magic' else person.str
-        dmg = (dmg + person.weapon_mt + bonus) * (2 if bonus == 1 else 1)
-        def_ = enemy.res if person.type == 'magic' else enemy.def_
-        return dmg - def_
+        self.font = [pygame.transform.scale(pygame.image.load('templates/fonts/text.png').
+                                            subsurface(x * 5, 0, 5, 7), (30, 30)) for x in range(26)]
+
+    def write(self, s, pos):
+        self.screen.blit(self.font[0], pos)
 
     @staticmethod
     def find_sms(s):
@@ -335,9 +350,7 @@ class Main:
                 self.run = False
 
         if self.fight_tick == 1:
-            fight = Fight(self.fight_person, self.fight_enemy, self.fight_img,
-                          main.calculate_damage(self.fight_person, self.fight_enemy),
-                          main.calculate_damage(self.fight_enemy, self.fight_person))
+            fight = Fight(self.fight_person, self.fight_enemy, self.fight_img)
 
         enemy_dmg_tick = 50 + fight.enemy_dmg_tick
         if not fight.moves[0]:
@@ -427,19 +440,20 @@ class Main:
         # magic effect
         magic_img = None
         if self.fight_person.weapon in self.fight_img.magic_effects:
-            if (self.fight_tick > 55) and (self.fight_tick <= 55 + fight.person_magic_effect_time):
+            if (self.fight_tick > 55 + fight.person_magic_delay) and \
+                    (self.fight_tick <= 55 + fight.person_magic_delay + fight.person_magic_effect_time):
                 fight.magic_tick += 1
                 magic_img = fight.person_magic_effect[fight.magic_tick % fight.person_magic_effect_time // 2]
-                if self.fight_tick == 55 + fight.person_magic_effect_time:
+                if self.fight_tick == 55 + fight.person_magic_delay + fight.person_magic_effect_time:
                     fight.magic_tick = 0
                     magic_img = None
 
         if self.fight_enemy.weapon in self.fight_img.magic_effects:
-            if (self.fight_tick > start_enemy_attack + 5) and \
-                    (self.fight_tick <= start_enemy_attack + fight.enemy_magic_effect_time):
+            if (self.fight_tick > start_enemy_attack + fight.enemy_magic_delay) and \
+                    (self.fight_tick <= start_enemy_attack + fight.enemy_magic_delay + fight.enemy_magic_effect_time):
                 fight.magic_tick += 1
                 magic_img = fight.enemy_magic_effect[fight.magic_tick % fight.enemy_magic_effect_time // 2]
-                if self.fight_tick == start_enemy_attack + fight.enemy_magic_effect_time:
+                if self.fight_tick == start_enemy_attack + fight.enemy_magic_delay + fight.enemy_magic_effect_time:
                     fight.magic_tick = 0
                     magic_img = None
 
@@ -526,9 +540,7 @@ class Main:
                 self.run = False
 
         if not self.fight_upload:
-            fight = Fight(self.fight_person, self.fight_enemy, self.fight_img,
-                          main.calculate_damage(self.fight_person, self.fight_enemy),
-                          main.calculate_damage(self.fight_enemy, self.fight_person))
+            fight = Fight(self.fight_person, self.fight_enemy, self.fight_img, True)
             self.fight_upload = True
 
         # recv sms
@@ -572,9 +584,6 @@ class Main:
                      self.mouse_pos[1] + self.cam_pos[1])
         # bg
         self.screen.blit(self.bg, (0, 0))
-        # for x in range(0, WIDTH, TILE):
-        #     for y in range(0, HEIGHT, TILE):
-        #         pygame.draw.rect(self.screen, WHITE, (x, y, TILE, TILE), 1)
 
         # mouse
         pygame.draw.rect(self.screen, BLACK, (self.mouse_pos[0] * TILE, self.mouse_pos[1] * TILE, TILE, TILE), 1)
@@ -588,7 +597,7 @@ class Main:
 
                 # can move to
                 for i in self.can_move_to:
-                    self.screen.blit(self.highlight_blue[self.tick % 80 // 5],
+                    self.screen.blit(self.highlight['blue'][self.tick % 80 // 5],
                                      ((i[0] - self.cam_pos[0]) * TILE, (i[1] - self.cam_pos[1]) * TILE))
 
                 # pointer
@@ -649,7 +658,7 @@ class Main:
         # person_attack
         if self.person_want_attack:
             for i in self.can_attack_to:
-                self.screen.blit(self.highlight_red[self.tick % 80 // 5],
+                self.screen.blit(self.highlight['red'][self.tick % 80 // 5],
                                  ((i[0] - self.cam_pos[0]) * TILE, (i[1] - self.cam_pos[1]) * TILE))
 
         # persons
@@ -815,8 +824,9 @@ class Main:
                     person_name = self.f2.render(p_.name, True, WHITE)
                     self.screen.blit(person_name, (1005, 140))
                     self.screen.blit(weapon_img[p_.weapon], (875, 105))
-                    self.screen.blit(weapon_arrow['up' if triangle(p_.type, enemy.type) else 'down']
+                    self.screen.blit(weapon_arrow['up' if triangle(p_.weapon, enemy.weapon) else 'down']
                                      [self.tick % 30 // 10 if self.tick % 60 < 30 else 0], (920, 130))
+                    print(triangle(p_.weapon, enemy.weapon))
                     person_hp = f.render(str(p_.hp), True, WHITE)
                     person_mt = f.render(str(p_.weapon_mt), True, WHITE)
                     person_hit = f.render(str(p_.hit), True, WHITE)
@@ -830,7 +840,7 @@ class Main:
                     enemy_name = self.f2.render(enemy.name, True, WHITE)
                     self.screen.blit(enemy_name, (940, 440))
                     self.screen.blit(weapon_img[enemy.weapon], (1090, 400))
-                    self.screen.blit(weapon_arrow['up' if triangle(enemy.type, p_.type) else 'down']
+                    self.screen.blit(weapon_arrow['up' if triangle(enemy.weapon, p_.weapon) else 'down']
                                      [self.tick % 30 // 10 if self.tick % 60 < 30 else 0], (1135, 440))
                     enemy_hp = f.render(str(enemy.hp), True, WHITE)
                     enemy_mt = f.render(str(enemy.weapon_mt), True, WHITE)
@@ -888,10 +898,10 @@ class Main:
                         self.menu_choice_persons.remove(self.placing_choice_person)
                         self.placing_choice_person = None
 
-        sms = '<|'
+        sms = f'<{self.your_turn}|'
         for person in self.player.persons:
             sms += f'{person.name} {person.x} {person.y} {person.state}{person.move_to} ' \
-                   f'{person.hp} {person.hit} {person.dmg} {person.crt},'
+                   f'{person.hp} {person.hit} {person.dmg} {person.crt} {person.weapon},'
         sms += '>'
         self.sock.send(sms.encode())
 
@@ -919,7 +929,6 @@ class Main:
                 self.opponent.persons[j].weapon = self.data[j][8]
                 if self.opponent.persons[j].weapon != w_:
                     self.opponent.persons[j].change_weapon()
-
         except:
             pass
 
@@ -1118,7 +1127,7 @@ class Main:
                                                         self.person_positions = [person.pos
                                                                                  for person in self.opponent.persons]
                                                         self.can_move_to = main.get_can_to(p_.pos, [i for i in range(
-                                                                                                        p_.movement)],
+                                                            p_.movement)],
                                                                                            self.person_positions)
                                                         self.turn_menu = False
                                                     elif in_box(self.big_mouse_pos, self.attack_btn) and \

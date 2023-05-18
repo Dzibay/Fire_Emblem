@@ -22,7 +22,8 @@ class Person:
 
         # stats
         self.weapon = choice_weapon if choice_weapon is not None else characters[self.name]['weapon']
-        self.type = weapon[self.weapon]['class']
+        self.weapon_class = weapon[self.weapon]['class']
+        self.class_ = characters[self.name]['class']
         self.hp = characters[self.name]['hp']
         self.max_hp = self.hp
         self.str = characters[self.name]['str']
@@ -40,7 +41,7 @@ class Person:
         self.crt = weapon[self.weapon]['crt'] + (self.skl // 2)
         self.hit = weapon[self.weapon]['hit'] + (self.skl * 2) + (self.lck // 2)
         self.avoid = self.attack_speed * 2 + self.lck
-        self.dmg = (self.mag if self.type == 'magic' else self.str) + self.weapon_mt
+        self.dmg = (self.mag if self.weapon_class == 'magic' else self.str) + self.weapon_mt
 
         # person
         self.stay_images = [pygame.transform.scale(pygame.image.load(f'templates/persons/{name}/person/map_idle.png').
@@ -77,13 +78,13 @@ class Person:
 
     def change_weapon(self):
         self.weapon_mt = weapon[self.weapon]['mt']
-        self.type = weapon[self.weapon]['class']
+        self.weapon_class = weapon[self.weapon]['class']
         self.range_attack = weapon[self.weapon]['range']
         a_ = weapon[self.weapon]['wt'] - characters[self.name]['con']
         self.attack_speed = characters[self.name]['speed'] - (a_ if a_ > 0 else 0)
         self.crt = weapon[self.weapon]['crt'] + (self.skl // 2)
         self.hit = weapon[self.weapon]['hit'] + (self.skl * 2) + (self.lck // 2)
-        self.dmg = (self.mag if self.type == 'magic' else self.str) + self.weapon_mt
+        self.dmg = (self.mag if self.weapon_class == 'magic' else self.str) + self.weapon_mt
 
     def get_big_pos(self):
         return (self.pos[0] * TILE, self.pos[1] * TILE)

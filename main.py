@@ -1,10 +1,11 @@
 import pygame
-from person import Person, characters, weapon
+import socket
+from person import Person, characters
 from player import Player
 from settings import *
 from dextr import *
-import socket
-from fight import Fight, Fight_images, sizes, triangle, weapon_img, weapon_arrow
+from fight import Fight, Fight_images, sizes, triangle
+from data.weapon import weapon, weapon_img, weapon_arrow, weapon_can_be_used
 from random import randint
 
 
@@ -270,6 +271,18 @@ class Main:
             if (i not in self.cant) and (i not in not_append) and (len(cords) - 1 in l):
                 result.append(i)
         return result
+
+    def list_of_weapon_can_be_used_by_person(self, person_name, person_class):
+        res = []
+        for weapon_ in weapon:
+            if weapon[weapon_]['class'] in sizes[self.names_choice_persons[self.menu_person_settings]]:
+                if weapon_ in weapon_can_be_used:
+                    if (person_name in weapon_can_be_used[weapon_]) or (person_class in weapon_can_be_used[weapon_]):
+                        res.append(weapon_)
+                else:
+                    res.append(weapon_)
+        return res
+
 
     def render_persons_characters_for_fight(self, fight):
         # bg
@@ -982,8 +995,9 @@ class Main:
                     for i in self.menu_person_choice_cords:
                         if in_box(self.big_mouse_pos, i):
                             self.menu_person_settings = self.menu_person_choice_cords.index(i)
-                            self.menu_list_of_weapon = [j for j in weapon if weapon[j]['class'] in sizes[
-                                self.names_choice_persons[self.menu_person_settings]]]
+                            name_ = self.names_choice_persons[self.menu_person_choice_cords.index(i)]
+                            class_ = characters[name_]['class']
+                            self.menu_list_of_weapon = main.list_of_weapon_can_be_used_by_person(name_, class_)
                             self.menu_choice_persons.append(i)
                 elif event.type == pygame.KEYUP:
                     if event.key == pygame.K_UP:

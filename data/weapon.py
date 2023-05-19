@@ -48,6 +48,8 @@ weapon = {'iron_sword': {'mt': 5, 'wt': 5, 'hit': 90, 'crt': 0, 'range': [1], 'c
           'fire': {'mt': 5, 'wt': 4, 'hit': 95, 'crt': 0, 'range': [1, 2], 'class': 'magic', 'subclass': 'anima'},
           'elfire': {'mt': 5, 'wt': 4, 'hit': 95, 'crt': 0, 'range': [1, 2], 'class': 'magic', 'subclass': 'anima'}}
 
+weapon_can_be_used = {'wolf_beil': ['hector']}
+
 weapon_img = {
     'iron_sword': pygame.transform.scale(pygame.image.load('templates/weapon/weapon.png').subsurface((17, 0, 16, 16)),
                                          (72, 72)),

@@ -196,12 +196,12 @@ class Fight:
         self.enemy_dmg = calculate_damage(enemy, person)
         self.person_hit = person.hit + (15 if triangle(person.weapon, enemy.weapon) else -15) - enemy.avoid
         self.enemy_hit = enemy.hit + (15 if triangle(enemy.weapon, person.weapon) else -15) - person.avoid
-        self.moves = [True if randint(0, 100) <= person.crt else False,
-                      True if randint(0, 100) <= (100 - self.person_hit) else False,
-                      True if randint(0, 100) <= enemy.crt else False,
-                      True if randint(0, 100) <= (100 - self.enemy_hit) else False]
-        print(self.moves)
-        # self.moves = [True, False, False, False]
+        # self.moves = [True if randint(0, 100) <= person.crt else False,
+        #               True if randint(0, 100) <= (100 - self.person_hit) else False,
+        #               True if randint(0, 100) <= enemy.crt else False,
+        #               True if randint(0, 100) <= (100 - self.enemy_hit) else False]
+        # print(self.moves)
+        self.moves = [True, False, False, False]
 
         self.without_enemy_attack = False
         self.person_double_attack = False
@@ -220,7 +220,7 @@ class Fight:
             self.moves.append(True if randint(0, 100) <= (1 - enemy.hit) else False)
         if range_persons > 1:
             self.distance_fight = True
-        print(self.distance_fight)
+        print('distance', self.distance_fight)
 
         self.need_moves = [0, 0]
         self.tick = 0

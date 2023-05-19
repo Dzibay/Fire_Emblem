@@ -111,6 +111,7 @@ class Main:
         # menu
         self.menu_person_settings = None
         self.menu_list_of_weapon = []
+        self.menu_list_of_weapon_see = 0
         self.menu_person_settings_exit = (700, 600, 200, 50)
         self.sms = '<wait>'
         self.menu_tick = 0
@@ -944,21 +945,22 @@ class Main:
                             self.menu_person_settings = None
                         else:
                             # weapon choice
-                            for i in range(len(self.menu_list_of_weapon)):
+                            for i in range(5):
                                 if in_box(self.big_mouse_pos, (600, 200 + i * 75, 200, 72)):
                                     l_ = self.menu_choice_persons_weapon[self.names_choice_persons[
                                         self.menu_person_settings]]
-                                    if self.menu_list_of_weapon[i] not in l_:
-                                        l_.append(self.menu_list_of_weapon[i])
+                                    weapon_ = self.menu_list_of_weapon[
+                                       self.menu_list_of_weapon_see:self.menu_list_of_weapon_see + 5][i]
+                                    if weapon_ not in l_:
+                                        l_.append(weapon_)
                                     else:
-                                        l_.remove(self.menu_list_of_weapon[i])
+                                        l_.remove(weapon_)
                     # start
                     elif in_box(self.big_mouse_pos, self.menu_btn_cords):
                         self.menu_choice_persons = [self.menu_person_choice_cords.index(j) for j in
                                                     self.menu_choice_persons]
                         self.menu_choice_persons = [i for i in self.menu_choice_persons if
                                                     i < len(self.menu_person_img)]
-                        print(self.menu_choice_persons)
                         self.placing_persons_window = True
                         self.menu_choice_persons_weapon = {
                             self.names_choice_persons[i]: self.menu_choice_persons_weapon[
@@ -983,6 +985,13 @@ class Main:
                             self.menu_list_of_weapon = [j for j in weapon if weapon[j]['class'] in sizes[
                                 self.names_choice_persons[self.menu_person_settings]]]
                             self.menu_choice_persons.append(i)
+                elif event.type == pygame.KEYUP:
+                    if event.key == pygame.K_UP:
+                        if self.menu_list_of_weapon_see > 0:
+                            self.menu_list_of_weapon_see -= 1
+                    if event.key == pygame.K_DOWN:
+                        if self.menu_list_of_weapon_see < len(self.menu_list_of_weapon) - 5:
+                            self.menu_list_of_weapon_see += 1
 
         data_ = self.sock.recv(1024).decode()
         if data_[:5] == '<wait' and data_[:6] != '<wait>':
@@ -1009,10 +1018,12 @@ class Main:
                     pygame.draw.rect(self.screen, WHITE, (300, 200 + i * 75, 200, 72))
                     self.screen.blit(weapon_img[l_[i]], (300, 195 + i * 75))
                 # list all weapon
-                for i in range(len(self.menu_list_of_weapon)):
-                    c_ = BLACK if self.menu_list_of_weapon[i] in l_ else WHITE
+                for weapon_ in self.menu_list_of_weapon[self.menu_list_of_weapon_see:self.menu_list_of_weapon_see + 5]:
+                    i = self.menu_list_of_weapon[
+                        self.menu_list_of_weapon_see:self.menu_list_of_weapon_see + 5].index(weapon_)
+                    c_ = BLACK if weapon_ in l_ else WHITE
                     pygame.draw.rect(self.screen, c_, (600, 200 + i * 75, 200, 72))
-                    self.screen.blit(weapon_img[self.menu_list_of_weapon[i]], (600, 195 + i * 75))
+                    self.screen.blit(weapon_img[weapon_], (600, 195 + i * 75))
             else:
                 for i in range(len(self.menu_person_choice_cords)):
                     c_ = BLUE if self.menu_person_choice_cords[i] in self.menu_choice_persons else WHITE

@@ -44,11 +44,24 @@ weapon = {'iron_sword': {'mt': 5, 'wt': 5, 'hit': 90, 'crt': 0, 'range': [1], 'c
           'short_bow': {'mt': 5, 'wt': 3, 'hit': 85, 'crt': 10, 'range': [2], 'class': 'bow'},
           'rien_fleche': {'mt': 20, 'wt': 7, 'hit': 80, 'crt': 0, 'range': [2], 'class': 'bow'},
 
-          'flux': {'mt': 5, 'wt': 4, 'hit': 95, 'crt': 0, 'range': [1, 2], 'class': 'magic', 'subclass': 'dark'},
           'fire': {'mt': 5, 'wt': 4, 'hit': 95, 'crt': 0, 'range': [1, 2], 'class': 'magic', 'subclass': 'anima'},
-          'elfire': {'mt': 5, 'wt': 4, 'hit': 95, 'crt': 0, 'range': [1, 2], 'class': 'magic', 'subclass': 'anima'}}
+          'elfire': {'mt': 10, 'wt': 10, 'hit': 85, 'crt': 0, 'range': [1, 2], 'class': 'magic', 'subclass': 'anima'},
+          'fimbulvetr': {'mt': 13, 'wt': 12, 'hit': 80, 'crt': 0, 'range': [1, 2], 'class': 'magic', 'subclass': 'anima'},
+          'excalibur': {'mt': 18, 'wt': 13, 'hit': 90, 'crt': 10, 'range': [1, 2], 'class': 'magic', 'subclass': 'anima'},
 
-weapon_can_be_used = {'wolf_beil': ['hector']}
+          'miracle': {'mt': 4, 'wt': 6, 'hit': 95, 'crt': 5, 'range': [1, 2], 'class': 'magic', 'subclass': 'light'},
+          'divine': {'mt': 8, 'wt': 12, 'hit': 85, 'crt': 10, 'range': [1, 2], 'class': 'magic', 'subclass': 'light'},
+          'lightning': {'mt': 12, 'wt': 15, 'hit': 85, 'crt': 15, 'range': [1, 2], 'class': 'magic', 'subclass': 'light'},
+
+          'flux': {'mt': 7, 'wt': 8, 'hit': 80, 'crt': 0, 'range': [1, 2], 'class': 'magic', 'subclass': 'dark'},
+          'ereshkigal': {'mt': 20, 'wt': 12, 'hit': 95, 'crt': 0, 'range': [1, 2], 'class': 'magic', 'subclass': 'dark'}
+          }
+
+weapon_can_be_used = {'wolf_beil': ['hector'],
+                      'wo_dao': ['blade_lord', 'sword_master'],
+                      'sol_katti': ['lyn'],
+                      'durandal': ['eliwood']
+                      }
 
 weapon_img = {
     'iron_sword': pygame.transform.scale(pygame.image.load('templates/weapon/weapon.png').subsurface((17, 0, 16, 16)),
@@ -141,7 +154,19 @@ weapon_img = {
     'fire': pygame.transform.scale(pygame.image.load('templates/weapon/weapon.png').subsurface((51, 102, 16, 16)),
                                    (72, 72)),
     'elfire': pygame.transform.scale(pygame.image.load('templates/weapon/weapon.png').subsurface((68, 102, 16, 16)),
-                                     (72, 72))
+                                     (72, 72)),
+    'fimbulvetr': pygame.transform.scale(pygame.image.load('templates/weapon/weapon.png').subsurface((85, 102, 16, 16)),
+                                         (72, 72)),
+    'excalibur': pygame.transform.scale(pygame.image.load('templates/weapon/weapon.png').subsurface((102, 102, 16, 16)),
+                                        (72, 72)),
+    'miracle': pygame.transform.scale(pygame.image.load('templates/weapon/weapon.png').subsurface((119, 102, 16, 16)),
+                                      (72, 72)),
+    'divine': pygame.transform.scale(pygame.image.load('templates/weapon/weapon.png').subsurface((0, 119, 16, 16)),
+                                     (72, 72)),
+    'lightning': pygame.transform.scale(pygame.image.load('templates/weapon/weapon.png').subsurface((17, 119, 16, 16)),
+                                        (72, 72)),
+    'ereshkigal': pygame.transform.scale(pygame.image.load('templates/weapon/weapon.png').subsurface((102, 119, 16, 16)),
+                                         (72, 72))
 }
 
 weapon_arrow = {'up': [pygame.transform.scale(pygame.image.load('templates/fight/up_arrow.png').

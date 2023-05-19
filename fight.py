@@ -1,43 +1,8 @@
 from settings import *
 import pygame
 from random import randint
-from data.fight_sprites_characters import sizes
+from data.fight_sprites_characters import sizes, magic
 from data.weapon import weapon, weapon_img, weapon_arrow
-
-magic = {
-    'flux': {'width': 65,
-             'height': 99,
-             'w': 5,
-             'h': 7,
-             'frames': 35,
-             'x': 600,
-             'y': 85,
-             'x1': 260,
-             'size': (290, 450),
-             'delay': 0},
-
-    'fire': {'width': 240,
-             'height': 160,
-             'w': 4,
-             'h': 3,
-             'frames': 12,
-             'x': 0,
-             'y': 50,
-             'x1': 150,
-             'size': (1080, 720),
-             'delay': 30},
-
-    'elfire': {'width': 240,
-               'height': 160,
-               'w': 4,
-               'h': 4,
-               'frames': 16,
-               'x': 100,
-               'y': 50,
-               'x1': 50,
-               'size': (1080, 720),
-               'delay': 25}
-}
 
 magic_names = ['sorcerer', 'sagem']
 effective = {'infinite': [],
@@ -123,7 +88,7 @@ class Fight_images:
                 if name in magic_names and not self.upload_images:
                     self.upload_images = True
                     # magic
-                    for magic_ in ['flux', 'fire', 'elfire']:
+                    for magic_ in magic:
                         self.magic_effects[magic_] = {'person': [], 'enemy': []}
                         # enemy magic
                         self.magic_effects[magic_]['enemy'] = [pygame.transform.scale(
@@ -196,12 +161,11 @@ class Fight:
         self.enemy_dmg = calculate_damage(enemy, person)
         self.person_hit = person.hit + (15 if triangle(person.weapon, enemy.weapon) else -15) - enemy.avoid
         self.enemy_hit = enemy.hit + (15 if triangle(enemy.weapon, person.weapon) else -15) - person.avoid
-        # self.moves = [True if randint(0, 100) <= person.crt else False,
-        #               True if randint(0, 100) <= (100 - self.person_hit) else False,
-        #               True if randint(0, 100) <= enemy.crt else False,
-        #               True if randint(0, 100) <= (100 - self.enemy_hit) else False]
-        # print(self.moves)
-        self.moves = [True, False, False, False]
+        self.moves = [True if randint(0, 100) <= person.crt else False,
+                      True if randint(0, 100) <= (100 - self.person_hit) else False,
+                      True if randint(0, 100) <= enemy.crt else False,
+                      True if randint(0, 100) <= (100 - self.enemy_hit) else False]
+        # self.moves = [True, False, True, False]
 
         self.without_enemy_attack = False
         self.person_double_attack = False
@@ -220,7 +184,6 @@ class Fight:
             self.moves.append(True if randint(0, 100) <= (1 - enemy.hit) else False)
         if range_persons > 1:
             self.distance_fight = True
-        print('distance', self.distance_fight)
 
         self.need_moves = [0, 0]
         self.tick = 0
@@ -231,11 +194,12 @@ class Fight:
         # weapon
         self.person_weapon_img = weapon_img[person.weapon]
         self.enemy_weapon_img = weapon_img[enemy.weapon]
-
-        self.person_x, self.person_y = sizes[person.name][person.weapon_class][int(self.moves[0])]['x'], \
-                                       sizes[person.name][person.weapon_class][int(self.moves[0])]['y']
-        self.enemy_x, self.enemy_y = sizes[enemy.name][enemy.weapon_class][int(self.moves[2])]['x1'], \
-                                     sizes[enemy.name][enemy.weapon_class][int(self.moves[2])]['y']
+        index_1 = self.need_moves[0] if not_my_fight else int(self.moves[0])
+        index_2 = self.need_moves[1] if not_my_fight else int(self.moves[2])
+        self.person_x, self.person_y = sizes[person.name][person.weapon_class][index_1]['x'], \
+                                       sizes[person.name][person.weapon_class][index_1]['y']
+        self.enemy_x, self.enemy_y = sizes[enemy.name][enemy.weapon_class][index_2]['x1'], \
+                                     sizes[enemy.name][enemy.weapon_class][index_2]['y']
         if self.distance_fight:
             self.person_x -= 200
             self.enemy_x += 200
@@ -277,6 +241,7 @@ class Fight:
             self.all_effects = self.person_magic_effect + self.enemy_magic_effect
 
         if self.distance_fight:
+            print('distance')
             if self.person_magic_cords != (0, 0):
                 self.person_magic_cords = (self.person_magic_cords[0] + 200, self.person_magic_cords[1])
                 self.person_magic_cords_sms = (self.person_magic_cords_sms[0] - 200, self.person_magic_cords_sms[1])

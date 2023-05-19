@@ -1,10 +1,11 @@
 import pygame
-from person import Person, characters, weapon
+import socket
+from person import Person, characters
 from player import Player
 from settings import *
 from dextr import *
-import socket
-from fight import Fight, Fight_images, sizes, triangle, weapon_img, weapon_arrow
+from fight import Fight, Fight_images, sizes, triangle
+from data.weapon import weapon, weapon_img, weapon_arrow, weapon_can_be_used
 from random import randint
 
 
@@ -270,6 +271,17 @@ class Main:
             if (i not in self.cant) and (i not in not_append) and (len(cords) - 1 in l):
                 result.append(i)
         return result
+
+    def list_of_weapon_can_be_used_by_person(self, person_name, person_class):
+        res = []
+        for weapon_ in weapon:
+            if weapon[weapon_]['class'] in sizes[self.names_choice_persons[self.menu_person_settings]]:
+                if weapon_ in weapon_can_be_used:
+                    if (person_name in weapon_can_be_used[weapon_]) or (person_class in weapon_can_be_used[weapon_]):
+                        res.append(weapon_)
+                else:
+                    res.append(weapon_)
+        return res
 
     def render_persons_characters_for_fight(self, fight):
         # bg
@@ -565,6 +577,10 @@ class Main:
         except:
             pass
 
+        if self.fight_tick <= 2:
+            fight.person_x = sizes[self.fight_person.name][self.fight_person.weapon_class][fight.need_moves[0]]['x']
+            fight.enemy_x = sizes[self.fight_enemy.name][self.fight_enemy.weapon_class][fight.need_moves[1]]['x1']
+
         # fight baze
         main.render_persons_characters_for_fight(fight)
 
@@ -827,7 +843,6 @@ class Main:
                     self.screen.blit(weapon_img[p_.weapon], (875, 105))
                     self.screen.blit(weapon_arrow['up' if triangle(p_.weapon, enemy.weapon) else 'down']
                                      [self.tick % 30 // 10 if self.tick % 60 < 30 else 0], (920, 130))
-                    print(triangle(p_.weapon, enemy.weapon))
                     person_hp = f.render(str(p_.hp), True, WHITE)
                     person_mt = f.render(str(p_.weapon_mt), True, WHITE)
                     person_hit = f.render(str(p_.hit), True, WHITE)
@@ -952,7 +967,8 @@ class Main:
                                     weapon_ = self.menu_list_of_weapon[
                                        self.menu_list_of_weapon_see:self.menu_list_of_weapon_see + 5][i]
                                     if weapon_ not in l_:
-                                        l_.append(weapon_)
+                                        if len(l_) < 3:
+                                            l_.append(weapon_)
                                     else:
                                         l_.remove(weapon_)
                     # start
@@ -982,8 +998,9 @@ class Main:
                     for i in self.menu_person_choice_cords:
                         if in_box(self.big_mouse_pos, i):
                             self.menu_person_settings = self.menu_person_choice_cords.index(i)
-                            self.menu_list_of_weapon = [j for j in weapon if weapon[j]['class'] in sizes[
-                                self.names_choice_persons[self.menu_person_settings]]]
+                            name_ = self.names_choice_persons[self.menu_person_choice_cords.index(i)]
+                            class_ = characters[name_]['class']
+                            self.menu_list_of_weapon = main.list_of_weapon_can_be_used_by_person(name_, class_)
                             self.menu_choice_persons.append(i)
                 elif event.type == pygame.KEYUP:
                     if event.key == pygame.K_UP:
@@ -1022,8 +1039,10 @@ class Main:
                     i = self.menu_list_of_weapon[
                         self.menu_list_of_weapon_see:self.menu_list_of_weapon_see + 5].index(weapon_)
                     c_ = BLACK if weapon_ in l_ else WHITE
-                    pygame.draw.rect(self.screen, c_, (600, 200 + i * 75, 200, 72))
+                    pygame.draw.rect(self.screen, c_, (600, 200 + i * 75, 300, 72))
+                    name_weapon = self.f1.render(weapon_, True, BLACK if c_ == WHITE else WHITE)
                     self.screen.blit(weapon_img[weapon_], (600, 195 + i * 75))
+                    self.screen.blit(name_weapon, (700, 220 + i * 75))
             else:
                 for i in range(len(self.menu_person_choice_cords)):
                     c_ = BLUE if self.menu_person_choice_cords[i] in self.menu_choice_persons else WHITE

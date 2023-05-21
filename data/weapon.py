@@ -62,6 +62,10 @@ weapon_can_be_used = {'wolf_beil': ['hector'],
                       'sol_katti': ['lyn'],
                       'durandal': ['eliwood']
                       }
+weapon_double_attack = {'brave_sword', 'brave_lance', 'brave_axe', 'brave_bow'}
+
+effective = {'infinite': [],
+             'swords': ['sword_slayer']}
 
 weapon_img = {
     'iron_sword': pygame.transform.scale(pygame.image.load('templates/weapon/weapon.png').subsurface((17, 0, 16, 16)),

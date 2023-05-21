@@ -2,11 +2,9 @@ from settings import *
 import pygame
 from random import randint
 from data.fight_sprites_characters import sizes, magic
-from data.weapon import weapon, weapon_img, weapon_arrow
+from data.weapon import weapon, weapon_img, weapon_arrow, effective, weapon_double_attack
 
 magic_names = ['sorcerer', 'sagem']
-effective = {'infinite': [],
-             'swords': ['sword_slayer']}
 
 
 def types_class(class_):
@@ -175,10 +173,10 @@ class Fight:
         range_persons = abs(person.pos[0] - enemy.pos[0]) + abs(person.pos[1] - enemy.pos[1])
         if range_persons not in enemy.range_attack:
             self.without_enemy_attack = True
-        if person.attack_speed - enemy.attack_speed >= 4:
+        if person.attack_speed - enemy.attack_speed >= 4 or person.weapon in weapon_double_attack:
             self.person_double_attack = True
             self.moves.append(True if randint(0, 100) <= (1 - person.hit) else False)
-        elif enemy.attack_speed - person.attack_speed >= 4:
+        elif enemy.attack_speed - person.attack_speed >= 4 and person.weapon not in weapon_double_attack:
             self.enemy_double_attack = True
             self.moves.append(True if randint(0, 100) <= enemy.crt else False)
             self.moves.append(True if randint(0, 100) <= (1 - enemy.hit) else False)

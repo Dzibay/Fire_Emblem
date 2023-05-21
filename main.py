@@ -521,29 +521,38 @@ class Main:
                 self.screen.blit(fight.miss(), (250, 300))
 
         # end
-        if fight.indicate_double_attack:
-            if fight.person_double_attack and self.fight_tick >= start_enemy_attack:
+        if self.fight_tick == enemy_dmg_tick:
+            fight.person_count_attack -= 1
+        elif self.fight_tick == person_dmg_tick:
+            fight.enemy_count_attack -= 1
+
+        if self.fight_tick == start_enemy_attack:
+            if fight.enemy_count_attack == 0 and fight.person_count_attack == 0:
                 self.fight_tick = 0
                 self.fight = False
-            elif fight.enemy_double_attack and self.fight_tick >= fight_end:
-                self.fight_tick = 0
-                self.fight = False
-        elif fight.without_enemy_attack and self.fight_tick >= start_enemy_attack:
-            self.fight_tick = 0
-            self.fight = False
-        elif self.fight_tick > fight_end:
-            fight.indicate_double_attack = True
-            if fight.person_double_attack and self.fight_person.hp > 0:
-                self.fight_tick = 5
-                fight.moves[0] = True if randint(0, 100) <= self.fight_person.crt else False
-                fight.moves[1] = True if randint(0, 100) <= (1 - fight.person_hit) else False
-            elif fight.enemy_double_attack and self.fight_person.hp > 0:
-                self.fight_tick = start_enemy_attack
-                fight.moves[2] = True if randint(0, 100) <= self.fight_enemy.crt else False
-                fight.moves[3] = True if randint(0, 100) <= (1 - fight.enemy_hit) else False
-            else:
-                self.fight_tick = 0
-                self.fight = False
+            elif fight.enemy_count_attack == 0 and fight.person_count_attack > 0:
+                self.fight_tick = 2
+                fight.moves = [True if randint(0, 100) <= self.fight_person.crt else False,
+                               True if randint(0, 100) <= (100 - fight.person_hit) else False,
+                               True if randint(0, 100) <= self.fight_enemy.crt else False,
+                               True if randint(0, 100) <= (100 - fight.enemy_hit) else False]
+        else:
+            if self.fight_tick > fight_end:
+                if fight.person_count_attack == 0 and fight.enemy_count_attack == 0:
+                    self.fight_tick = 0
+                    self.fight = False
+                elif fight.person_count_attack > 0:
+                    self.fight_tick = 2
+                    fight.moves = [True if randint(0, 100) <= self.fight_person.crt else False,
+                                   True if randint(0, 100) <= (100 - fight.person_hit) else False,
+                                   True if randint(0, 100) <= self.fight_enemy.crt else False,
+                                   True if randint(0, 100) <= (100 - fight.enemy_hit) else False]
+                elif fight.enemy_count_attack > 0:
+                    self.fight_tick = start_enemy_attack
+                    fight.moves = [True if randint(0, 100) <= self.fight_person.crt else False,
+                                   True if randint(0, 100) <= (100 - fight.person_hit) else False,
+                                   True if randint(0, 100) <= self.fight_enemy.crt else False,
+                                   True if randint(0, 100) <= (100 - fight.enemy_hit) else False]
 
     def render_not_my_fight(self):
         global fight

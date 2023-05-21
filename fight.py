@@ -2,7 +2,7 @@ from settings import *
 import pygame
 from random import randint
 from data.fight_sprites_characters import sizes, magic
-from data.weapon import weapon, weapon_img, weapon_arrow, effective, weapon_double_attack
+from data.weapon import weapon, weapon_img, weapon_arrow, effective
 
 magic_names = ['sorcerer', 'sagem']
 
@@ -163,23 +163,25 @@ class Fight:
                       True if randint(0, 100) <= (100 - self.person_hit) else False,
                       True if randint(0, 100) <= enemy.crt else False,
                       True if randint(0, 100) <= (100 - self.enemy_hit) else False]
-        # self.moves = [True, False, True, False]
+        # self.moves = [False, True, False, True]
 
-        self.without_enemy_attack = False
-        self.person_double_attack = False
-        self.enemy_double_attack = False
-        self.indicate_double_attack = False
+        self.person_count_attack = 1
+        self.enemy_count_attack = 1
+        self.indicate_attack = 'person'
         self.distance_fight = False
         range_persons = abs(person.pos[0] - enemy.pos[0]) + abs(person.pos[1] - enemy.pos[1])
+        if person.attack_speed - enemy.attack_speed >= 4:
+            self.person_count_attack = 2
+        elif enemy.attack_speed - person.attack_speed >= 4:
+            self.enemy_count_attack = 2
         if range_persons not in enemy.range_attack:
-            self.without_enemy_attack = True
-        if person.attack_speed - enemy.attack_speed >= 4 or person.weapon in weapon_double_attack:
-            self.person_double_attack = True
-            self.moves.append(True if randint(0, 100) <= (1 - person.hit) else False)
-        elif enemy.attack_speed - person.attack_speed >= 4 and person.weapon not in weapon_double_attack:
-            self.enemy_double_attack = True
-            self.moves.append(True if randint(0, 100) <= enemy.crt else False)
-            self.moves.append(True if randint(0, 100) <= (1 - enemy.hit) else False)
+            self.enemy_count_attack = 0
+
+        if person.weapon in ['brave_sword', 'brave_axe', 'brave_lance', 'brave_bow']:
+            self.person_count_attack = self.person_count_attack * 2
+        if enemy.weapon in ['brave_sword', 'brave_axe', 'brave_lance', 'brave_bow']:
+            self.enemy_count_attack = self.enemy_count_attack * 2
+
         if range_persons > 1:
             self.distance_fight = True
 

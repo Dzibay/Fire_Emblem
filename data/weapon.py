@@ -62,7 +62,6 @@ weapon_can_be_used = {'wolf_beil': ['hector'],
                       'sol_katti': ['lyn'],
                       'durandal': ['eliwood']
                       }
-weapon_double_attack = {'brave_sword', 'brave_lance', 'brave_axe', 'brave_bow'}
 
 effective = {'infinite': [],
              'swords': ['sword_slayer']}

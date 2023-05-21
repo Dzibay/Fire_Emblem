@@ -74,12 +74,11 @@ class Main:
         self.cords = []
         self.person_positions = []
         self.person_want_move = False
-        self.is_moved_in_this_turn = False
+        self.turn_phase = 'move'
 
         # attack
         self.can_attack_to = []
         self.person_want_attack = False
-        self.is_attacked_in_this_turn = False
 
         # pointer
         names_point = ['start_r', 'start_d', 'u', 'r', 'u-r', 'r-d', 'end_r', 'end_d',
@@ -143,10 +142,10 @@ class Main:
         # turn menu
         self.turn_menu = False
         self.turn_menu_rect = (20, 150, 200, 300)
-        self.unit_btn = (20, 150, 200, 70)
-        self.move_btn = (20, 220, 200, 70)
-        self.attack_btn = (20, 290, 200, 70)
-        self.wait_btn = (20, 360, 200, 70)
+        self.unit_btn = None
+        self.move_btn = (20, 150, 200, 70)
+        self.attack_btn = None
+        self.wait_btn = (20, 220, 200, 70)
         self.menu_arrow = [pygame.transform.scale(pygame.image.load('templates/map/selectArrow.png').
                                                   subsurface(i * 8, 0, 8, 8), (40, 40)) for i in range(6)]
 
@@ -743,19 +742,20 @@ class Main:
                 choice_rect = pygame.Surface((200, 30))
                 choice_rect.fill(GREY)
                 choice_rect.set_alpha(80)
-                if in_box(self.big_mouse_pos, self.unit_btn):
+
+                if self.unit_btn is not None and in_box(self.big_mouse_pos, self.unit_btn):
                     self.screen.blit(choice_rect, (self.unit_btn[0], self.unit_btn[1] + 20))
                     self.screen.blit(self.menu_arrow[self.tick % 12 // 2 if self.tick % 36 < 12 else 0],
                                      (self.unit_btn[0] + 150, self.unit_btn[1] + 15))
-                elif in_box(self.big_mouse_pos, self.move_btn):
+                elif self.move_btn is not None and in_box(self.big_mouse_pos, self.move_btn):
                     self.screen.blit(choice_rect, (self.move_btn[0], self.move_btn[1] + 20))
                     self.screen.blit(self.menu_arrow[self.tick % 12 // 2 if self.tick % 36 < 12 else 0],
                                      (self.move_btn[0] + 150, self.move_btn[1] + 15))
-                elif in_box(self.big_mouse_pos, self.attack_btn):
+                elif self.attack_btn is not None and in_box(self.big_mouse_pos, self.attack_btn):
                     self.screen.blit(choice_rect, (self.attack_btn[0], self.attack_btn[1] + 20))
                     self.screen.blit(self.menu_arrow[self.tick % 12 // 2 if self.tick % 36 < 12 else 0],
                                      (self.attack_btn[0] + 150, self.attack_btn[1] + 15))
-                elif in_box(self.big_mouse_pos, self.wait_btn):
+                elif self.wait_btn is not None and in_box(self.big_mouse_pos, self.wait_btn):
                     self.screen.blit(choice_rect, (self.wait_btn[0], self.wait_btn[1] + 20))
                     self.screen.blit(self.menu_arrow[self.tick % 12 // 2 if self.tick % 36 < 12 else 0],
                                      (self.wait_btn[0] + 150, self.wait_btn[1] + 15))
@@ -766,10 +766,14 @@ class Main:
                 text_move = self.f2.render('Move', True, WHITE)
                 text_attack = self.f2.render('Attack', True, WHITE)
                 text_wait = self.f2.render('Wait', True, WHITE)
-                self.screen.blit(text_unit, (self.unit_btn[0] + 50, self.unit_btn[1] + 19))
-                self.screen.blit(text_move, (self.move_btn[0] + 50, self.move_btn[1] + 19))
-                self.screen.blit(text_attack, (self.attack_btn[0] + 35, self.attack_btn[1] + 19))
-                self.screen.blit(text_wait, (self.wait_btn[0] + 50, self.wait_btn[1] + 19))
+                if self.unit_btn is not None:
+                    self.screen.blit(text_unit, (self.unit_btn[0] + 50, self.unit_btn[1] + 19))
+                if self.move_btn is not None:
+                    self.screen.blit(text_move, (self.move_btn[0] + 50, self.move_btn[1] + 19))
+                if self.attack_btn is not None:
+                    self.screen.blit(text_attack, (self.attack_btn[0] + 35, self.attack_btn[1] + 19))
+                if self.wait_btn is not None:
+                    self.screen.blit(text_wait, (self.wait_btn[0] + 50, self.wait_btn[1] + 19))
 
             # see person info
             for person in self.player.persons + self.opponent.persons:
@@ -1118,7 +1122,7 @@ class Main:
                             if event.type == pygame.KEYUP:
                                 if event.key == pygame.K_e:
                                     self.your_turn = True
-                                    self.is_moved_in_this_turn = False
+                                    self.turn_phase = 'move'
                                 else:
                                     if event.key == pygame.K_w:
                                         if self.cam_pos[1] > 0:
@@ -1158,32 +1162,51 @@ class Main:
                                                 # turn menu
                                                 if self.turn_menu:
                                                     p_ = self.player.persons[self.player.choice_person]
-                                                    if in_box(self.big_mouse_pos, self.unit_btn):
-                                                        self.settings_unit = True
-                                                    elif in_box(self.big_mouse_pos, self.move_btn) and \
-                                                            not self.is_moved_in_this_turn:
-                                                        self.person_want_move = True
-                                                        self.person_positions = [person.pos
-                                                                                 for person in self.opponent.persons]
-                                                        self.can_move_to = main.get_can_to(p_.pos, [i for i in range(
-                                                            p_.movement)],
-                                                                                           self.person_positions)
-                                                        self.turn_menu = False
-                                                    elif in_box(self.big_mouse_pos, self.attack_btn) and \
-                                                            not self.is_attacked_in_this_turn:
-                                                        self.person_want_attack = True
-                                                        self.can_attack_to = main.get_can_to(p_.pos, p_.range_attack,
-                                                                                             [p_.pos])
-                                                        self.turn_menu = False
-                                                    elif in_box(self.big_mouse_pos, self.wait_btn):
-                                                        self.your_turn = False
-                                                        self.turn_menu = False
+                                                    # move phase
+                                                    if self.turn_phase == 'move':
+                                                        if in_box(self.big_mouse_pos, self.move_btn) and \
+                                                                self.turn_phase == 'move':
+                                                            self.person_want_move = True
+                                                            self.person_positions = [person.pos
+                                                                                     for person in
+                                                                                     self.opponent.persons]
+                                                            self.can_move_to = main.get_can_to(p_.pos,
+                                                                                               [i for i in range(
+                                                                                                   p_.movement)],
+                                                                                               self.person_positions)
+                                                            self.turn_menu = False
+                                                        elif in_box(self.big_mouse_pos, self.wait_btn):
+                                                            self.turn_phase = 'attack'
+                                                            self.unit_btn = (20, 150, 200, 70)
+                                                            self.move_btn = None
+                                                            self.attack_btn = (20, 220, 200, 70)
+                                                            self.wait_btn = (20, 290, 200, 70)
+
+                                                    # attack phase
+                                                    elif self.turn_phase == 'attack':
+                                                        if in_box(self.big_mouse_pos, self.unit_btn):
+                                                            self.settings_unit = True
+                                                        elif in_box(self.big_mouse_pos, self.attack_btn):
+                                                            self.person_want_attack = True
+                                                            self.can_attack_to = main.get_can_to(p_.pos,
+                                                                                                 p_.range_attack,
+                                                                                                 [p_.pos])
+                                                            self.turn_menu = False
+                                                        elif in_box(self.big_mouse_pos, self.wait_btn):
+                                                            self.your_turn = False
+                                                            self.turn_menu = False
+                                                            self.move_btn = (20, 150, 200, 70)
+                                                            self.wait_btn = (20, 220, 200, 70)
                                                 else:
                                                     # move
                                                     if self.person_want_move and mouse_pos in self.can_move_to:
                                                         self.player.persons[
                                                             self.player.choice_person].want_move = mouse_pos
-                                                        self.is_moved_in_this_turn = True
+                                                        self.turn_phase = 'attack'
+                                                        self.unit_btn = (20, 150, 200, 70)
+                                                        self.move_btn = None
+                                                        self.attack_btn = (20, 220, 200, 70)
+                                                        self.wait_btn = (20, 290, 200, 70)
                                                         self.player.choice_person = None
 
                                                     # attack
@@ -1195,8 +1218,7 @@ class Main:
                                                                     self.player.choice_person]
                                                                 self.fight_enemy = enemy
                                                                 self.fight = True
-                                                                self.is_attacked_in_this_turn = True
-                                                                self.is_moved_in_this_turn = True
+                                                                self.your_turn = False
                                                                 self.player.choice_person = None
 
                                         else:
@@ -1227,9 +1249,12 @@ class Main:
                             elif data_[:6] == '<False':
                                 self.your_turn = False
                             if self.your_turn != self.last_sms_to_move:
-                                self.is_moved_in_this_turn = False
-                                self.is_attacked_in_this_turn = False
+                                self.turn_phase = 'move'
                                 self.player.choice_person = None
+                                self.unit_btn = None
+                                self.move_btn = (20, 150, 200, 70)
+                                self.attack_btn = None
+                                self.wait_btn = (20, 220, 200, 70)
                             self.last_sms_to_move = self.your_turn
                             if data_ == '<wait>':
                                 pass

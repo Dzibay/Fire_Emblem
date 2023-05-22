@@ -1172,10 +1172,7 @@ class Main:
                                                             self.turn_menu = False
                                                         elif in_box(self.big_mouse_pos, self.wait_btn):
                                                             self.turn_phase = 'attack'
-                                                            self.unit_btn = (20, 150, 200, 70)
-                                                            self.move_btn = None
-                                                            self.attack_btn = (20, 220, 200, 70)
-                                                            self.wait_btn = (20, 290, 200, 70)
+
 
                                                     # attack phase
                                                     elif self.turn_phase == 'attack':
@@ -1190,18 +1187,12 @@ class Main:
                                                         elif in_box(self.big_mouse_pos, self.wait_btn):
                                                             self.your_turn = False
                                                             self.turn_menu = False
-                                                            self.move_btn = (20, 150, 200, 70)
-                                                            self.wait_btn = (20, 220, 200, 70)
                                                 else:
                                                     # move
                                                     if self.person_want_move and mouse_pos in self.can_move_to:
                                                         self.player.persons[
                                                             self.player.choice_person].want_move = mouse_pos
                                                         self.turn_phase = 'attack'
-                                                        self.unit_btn = (20, 150, 200, 70)
-                                                        self.move_btn = None
-                                                        self.attack_btn = (20, 220, 200, 70)
-                                                        self.wait_btn = (20, 290, 200, 70)
                                                         self.player.choice_person = None
 
                                                     # attack
@@ -1227,6 +1218,17 @@ class Main:
                             self.turn_menu = False
                             self.person_want_move = False
                             self.person_want_attack = False
+
+                        if self.turn_phase == 'move':
+                            self.unit_btn = None
+                            self.move_btn = (20, 150, 200, 70)
+                            self.attack_btn = None
+                            self.wait_btn = (20, 220, 200, 70)
+                        elif self.turn_phase == 'attack':
+                            self.unit_btn = (20, 150, 200, 70)
+                            self.move_btn = None
+                            self.attack_btn = (20, 220, 200, 70)
+                            self.wait_btn = (20, 290, 200, 70)
 
                         # send sms
                         sms = f'<{self.your_turn}|'

@@ -1014,7 +1014,8 @@ class Main:
                             name_ = self.names_choice_persons[self.menu_person_choice_cords.index(i)]
                             class_ = characters[name_]['class']
                             self.menu_list_of_weapon = main.list_of_weapon_can_be_used_by_person(name_, class_)
-                            self.menu_choice_persons.append(i)
+                            if i not in self.menu_choice_persons:
+                                self.menu_choice_persons.append(i)
                 elif event.type == pygame.KEYUP:
                     if event.key == pygame.K_UP:
                         if self.menu_list_of_weapon_see > 0:

@@ -1119,24 +1119,20 @@ class Main:
                             if event.type == pygame.QUIT:
                                 self.run = False
                             if event.type == pygame.KEYUP:
-                                if event.key == pygame.K_e:
-                                    self.your_turn = True
-                                    self.turn_phase = 'move'
-                                else:
-                                    if event.key == pygame.K_w:
-                                        if self.cam_pos[1] > 0:
-                                            self.cam_pos[1] -= 1
-                                    elif event.key == pygame.K_s:
-                                        if self.cam_pos[1] + 10 < 20:
-                                            self.cam_pos[1] += 1
-                                    elif event.key == pygame.K_d:
-                                        if self.cam_pos[0] + 15 < 16:
-                                            self.cam_pos[0] += 1
-                                    elif event.key == pygame.K_a:
-                                        if self.cam_pos[0] > 0:
-                                            self.cam_pos[0] -= 1
-                                    self.bg = self.big_bg.subsurface(self.cam_pos[0] * TILE,
-                                                                     self.cam_pos[1] * TILE, 1200, 800)
+                                if event.key == pygame.K_w:
+                                    if self.cam_pos[1] > 0:
+                                        self.cam_pos[1] -= 1
+                                elif event.key == pygame.K_s:
+                                    if self.cam_pos[1] + 10 < 20:
+                                        self.cam_pos[1] += 1
+                                elif event.key == pygame.K_d:
+                                    if self.cam_pos[0] + 15 < 16:
+                                        self.cam_pos[0] += 1
+                                elif event.key == pygame.K_a:
+                                    if self.cam_pos[0] > 0:
+                                        self.cam_pos[0] -= 1
+                                self.bg = self.big_bg.subsurface(self.cam_pos[0] * TILE,
+                                                                 self.cam_pos[1] * TILE, 1200, 800)
 
                             if event.type == pygame.MOUSEBUTTONUP and event.button == 1:
                                 if self.settings_unit:

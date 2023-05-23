@@ -34,6 +34,8 @@ class Person:
         self.movement = characters[self.name]['move']
         self.class_ = characters[self.name]['class']
 
+        self.bonus_characters_from_weapon(self.weapon.name, False)
+
         self.attack_speed = characters[self.name]['speed'] - (self.weapon.wt - self.con
                                                               if self.weapon.wt - self.con > 0 else 0)
         self.crt = self.weapon.crt + (self.skl // 2)
@@ -74,7 +76,24 @@ class Person:
         self.enemy_move_right_images = [
             pygame.transform.flip(i, True, False) for i in self.move_left_images]
 
+    def bonus_characters_from_weapon(self, new_weapon, characters_down=True):
+        if characters_down:
+            if self.weapon.name == 'durandal':
+                self.str -= 5
+            elif self.weapon.name == 'armads':
+                self.def_ -= 5
+            elif self.weapon.name == 'sol_katti':
+                self.def_ -= 5
+
+        if new_weapon == 'durandal':
+            self.str += 5
+        elif new_weapon == 'armads':
+            self.def_ += 5
+        elif new_weapon == 'sol_katti':
+            self.def_ += 5
+
     def change_weapon(self, weapon_to_change):
+        self.bonus_characters_from_weapon(weapon_to_change)
         self.weapon = Weapon(weapon_to_change)
         self.attack_speed = characters[self.name]['speed'] - (self.weapon.wt - self.con
                                                               if self.weapon.wt - self.con > 0 else 0)

@@ -470,6 +470,10 @@ class Fight:
         screen.blit(self.enemy_weapon_img, (620, 608))
         screen.blit(self.person_weapon_arrow[self.tick % 30 // 10 if self.tick % 60 < 30 else 0], (272, 635))
         screen.blit(self.enemy_weapon_arrow[self.tick % 30 // 10 if self.tick % 60 < 30 else 0], (672, 635))
+        text1 = self.f2.render(self.person.weapon.name, True, BLACK)
+        text2 = self.f2.render(self.enemy.weapon.name, True, BLACK)
+        screen.blit(text1, (310, 625))
+        screen.blit(text2, (710, 625))
 
     def render_fight(self, screen):
         self.tick += 1

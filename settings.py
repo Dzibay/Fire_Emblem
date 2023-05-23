@@ -1,6 +1,6 @@
 # display
-WIDTH = 1200
-HEIGHT = 800
+WIDTH = 1920
+HEIGHT = 1040
 FPS = 30
 
 # colors

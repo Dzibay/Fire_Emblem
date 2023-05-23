@@ -274,8 +274,8 @@ class Fight:
             self.fight_characters = pygame.image.load('templates/fight/distance_baze.png')
         else:
             self.fight_characters = pygame.image.load('templates/fight/baze.png')
-        self.fight_bg = pygame.transform.scale(self.fight_bg, (WIDTH, HEIGHT))
-        self.fight_characters = pygame.transform.scale(self.fight_characters, (WIDTH, HEIGHT))
+        self.fight_bg = pygame.transform.scale(self.fight_bg, (1200, 800))
+        self.fight_characters = pygame.transform.scale(self.fight_characters, (1200, 800))
         self.numbers = [pygame.transform.scale(
             pygame.image.load('templates/numbers/numbers.png').subsurface(i * 8, 0, 8, 8), (40, 40)) for i in range(10)]
         self.hp = [pygame.transform.scale(
@@ -401,6 +401,7 @@ class Fight:
 
     def render_persons_characters_for_fight(self, screen):
         # bg
+        screen.fill(BLACK)
         screen.blit(self.fight_bg, (0, 0))
         screen.blit(self.fight_characters, (0, 0))
 

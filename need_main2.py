@@ -33,13 +33,13 @@ class Main:
         self.choice_person = None
         self.fight_flag = False
 
-        self.menu = Menu()
-
         # pygame
         pygame.init()
         self.screen = pygame.display.set_mode((WIDTH, HEIGHT))
         pygame.display.set_caption('RPG')
         self.clock = pygame.time.Clock()
+
+        self.menu = Menu(self.screen)
 
         # socket
         self.server_ip = 'localhost'
@@ -50,9 +50,9 @@ class Main:
 
         # bg
         self.big_bg = pygame.image.load('templates/map/playtest_map.png')
-        self.big_bg = pygame.transform.scale(self.big_bg, (1280, 1600))
+        self.big_bg = pygame.transform.scale(self.big_bg, (TILE * 16, TILE * 20))
         self.cam_pos = [0, 0]
-        self.bg = self.big_bg.subsurface(self.cam_pos[0], self.cam_pos[1], 1200, 800)
+        self.bg = self.big_bg.subsurface(self.cam_pos[0], self.cam_pos[1], TILE * 16, 1040)
         self.your_turn_img = pygame.image.load('templates/map/your_turn.png')
         self.opponents_turn_img = pygame.image.load('templates/map/opponents_turn.png')
 
@@ -168,7 +168,7 @@ class Main:
                                             subsurface(x * 5, 0, 5, 7), (30, 30)) for x in range(26)]
 
     def write(self, s, pos):
-        self.screen.blit(self.font[0], pos)
+        pass
 
     @staticmethod
     def find_sms(s):
@@ -270,16 +270,16 @@ class Main:
                         if self.cam_pos[1] > 0:
                             self.cam_pos[1] -= 1
                     elif event.key == pygame.K_s:
-                        if self.cam_pos[1] + 10 < 20:
+                        if self.cam_pos[1] + 13 < 20:
                             self.cam_pos[1] += 1
                     elif event.key == pygame.K_d:
-                        if self.cam_pos[0] + 15 < 16:
+                        if self.cam_pos[0] + 16 < 16:
                             self.cam_pos[0] += 1
                     elif event.key == pygame.K_a:
                         if self.cam_pos[0] > 0:
                             self.cam_pos[0] -= 1
                     self.bg = self.big_bg.subsurface(self.cam_pos[0] * TILE,
-                                                     self.cam_pos[1] * TILE, 1200, 800)
+                                                     self.cam_pos[1] * TILE, TILE * 16, 1040)
 
                 if event.type == pygame.MOUSEBUTTONUP and event.button == 1:
                     if self.settings_unit:
@@ -402,7 +402,8 @@ class Main:
                                     if i in self.menu.choice_persons:
                                         self.menu.choice_persons.remove(i)
                                     else:
-                                        self.menu.choice_persons.append(i)
+                                        if len(self.menu.choice_persons) < 5:
+                                            self.menu.choice_persons.append(i)
                     elif event.type == pygame.MOUSEBUTTONUP and event.button == 3:
                         for i in self.menu.person_choice_cords:
                             if in_box(self.big_mouse_pos, i):
@@ -433,16 +434,16 @@ class Main:
                             if self.cam_pos[1] > 0:
                                 self.cam_pos[1] -= 1
                         elif event.key == pygame.K_s:
-                            if self.cam_pos[1] + 10 < 20:
+                            if self.cam_pos[1] + 13 < 20:
                                 self.cam_pos[1] += 1
                         elif event.key == pygame.K_d:
-                            if self.cam_pos[0] + 15 < 16:
+                            if self.cam_pos[0] + 16 < 16:
                                 self.cam_pos[0] += 1
                         elif event.key == pygame.K_a:
                             if self.cam_pos[0] > 0:
                                 self.cam_pos[0] -= 1
                         self.bg = self.big_bg.subsurface(self.cam_pos[0] * TILE,
-                                                         self.cam_pos[1] * TILE, 1200, 800)
+                                                         self.cam_pos[1] * TILE, TILE * 16, 1040)
                 elif event.type == pygame.MOUSEBUTTONUP and event.button == 1:
                     if self.placing_persons_window:
                         for i in range(len(self.menu.choice_persons)):
@@ -471,6 +472,7 @@ class Main:
         mouse_pos = (self.mouse_pos[0] + self.cam_pos[0],
                      self.mouse_pos[1] + self.cam_pos[1])
         # bg
+        self.screen.fill(BLACK)
         self.screen.blit(self.bg, (0, 0))
 
         # mouse
@@ -680,10 +682,6 @@ class Main:
         # indicate turn
         self.screen.blit(self.your_turn_img if self.your_turn else self.opponents_turn_img, (500, 0))
 
-        # fps
-        text_fps = self.f1.render(str(self.clock.get_fps()), True, BLACK)
-        self.screen.blit(text_fps, (1150, 0))
-
         # settings person
         if self.settings_unit:
             # info person
@@ -743,94 +741,14 @@ class Main:
                     self.screen.blit(enemy_hit, (900, 305))
                     self.screen.blit(enemy_crt, (900, 365))
 
-    def render_menu(self):
-        self.events('menu')
-
-        data_ = self.sock.recv(1024).decode()
-        if data_[:5] == '<wait' and data_[:6] != '<wait>':
-            self.fight_img.uppload_images(self.menu.all_names_persons[i] for i in self.menu.choice_persons)
-            data_ = self.find_persons_images(data_)
-            self.fight_img.uppload_images(data_)
-            self.start_game = True
-            self.sms = '<ready>'
-        elif data_[1:10].split(' ')[0] in self.menu.all_names_persons:
-            self.start_game = True
-        self.sock.send(self.sms.encode())
-
-        # draw
-        self.screen.fill(GREY)
-        if self.sms[:8] != '<my_pers':
-            # person settings
-            if self.menu.person_settings is not None:
-                text_name = self.f3.render(self.menu.all_names_persons[self.menu.person_settings], True, WHITE)
-                self.screen.blit(text_name, (500, 100))
-                pygame.draw.rect(self.screen, RED, self.menu.settings_exit_btn)
-                # person list weapon
-                l_ = self.menu.choice_persons_weapon[self.menu.all_names_persons[self.menu.person_settings]]
-                for i in range(len(l_)):
-                    pygame.draw.rect(self.screen, WHITE, (300, 200 + i * 75, 200, 72))
-                    self.screen.blit(weapon_img[l_[i]], (300, 195 + i * 75))
-                # list all weapon
-                for weapon_ in self.menu.list_of_weapon[self.menu.list_of_weapon_see:self.menu.list_of_weapon_see + 5]:
-                    i = self.menu.list_of_weapon[
-                        self.menu.list_of_weapon_see:self.menu.list_of_weapon_see + 5].index(weapon_)
-                    c_ = BLACK if weapon_ in l_ else WHITE
-                    pygame.draw.rect(self.screen, c_, (600, 200 + i * 75, 300, 72))
-                    name_weapon = self.f1.render(weapon_, True, BLACK if c_ == WHITE else WHITE)
-                    self.screen.blit(weapon_img[weapon_], (600, 195 + i * 75))
-                    self.screen.blit(name_weapon, (700, 220 + i * 75))
-            else:
-                for i in range(len(self.menu.person_choice_cords)):
-                    c_ = BLUE if self.menu.person_choice_cords[i] in self.menu.choice_persons else WHITE
-                    pygame.draw.rect(self.screen, c_, self.menu.person_choice_cords[i])
-                    try:
-                        self.screen.blit(self.menu.person_img[i],
-                                         (self.menu.person_choice_cords[i][0] - 50,
-                                          self.menu.person_choice_cords[i][1] - 50))
-                    except:
-                        pass
-                pygame.draw.rect(self.screen, GREEN, self.menu.start_btn)
-        else:
-            self.menu.tick += 1
-            i_ = self.menu.tick % 160 // 20
-            if i_ == 1:
-                cords = [(WIDTH // 2 - 50, HEIGHT // 2 - 50, 50, 50)]
-            elif i_ == 2:
-                cords = [(WIDTH // 2 - 50, HEIGHT // 2 - 50, 50, 50),
-                         (WIDTH // 2, HEIGHT // 2, 50, 50)]
-            elif i_ == 3:
-                cords = [(WIDTH // 2 - 50, HEIGHT // 2 - 50, 50, 50),
-                         (WIDTH // 2, HEIGHT // 2 - 50, 50, 50),
-                         (WIDTH // 2, HEIGHT // 2, 50, 50)]
-            elif i_ == 4:
-                cords = [(WIDTH // 2 - 50, HEIGHT // 2 - 50, 50, 50),
-                         (WIDTH // 2, HEIGHT // 2 - 50, 50, 50),
-                         (WIDTH // 2, HEIGHT // 2, 50, 50),
-                         (WIDTH // 2 - 50, HEIGHT // 2, 50, 50)]
-            elif i_ == 5:
-                cords = [(WIDTH // 2, HEIGHT // 2 - 50, 50, 50),
-                         (WIDTH // 2, HEIGHT // 2, 50, 50),
-                         (WIDTH // 2 - 50, HEIGHT // 2, 50, 50)]
-            elif i_ == 6:
-                cords = [(WIDTH // 2, HEIGHT // 2 - 50, 50, 50),
-                         (WIDTH // 2 - 50, HEIGHT // 2, 50, 50)]
-            elif i_ == 7:
-                cords = [(WIDTH // 2 - 50, HEIGHT // 2, 50, 50)]
-            else:
-                cords = []
-
-            for i in cords:
-                pygame.draw.rect(self.screen, WHITE, i)
-            text = self.f1.render('Waiting the second player...', True, WHITE)
-            self.screen.blit(text, (WIDTH // 2 - 140, HEIGHT // 2 + 70))
-        pygame.display.update()
-
     def main_loop(self):
         while self.run:
             self.tick += 1
             self.clock.tick(FPS)
             self.big_mouse_pos = pygame.mouse.get_pos()
             self.mouse_pos = mapping(pygame.mouse.get_pos())
+
+            pygame.display.set_caption(str(self.clock.get_fps()))
             if self.start_game:
                 if self.fight_flag:
                     # fight
@@ -992,9 +910,23 @@ class Main:
                         pass
                     else:
                         self.render()
-                pygame.display.update()
             else:
-                self.render_menu()
+                self.events('menu')
+
+                data_ = self.sock.recv(1024).decode()
+                if data_[:5] == '<wait' and data_[:6] != '<wait>':
+                    self.fight_img.uppload_images(self.menu.all_names_persons[i] for i in self.menu.choice_persons)
+                    data_ = self.find_persons_images(data_)
+                    self.fight_img.uppload_images(data_)
+                    self.start_game = True
+                    self.sms = '<ready>'
+                elif data_[1:10].split(' ')[0] in self.menu.all_names_persons:
+                    self.start_game = True
+                self.sock.send(self.sms.encode())
+
+                self.menu.render(self.sms[:8] != '<my_pers')
+
+            pygame.display.update()
 
 
 main = Main()

@@ -396,14 +396,32 @@ class Main:
                                 self.sms += self.menu.all_names_persons[i] + ','
                             self.sms += '>'
                         else:
+                            # menu phase
+                            if in_box(self.big_mouse_pos, self.menu.edit_team_btn):
+                                if self.menu.phase == '':
+                                    self.menu.phase = 'edit_team'
+                                else:
+                                    self.menu.phase = ''
+                            if in_box(self.big_mouse_pos, self.menu.ally_growth_btn):
+                                if self.menu.phase == '':
+                                    self.menu.phase = 'ally_growth'
+                                else:
+                                    self.menu.phase = ''
+                            if in_box(self.big_mouse_pos, self.menu.equipment_btn):
+                                if self.menu.phase == '':
+                                    self.menu.phase = 'equipment'
+                                else:
+                                    self.menu.phase = ''
+
                             # add/remove person
-                            for i in self.menu.person_choice_cords:
-                                if in_box(self.big_mouse_pos, i):
-                                    if i in self.menu.choice_persons:
-                                        self.menu.choice_persons.remove(i)
-                                    else:
-                                        if len(self.menu.choice_persons) < 5:
-                                            self.menu.choice_persons.append(i)
+                            if self.menu.phase == 'edit_team':
+                                for i in self.menu.person_choice_cords:
+                                    if in_box(self.big_mouse_pos, i):
+                                        if i in self.menu.choice_persons:
+                                            self.menu.choice_persons.remove(i)
+                                        else:
+                                            if len(self.menu.choice_persons) < 5:
+                                                self.menu.choice_persons.append(i)
                     elif event.type == pygame.MOUSEBUTTONUP and event.button == 3:
                         for i in self.menu.person_choice_cords:
                             if in_box(self.big_mouse_pos, i):
@@ -919,12 +937,14 @@ class Main:
                     data_ = self.find_persons_images(data_)
                     self.fight_img.uppload_images(data_)
                     self.start_game = True
+                    print('start')
                     self.sms = '<ready>'
                 elif data_[1:10].split(' ')[0] in self.menu.all_names_persons:
                     self.start_game = True
                 self.sock.send(self.sms.encode())
 
-                self.menu.render(self.sms[:8] != '<my_pers')
+                if not self.start_game:
+                    self.menu.render(self.sms[:8] != '<my_pers')
 
             pygame.display.update()
 

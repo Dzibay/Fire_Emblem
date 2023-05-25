@@ -268,8 +268,8 @@ class Fight:
                 self.enemy_magic_cords = (self.enemy_magic_cords[0] - 200, self.enemy_magic_cords[1])
                 self.enemy_magic_cords_sms = (self.enemy_magic_cords_sms[0] + 200, self.enemy_magic_cords_sms[1])
 
-        # baze
-        self.fight_bg = pygame.image.load('templates/fight/bg.png').subsurface(1, 1, 240, 160)
+        # base
+        self.fight_bg = pygame.image.load('templates/fight/bg.png').subsurface(2, 2, 240, 160)
         if self.distance_fight:
             self.fight_characters = pygame.image.load('templates/fight/distance_baze.png')
         else:
@@ -331,26 +331,20 @@ class Fight:
         self.enemy_critical_attack_time = len(self.enemy_critical_attack_img) * 2
 
         # time
-        self.enemy_dmg_tick = 50 + self.enemy_dmg_time
-        if not self.moves[0]:
-            self.person_dmg_tick = 50 + self.person_melee_attack_time + 100 + self.person_dmg_time
-            self.end = 50 + self.person_melee_attack_time + \
-                       100 + self.enemy_melee_attack_time + 50
-            if self.moves[2]:
-                self.end = 100 + self.person_melee_attack_time + \
-                           100 + self.enemy_critical_attack_time + 100
-        else:
-            self.person_dmg_tick = 50 + self.person_critical_attack_time + 100 + self.person_dmg_time
-            self.end = 50 + self.person_critical_attack_time + \
-                       100 + self.enemy_melee_attack_time + 50
-            if self.moves[2]:
-                self.end = 50 + self.person_critical_attack_time + \
-                           100 + self.enemy_critical_attack_time + 50
-
         if self.moves[0]:
             self.start_enemy_attack = 50 + self.person_critical_attack_time + 100
         else:
             self.start_enemy_attack = 50 + self.person_melee_attack_time + 100
+
+        self.enemy_dmg_tick = 50 + self.enemy_dmg_time
+
+        self.person_dmg_tick = self.start_enemy_attack + self.person_dmg_time
+        if self.person.weapon.class_ == 'magic':
+            self.end = self.start_enemy_attack + self.enemy_magic_effect_time + 50
+        else:
+            self.end = self.start_enemy_attack + self.enemy_melee_attack_time + 50
+        if self.moves[2]:
+            self.end = self.start_enemy_attack + self.enemy_critical_attack_time + 50
 
     def mellee_person_attack(self):
         self.attack_tick += 1
@@ -399,82 +393,86 @@ class Fight:
 
         return img
 
-    def render_persons_characters_for_fight(self, screen):
+    def render_base_for_fight(self, screen):
+        x_, y_ = 360, 240
+
         # bg
         screen.fill(BLACK)
-        screen.blit(self.fight_bg, (0, 0))
-        screen.blit(self.fight_characters, (0, 0))
+        screen.blit(self.fight_bg, (x_, y_))
+        screen.blit(self.fight_characters, (x_, y_))
 
         # characters person
         text_name = self.f3.render(self.person.name, True, WHITE)
-        screen.blit(text_name, (50, 50))
+        screen.blit(text_name, (50 + x_, 50 + y_))
 
         hit = str(self.person_hit) if self.person_hit > 0 else f'0{self.person_hit}'
         dmg = str(self.person_dmg) if self.person_dmg > 9 else f'0{self.person_dmg}'
         crt = str(self.person.crt) if self.person.crt > 9 else f'0{self.person.crt}'
         for i in range(len(hit)):
             if len(hit) < 3:
-                screen.blit(self.numbers[int(hit[i])], (120 + i * 40, 560))
+                screen.blit(self.numbers[int(hit[i])], (120 + i * 40 + x_, 560 + y_))
             else:
-                screen.blit(self.numbers[int(hit[i])], (80 + i * 40, 560))
+                screen.blit(self.numbers[int(hit[i])], (80 + i * 40 + x_, 560 + y_))
         for i in range(len(dmg)):
-            screen.blit(self.numbers[int(dmg[i])], (120 + i * 40, 600))
+            screen.blit(self.numbers[int(dmg[i])], (120 + i * 40 + x_, 600 + y_))
         for i in range(len(crt)):
-            screen.blit(self.numbers[int(crt[i])], (120 + i * 40, 640))
+            screen.blit(self.numbers[int(crt[i])], (120 + i * 40 + x_, 640 + y_))
 
         # characters enemy
         text_name = self.f3.render(self.enemy.name, True, WHITE)
-        screen.blit(text_name, (1000, 50))
+        screen.blit(text_name, (1000 + x_, 50 + y_))
 
         hit = str(self.enemy_hit) if self.enemy_hit > 0 else f'0{self.enemy_hit}'
         dmg = str(self.enemy_dmg) if self.enemy_dmg > 9 else f'0{self.enemy_dmg}'
         crt = str(self.enemy.crt) if self.enemy.crt > 9 else f'0{self.enemy.crt}'
         for i in range(len(hit)):
             if len(hit) < 3:
-                screen.blit(self.numbers[int(hit[i])], (1115 + i * 40, 560))
+                screen.blit(self.numbers[int(hit[i])], (1115 + i * 40 + x_, 560 + y_))
             else:
-                screen.blit(self.numbers[int(hit[i])], (1075 + i * 40, 560))
+                screen.blit(self.numbers[int(hit[i])], (1075 + i * 40 + x_, 560 + y_))
         for i in range(len(dmg)):
-            screen.blit(self.numbers[int(dmg[i])], (1115 + i * 40, 600))
+            screen.blit(self.numbers[int(dmg[i])], (1115 + i * 40 + x_, 600 + y_))
         for i in range(len(crt)):
-            screen.blit(self.numbers[int(crt[i])], (1115 + i * 40, 640))
+            screen.blit(self.numbers[int(crt[i])], (1115 + i * 40 + x_, 640 + y_))
 
         # hp
         text_hp = str(self.person.hp) if self.person.hp > 0 else '0'
         for i in range(len(text_hp)):
-            screen.blit(self.numbers[int(text_hp[i])], (20 + i * 40, 725))
+            screen.blit(self.numbers[int(text_hp[i])], (20 + i * 40 + x_, 725 + y_))
         for i in range(0, 2 if self.person.max_hp > 40 else 1):
             if self.person.max_hp > 40:
                 for j in range(0, self.person.max_hp):
                     screen.blit(self.hp[0 if j + i * 40 < self.person.hp else 1],
-                                (110 + j * 10, 705 if i == 0 else 745))
+                                (110 + j * 10 + x_, 705 + y_ if i == 0 else 745 + y_))
             else:
                 for j in range(0, self.person.max_hp):
                     screen.blit(self.hp[0 if j + i * 40 < self.person.hp else 1],
-                                (110 + j * 10, 726))
+                                (110 + j * 10 + x_, 726 + y_))
 
         text_hp = str(self.enemy.hp) if self.enemy.hp > 0 else '0'
         for i in range(len(text_hp)):
-            screen.blit(self.numbers[int(text_hp[i])], (630 + i * 40, 725))
+            screen.blit(self.numbers[int(text_hp[i])], (630 + i * 40 + x_, 725 + y_))
         for i in range(0, 2 if self.enemy.max_hp > 40 else 1):
             if self.enemy.max_hp > 40:
                 for j in range(0, self.enemy.max_hp):
                     screen.blit(self.hp[0 if j + i * 40 < self.enemy.hp else 1],
-                                (720 + j * 10, 705 if i == 0 else 745))
+                                (720 + j * 10 + x_, 705 + y_ if i == 0 else 745 + y_))
             else:
                 for j in range(0, self.enemy.max_hp):
                     screen.blit(self.hp[0 if j + i * 40 < self.enemy.hp else 1],
-                                (720 + j * 10, 726))
+                                (720 + j * 10 + x_, 726 + y_))
 
         # weapon
-        screen.blit(self.person_weapon_img, (220, 608))
-        screen.blit(self.enemy_weapon_img, (620, 608))
-        screen.blit(self.person_weapon_arrow[self.tick % 30 // 10 if self.tick % 60 < 30 else 0], (272, 635))
-        screen.blit(self.enemy_weapon_arrow[self.tick % 30 // 10 if self.tick % 60 < 30 else 0], (672, 635))
+        screen.blit(self.person_weapon_img, (220 + x_, 608 + y_))
+        screen.blit(self.enemy_weapon_img, (620 + x_, 608 + y_))
+        screen.blit(self.person_weapon_arrow[self.tick % 30 // 10 if self.tick % 60 < 30 else 0], (272 + x_, 635 + y_))
+        screen.blit(self.enemy_weapon_arrow[self.tick % 30 // 10 if self.tick % 60 < 30 else 0], (672 + x_, 635 + y_))
         text1 = self.f2.render(self.person.weapon.name, True, BLACK)
         text2 = self.f2.render(self.enemy.weapon.name, True, BLACK)
-        screen.blit(text1, (310, 625))
-        screen.blit(text2, (710, 625))
+        screen.blit(text1, (310 + x_, 625 + y_))
+        screen.blit(text2, (710 + x_, 625 + y_))
+
+        return x_, y_
 
     def render_fight(self, screen):
         self.tick += 1
@@ -575,20 +573,20 @@ class Fight:
         else:
             cords_ = self.enemy_magic_cords_sms
 
-        # fight baze
-        self.render_persons_characters_for_fight(screen)
+        # fight base
+        x_, y_ = self.render_base_for_fight(screen)
 
         # persons
-        screen.blit(img, (self.person_x, self.person_y))
-        screen.blit(img_, (self.enemy_x, self.enemy_y))
+        screen.blit(img, (self.person_x + x_, self.person_y + y_))
+        screen.blit(img_, (self.enemy_x + x_, self.enemy_y + y_))
         self.person_img_id = self.all_person_img.index(img)
         self.enemy_img_id = self.all_enemy_img.index(img_)
 
         # magic
         if magic_img is not None:
-            screen.blit(magic_img,
-                        self.person_magic_cords if self.tick < self.start_enemy_attack
-                        else self.enemy_magic_cords)
+            screen.blit(magic_img, (self.person_magic_cords[0] + x_, self.person_magic_cords[1] + y_)
+            if self.tick < self.start_enemy_attack
+            else (self.enemy_magic_cords[0] + x_, self.enemy_magic_cords[1] + y_))
             self.magic_img_id = self.all_effects.index(magic_img)
         else:
             self.magic_img_id = -1
@@ -644,16 +642,19 @@ class Fight:
                 self.need_moves[0]]['x']
             self.enemy_x = sizes[self.enemy.name][self.enemy.weapon.class_][
                 self.need_moves[1]]['x1']
+            if self.distance_fight:
+                self.person_x -= 200
+                self.enemy_x += 200
 
-        # fight baze
-        self.render_persons_characters_for_fight(screen)
+        # fight base
+        x_, y_ = self.render_base_for_fight(screen)
 
         # person
-        screen.blit(self.all_person_img[self.person_img_id], (self.person_x, self.person_y))
+        screen.blit(self.all_person_img[self.person_img_id], (self.person_x + x_, self.person_y + y_))
         # enemy
-        screen.blit(self.all_enemy_img[self.enemy_img_id], (self.enemy_x, self.enemy_y))
+        screen.blit(self.all_enemy_img[self.enemy_img_id], (self.enemy_x + x_, self.enemy_y + y_))
 
         # magic
-        id_, x_, y_ = magic_data[0], magic_data[1], magic_data[2]
+        id_, x__, y__ = magic_data[0], magic_data[1], magic_data[2]
         if id_ >= 0:
-            screen.blit(self.all_effects[id_], (x_, y_))
+            screen.blit(self.all_effects[id_], (x__ + x_, y__ + y_))

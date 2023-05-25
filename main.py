@@ -942,7 +942,8 @@ class Main:
                     self.start_game = True
                 self.sock.send(self.sms.encode())
 
-                self.menu.render(self.sms[:8] != '<my_pers')
+                if not self.start_game:
+                    self.menu.render(self.sms[:8] != '<my_pers')
 
             pygame.display.update()
 

@@ -82,7 +82,7 @@ class Menu:
                                                                   self.person_choice_cords[i][1] - 50))
                         except:
                             pass
-                pygame.draw.rect(self.screen, GREEN, self.start_btn)
+                # pygame.draw.rect(self.screen, GREEN, self.start_btn)
 
                 for i in range(len(self.choice_persons)):
                     self.screen.blit(self.person_img[self.person_choice_cords.index(self.choice_persons[i])],

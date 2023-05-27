@@ -1,7 +1,7 @@
 from settings import *
 import pygame
 from random import randint
-from data.fight_sprites_characters import sizes, magic
+from data.fight_sprites_characters import magic, sizes
 from data.weapon import weapon, weapon_img, weapon_arrow, weapon_effective, weapon_have_triangle_bonus
 
 magic_names = ['sorcerer', 'sagem']
@@ -97,6 +97,23 @@ class Fight_images:
         self.magic_effects = {}
         self.upload_images = False
 
+    def read(self, file, script=False):
+        if script:
+            res = [i[:-1].split(';') for i in file if i[0] == 'f']
+            res = [[int(i[2][6:]), int(i[1])] for i in res]
+            return res
+        else:
+            res = [[i[:-1].split(';')[0]] + i[:-1].split(';')[1].split(',') +
+                   i[:-1].split(';')[2].split(',') + i[:-1].split(';')[3].split(',')
+                   for i in file]
+            result = []
+            for i in res:
+                if i[0][10:15] == 'under':
+                    result[len(result) - 1].append([int(j) for j in i[1:]])
+                else:
+                    result.append([[int(j) for j in i[1:]]])
+            return result
+
     def uppload_images(self, names):
         for name in names:
             if name not in self.images:
@@ -120,54 +137,28 @@ class Fight_images:
                                                                 for i in self.magic_effects[magic_]['enemy']]
 
                 # persons
-                self.images[name] = {weapon: {'person': {'norm': [], 'crt': []}, 'enemy': {'norm': [], 'crt': []}}
-                                     for weapon in ['sword', 'axe', 'lance', 'bow', 'magic']}
-                for weapon in ['sword', 'axe', 'distance_axe', 'lance', 'distance_lance', 'bow', 'magic']:
-                    self.images[name][weapon] = {'person': {'norm': [], 'crt': []}, 'enemy': {'norm': [], 'crt': []}}
+                w_ = ['sword', 'axe', 'distance_axe', 'lance', 'distance_lance', 'bow', 'magic']
+                self.images[name] = {i: [] for i in w_}
+                for weapon_ in w_:
+                    self.images[name][weapon_] = {'person': [], 'enemy': []}
                     # enemy
 
                     try:
-                        enemy_melee_attack_img = [pygame.image.load(
-                            f'templates/persons/{name}/{weapon}/normal_attack.png').
-                                                  subsurface(sizes[name][weapon][0]['width'] * x,
-                                                             sizes[name][weapon][0]['height'] * y,
-                                                             sizes[name][weapon][0]['width'],
-                                                             sizes[name][weapon][0]['height'])
-                                                  for y in range(0, sizes[name][weapon][0]['h'])
-                                                  for x in range(0, sizes[name][weapon][0]['w'])][
-                                                 :sizes[name][weapon][0]['frames']]
-                        for i in range(len(enemy_melee_attack_img)):
-                            enemy_melee_attack_img[i] = pygame.transform.scale(enemy_melee_attack_img[i],
-                                                                               sizes[name][weapon][0]['size'])
-                    except:
-                        enemy_melee_attack_img = []
+                        index = self.read(open(f'templates/persons/{name}/{weapon_}/Index.txt').readlines())
 
-                    try:
-                        enemy_critical_attack_img = [pygame.image.load(
-                            f'templates/persons/{name}/{weapon}/critical_attack.png').
-                                                     subsurface(sizes[name][weapon][1]['width'] * x,
-                                                                sizes[name][weapon][1]['height'] * y,
-                                                                sizes[name][weapon][1]['width'],
-                                                                sizes[name][weapon][1]['height'])
-                                                     for y in range(0, sizes[name][weapon][1]['h'])
-                                                     for x in range(0, sizes[name][weapon][1]['w'])][
-                                                    :sizes[name][weapon][1]['frames']]
-                        for i in range(len(enemy_critical_attack_img)):
-                            enemy_critical_attack_img[i] = pygame.transform.scale(enemy_critical_attack_img[i],
-                                                                                  sizes[name][weapon][1]['size'])
+                        enemy_attack_img = [
+                            [pygame.transform.scale(pygame.image.load(f'templates/persons/roy/sword/attack.png').
+                                                    subsurface((i[0], i[1], i[2], i[3])), (i[2] * 5, i[3] * 5)) for i in
+                             j] for j in index]
                     except:
-                        enemy_critical_attack_img = []
+                        enemy_attack_img = []
 
                     # person
-                    person_melee_attack_img = [pygame.transform.flip(img, True, False) for img in
-                                               enemy_melee_attack_img]
-                    person_critical_attack_img = [pygame.transform.flip(img, True, False) for img in
-                                                  enemy_critical_attack_img]
+                    person_attack_img = [[pygame.transform.flip(img, True, False) for img in array]
+                                         for array in enemy_attack_img]
 
-                    self.images[name][weapon]['person']['norm'] = person_melee_attack_img
-                    self.images[name][weapon]['person']['crt'] = person_critical_attack_img
-                    self.images[name][weapon]['enemy']['norm'] = enemy_melee_attack_img
-                    self.images[name][weapon]['enemy']['crt'] = enemy_critical_attack_img
+                    self.images[name][weapon_]['person'] = person_attack_img
+                    self.images[name][weapon_]['enemy'] = enemy_attack_img
 
 
 class Fight:
@@ -187,11 +178,11 @@ class Fight:
         self.enemy_dmg = calculate_damage(enemy, person)
         self.person_hit = person.hit + (15 if triangle(person.weapon.name, enemy.weapon.name) else -15) - enemy.avoid
         self.enemy_hit = enemy.hit + (15 if triangle(enemy.weapon.name, person.weapon.name) else -15) - person.avoid
-        self.moves = [True if randint(0, 100) <= person.crt else False,
-                      True if randint(0, 100) <= (100 - self.person_hit) else False,
-                      True if randint(0, 100) <= enemy.crt else False,
-                      True if randint(0, 100) <= (100 - self.enemy_hit) else False]
-        # self.moves = [False, True, False, True]
+        # self.moves = [True if randint(0, 100) <= person.crt else False,
+        #               True if randint(0, 100) <= (100 - self.person_hit) else False,
+        #               True if randint(0, 100) <= enemy.crt else False,
+        #               True if randint(0, 100) <= (100 - self.enemy_hit) else False]
+        self.moves = [False, False, False, False]
 
         self.person_count_attack = 1
         self.enemy_count_attack = 1
@@ -215,6 +206,7 @@ class Fight:
 
         self.need_moves = [0, 0]
         self.attack_tick = 0
+        self.cadr = 0
         self.dodge_tick = 0
         self.miss_tick = 0
         self.magic_tick = 0
@@ -294,11 +286,10 @@ class Fight:
                 elif person_weapon_class == 'lance' and 'distance_lance' in self.fight_img.images[person.name]:
                     person_weapon_class = 'distance_lance'
 
-        self.person_melee_attack_img = self.fight_img.images[person.name][person_weapon_class]['person']['norm']
-        self.person_critical_attack_img = self.fight_img.images[person.name][person_weapon_class]['person']['crt']
-        self.all_person_img = self.person_melee_attack_img + self.person_critical_attack_img
-        self.person_x, self.person_y = sizes[person.name][person_weapon_class][index_1]['x'], \
-                                       sizes[person.name][person_weapon_class][index_1]['y']
+        self.index = self.fight_img.read(open('templates/persons/roy/sword/Index.txt'))
+        self.script = self.fight_img.read(open('templates/persons/roy/sword/Script.txt'), True)
+        self.person_attack_img = self.fight_img.images[person.name][person_weapon_class]['person']
+        self.person_x, self.person_y = self.index[0][0][4] + 100, self.index[0][0][5] + 200
 
         enemy_weapon_class = enemy.weapon.class_
         if self.distance_fight:
@@ -308,33 +299,26 @@ class Fight:
                 elif enemy_weapon_class == 'lance' and 'distance_lance' in self.fight_img.images[enemy.name]:
                     enemy_weapon_class = 'distance_lance'
 
-        self.enemy_melee_attack_img = self.fight_img.images[enemy.name][enemy_weapon_class]['enemy']['norm']
-        self.enemy_critical_attack_img = self.fight_img.images[enemy.name][enemy_weapon_class]['enemy']['crt']
-        self.all_enemy_img = self.enemy_melee_attack_img + self.enemy_critical_attack_img
-        self.enemy_x, self.enemy_y = sizes[enemy.name][enemy_weapon_class][index_2]['x1'], \
-                                     sizes[enemy.name][enemy_weapon_class][index_2]['y']
+        self.enemy_attack_img = self.fight_img.images[enemy.name][enemy_weapon_class]['enemy']
+        self.enemy_x, self.enemy_y = self.index[0][0][4] + 100 + 300, self.index[0][0][5] + 200
 
-        self.person_stay_img = self.person_critical_attack_img[0] if self.moves[0] else self.person_melee_attack_img[0]
-        self.enemy_stay_img = self.enemy_critical_attack_img[0] if self.moves[2] else self.enemy_melee_attack_img[0]
+        self.person_stay_img = self.person_attack_img[0]
+        self.enemy_stay_img = self.enemy_attack_img[0]
 
         if self.distance_fight:
             self.person_x -= 200
             self.enemy_x += 200
 
-        self.person_dmg_time = sizes[enemy.name][enemy_weapon_class][int(self.moves[2])]['dmg_time']
-        self.enemy_dmg_time = sizes[person.name][person_weapon_class][int(self.moves[0])]['dmg_time']
+        self.person_dmg_time = 80
+        self.enemy_dmg_time = 80
 
         # attack time
-        self.person_melee_attack_time = len(self.person_melee_attack_img) * 2
-        self.person_critical_attack_time = len(self.person_critical_attack_img) * 2
-        self.enemy_melee_attack_time = len(self.enemy_melee_attack_img) * 2
-        self.enemy_critical_attack_time = len(self.enemy_critical_attack_img) * 2
+        self.person_attack_time = sum([i[1] for i in self.script])
+        self.enemy_attack_time = self.person_attack_time
+        print(self.person_attack_time, self.enemy_attack_time)
 
         # time
-        if self.moves[0]:
-            self.start_enemy_attack = 50 + self.person_critical_attack_time + 100
-        else:
-            self.start_enemy_attack = 50 + self.person_melee_attack_time + 100
+        self.start_enemy_attack = 50 + self.person_attack_time + 100
 
         self.enemy_dmg_tick = 50 + self.enemy_dmg_time
 
@@ -342,27 +326,26 @@ class Fight:
         if self.person.weapon.class_ == 'magic':
             self.end = self.start_enemy_attack + self.enemy_magic_effect_time + 50
         else:
-            self.end = self.start_enemy_attack + self.enemy_melee_attack_time + 50
+            self.end = self.start_enemy_attack + self.enemy_attack_time + 50
         if self.moves[2]:
-            self.end = self.start_enemy_attack + self.enemy_critical_attack_time + 50
+            self.end = self.start_enemy_attack + self.enemy_attack_time + 50
 
-    def mellee_person_attack(self):
-        self.attack_tick += 1
-        img = self.person_melee_attack_img[self.attack_tick % self.person_melee_attack_time // 2]
+        self.cadr = 0
+        self.cadr_tick = 0
+        self.script_navigator = 0
 
-        if self.attack_tick == self.person_melee_attack_time:
-            self.attack_tick = 0
-
-        return img
-
-    def critical_person_attack(self):
-        self.attack_tick += 1
-        img = self.person_critical_attack_img[self.attack_tick % self.person_critical_attack_time // 2]
-
-        if self.attack_tick == self.person_critical_attack_time:
-            self.attack_tick = 0
-
-        return img
+    def attack(self, person=True):
+        self.cadr_tick += 1
+        if self.cadr_tick == self.script[self.script_navigator][1]:
+            self.cadr = self.script[self.script_navigator][0]
+            self.cadr_tick = 0
+            self.script_navigator += 1
+            if self.script_navigator == len(self.script):
+                self.script_navigator = 0
+                self.cadr = 0
+                self.cadr_tick = 0
+                return self.person_attack_img[0] if person else self.enemy_attack_img[0]
+        return self.person_attack_img[self.cadr] if person else self.enemy_attack_img[self.cadr]
 
     def miss(self):
         self.miss_tick += 1
@@ -373,24 +356,6 @@ class Fight:
 
         if self.miss_tick > 40:
             self.miss_tick = 0
-        return img
-
-    def mellee_enemy_attack(self):
-        self.attack_tick += 1
-        img = self.enemy_melee_attack_img[self.attack_tick % self.enemy_melee_attack_time // 2]
-
-        if self.attack_tick == self.enemy_melee_attack_time:
-            self.attack_tick = 0
-
-        return img
-
-    def critical_enemy_attack(self):
-        self.attack_tick += 1
-        img = self.enemy_critical_attack_img[self.attack_tick % self.enemy_critical_attack_time // 2]
-
-        if self.attack_tick == self.enemy_critical_attack_time:
-            self.attack_tick = 0
-
         return img
 
     def render_base_for_fight(self, screen):
@@ -481,38 +446,16 @@ class Fight:
             img = self.person_stay_img
             img_ = self.enemy_stay_img
         else:
-            if self.moves[0]:
-                # person
-                img = self.person_stay_img
-                if self.tick <= 50 + self.person_critical_attack_time:
-                    img = self.critical_person_attack()
+            # person
+            img = self.person_stay_img
+            if self.tick <= 50 + self.person_attack_time:
+                img = self.attack()
 
-                # enemy
-                img_ = self.enemy_stay_img
-                if self.moves[2]:
-                    if (self.tick >= self.start_enemy_attack) and \
-                            (self.tick <= self.start_enemy_attack + self.enemy_critical_attack_time):
-                        img_ = self.critical_enemy_attack()
-                else:
-                    if (self.tick >= self.start_enemy_attack) and \
-                            (self.tick <= self.start_enemy_attack + self.enemy_melee_attack_time):
-                        img_ = self.mellee_enemy_attack()
-            else:
-                # person
-                img = self.person_stay_img
-                if self.tick <= 50 + self.person_melee_attack_time:
-                    img = self.mellee_person_attack()
-
-                # enemy
-                img_ = self.enemy_stay_img
-                if self.moves[2]:
-                    if (self.tick >= self.start_enemy_attack) and \
-                            (self.tick <= self.start_enemy_attack + self.enemy_critical_attack_time):
-                        img_ = self.critical_enemy_attack()
-                else:
-                    if (self.tick >= self.start_enemy_attack) and \
-                            (self.tick <= self.start_enemy_attack + self.enemy_melee_attack_time):
-                        img_ = self.mellee_enemy_attack()
+            # enemy
+            img_ = self.enemy_stay_img
+            if (self.tick >= self.start_enemy_attack) and \
+                    (self.tick <= self.start_enemy_attack + self.enemy_attack_time):
+                img_ = self.attack(False)
 
             # damage
             if not self.moves[3]:
@@ -574,13 +517,27 @@ class Fight:
             cords_ = self.enemy_magic_cords_sms
 
         # fight base
-        x_, y_ = self.render_base_for_fight(screen)
+        # x_, y_ = self.render_base_for_fight(screen)
+        x_, y_ = 200, 200
 
         # persons
-        screen.blit(img, (self.person_x + x_, self.person_y + y_))
-        screen.blit(img_, (self.enemy_x + x_, self.enemy_y + y_))
-        self.person_img_id = self.all_person_img.index(img)
-        self.enemy_img_id = self.all_enemy_img.index(img_)
+        screen.fill(BLACK)
+        for i in range(len(img)):
+            if self.tick < self.start_enemy_attack:
+                c_ = (1450 - self.index[self.cadr][i][2] * 5 - self.index[self.cadr][i][4] * 5,
+                      self.index[self.cadr][i][5] * 5)
+            else:
+                c_ = 1450 - self.index[0][i][2] * 5 - self.index[0][i][4] * 5, self.index[0][i][5] * 5
+            screen.blit(img[i], c_)
+        for i in range(len(img_)):
+            if self.tick > self.start_enemy_attack:
+                c_ = (self.index[self.cadr][i][4] * 5 + 300, self.index[self.cadr][i][5] * 5)
+            else:
+                c_ = self.index[0][i][4] * 5 + 300, self.index[0][i][5] * 5
+            screen.blit(img_[i], c_)
+        # self.person_img_id = self.all_person_img.index(img)
+        # self.enemy_img_id = self.all_enemy_img.index(img_)
+        print('---------')
 
         # magic
         if magic_img is not None:
@@ -638,10 +595,8 @@ class Fight:
         self.tick += 1
 
         if self.tick <= 2:
-            self.person_x = sizes[self.person.name][self.person.weapon.class_][
-                self.need_moves[0]]['x']
-            self.enemy_x = sizes[self.enemy.name][self.enemy.weapon.class_][
-                self.need_moves[1]]['x1']
+            self.person_x = self.index[0][4]
+            self.enemy_x = self.index[0][4] + 300
             if self.distance_fight:
                 self.person_x -= 200
                 self.enemy_x += 200
@@ -650,11 +605,18 @@ class Fight:
         x_, y_ = self.render_base_for_fight(screen)
 
         # person
-        screen.blit(self.all_person_img[self.person_img_id], (self.person_x + x_, self.person_y + y_))
+        screen.blit(self.person_attack_img[self.person_img_id], (self.person_x + x_, self.person_y + y_))
         # enemy
-        screen.blit(self.all_enemy_img[self.enemy_img_id], (self.enemy_x + x_, self.enemy_y + y_))
+        screen.blit(self.enemy_attack_img[self.enemy_img_id], (self.enemy_x + x_, self.enemy_y + y_))
 
         # magic
         id_, x__, y__ = magic_data[0], magic_data[1], magic_data[2]
         if id_ >= 0:
             screen.blit(self.all_effects[id_], (x__ + x_, y__ + y_))
+
+
+i_ = open(f'templates/persons/roy/sword/Index.txt').readlines()
+s_ = open(f'templates/persons/roy/sword/Script.txt').readlines()
+fight_img = Fight_images()
+print(fight_img.read(i_))
+print(fight_img.read(s_, True))

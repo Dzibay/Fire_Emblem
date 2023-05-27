@@ -1,6 +1,8 @@
 from collections import deque
 from functools import lru_cache
 
+import pygame
+
 
 def bfs(graph, start, goal):
     queque = deque([start])
@@ -58,3 +60,70 @@ def generate_graph(file):
 def get_cords(graph, start, goal):
     cords = bfs(graph, start, goal)
     return cords
+
+
+def read(file, script=False):
+    if script:
+        res = [i[:-1].split(';') for i in file if i[0] == 'f']
+        res = [[int(i[2][6:]), int(i[1])] for i in res]
+        return res
+    else:
+        res = [[i[:-1].split(';')[0]] + i[:-1].split(';')[1].split(',') +
+               i[:-1].split(';')[2].split(',') + i[:-1].split(';')[3].split(',')
+               for i in file]
+        result = []
+        for i in res:
+            print(i)
+            if i[0][10:15] == 'under':
+                result[len(result) - 1].append([int(j) for j in i[1:]])
+            else:
+                result.append([[int(j) for j in i[1:]]])
+        return result
+
+
+def test():
+    pygame.init()
+    screen = pygame.display.set_mode((1000, 800))
+    clock = pygame.time.Clock()
+    index = read(open(f'templates/persons/roy/sword/Index.txt').readlines())
+    script = read(open(f'templates/persons/roy/sword/Script.txt').readlines(), True)
+    imgs = [[pygame.transform.flip(pygame.transform.scale(pygame.image.load(f'templates/persons/roy/sword/attack.png').
+            subsurface((i[0], i[1], i[2], i[3])), (i[2] * 5, i[3] * 5)), True, False) for i in j] for j in index]
+    print(index)
+    print(script)
+    print(imgs)
+    cadr = 0
+    cadr_tick = 0
+    script_navigator = 0
+    attack = False
+
+    run = True
+    while run:
+        clock.tick(60)
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                run = False
+            elif event.type == pygame.KEYUP:
+                if event.key == pygame.K_SPACE:
+                    attack = True
+
+        screen.fill((0, 0, 0))
+        if attack:
+            if cadr_tick == script[script_navigator][1]:
+                cadr = script[script_navigator][0]
+                cadr_tick = 0
+                script_navigator += 1
+                if script_navigator == len(script):
+                    attack = False
+                    script_navigator = 0
+            for i in range(len(imgs[cadr])):
+                screen.blit(imgs[cadr][i], (900 - index[cadr][i][2] * 5 - index[cadr][i][4] * 5, index[cadr][i][5] * 5))
+            print('----')
+            cadr_tick += 1
+        else:
+            screen.blit(imgs[0][0], (900 - index[0][0][2] * 5 - index[0][0][4] * 5, index[0][0][5] * 5))
+
+        pygame.display.update()
+
+
+# test()

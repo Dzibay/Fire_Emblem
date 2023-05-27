@@ -62,10 +62,16 @@ def get_cords(graph, start, goal):
     return cords
 
 
-def read(file, script=False):
+def read(file, weapon_, script=False):
     if script:
-        res = [i[:-1].split(';') for i in file if i[0] == 'f']
-        res = [[int(i[2][6:]), int(i[1])] for i in res]
+        count = 0
+        for i in file:
+            if i[:2] == 'f;':
+                count += 1
+            if i[:4] == 'pose' and count > 1:
+                break
+        res = [i[:-1].split(';') for i in file if i[:2] == 'f;']
+        res = [[int(i[2][len(weapon_):]), int(i[1])] for i in res[:count]]
         return res
     else:
         res = [[i[:-1].split(';')[0]] + i[:-1].split(';')[1].split(',') +
@@ -73,7 +79,6 @@ def read(file, script=False):
                for i in file]
         result = []
         for i in res:
-            print(i)
             if i[0][10:15] == 'under':
                 result[len(result) - 1].append([int(j) for j in i[1:]])
             else:
@@ -83,11 +88,13 @@ def read(file, script=False):
 
 def test():
     pygame.init()
+    pers = 'hector'
+    weapon = 'axe'
     screen = pygame.display.set_mode((1000, 800))
     clock = pygame.time.Clock()
-    index = read(open(f'templates/persons/roy/sword/Index.txt').readlines())
-    script = read(open(f'templates/persons/roy/sword/Script.txt').readlines(), True)
-    imgs = [[pygame.transform.flip(pygame.transform.scale(pygame.image.load(f'templates/persons/roy/sword/attack.png').
+    index = read(open(f'templates/persons/{pers}/{weapon}/Index.txt').readlines(), weapon)
+    script = read(open(f'templates/persons/{pers}/{weapon}/Script.txt', weapon).readlines(), True)
+    imgs = [[pygame.transform.flip(pygame.transform.scale(pygame.image.load(f'templates/persons/{pers}/{weapon}/attack.png').
             subsurface((i[0], i[1], i[2], i[3])), (i[2] * 5, i[3] * 5)), True, False) for i in j] for j in index]
     print(index)
     print(script)
@@ -118,7 +125,6 @@ def test():
                     script_navigator = 0
             for i in range(len(imgs[cadr])):
                 screen.blit(imgs[cadr][i], (900 - index[cadr][i][2] * 5 - index[cadr][i][4] * 5, index[cadr][i][5] * 5))
-            print('----')
             cadr_tick += 1
         else:
             screen.blit(imgs[0][0], (900 - index[0][0][2] * 5 - index[0][0][4] * 5, index[0][0][5] * 5))
@@ -126,4 +132,4 @@ def test():
         pygame.display.update()
 
 
-# test()
+test()

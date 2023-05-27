@@ -1,7 +1,6 @@
 from settings import *
 import pygame
 from random import randint
-from data.fight_sprites_characters import magic, sizes
 from data.weapon import weapon, weapon_img, weapon_arrow, weapon_effective, weapon_have_triangle_bonus
 
 magic_names = ['sorcerer', 'sagem']
@@ -13,6 +12,105 @@ types = {'infinite': ['lord'],
          'flying': ['pegasus_knight', 'falco_knight', 'wyvern_rider', 'wyvern_lord'],
          'dragons': ['wyvern_rider', 'wyvern_lord', 'fire_dragon'],
          'nergal': ['dark_druid'],
+         }
+magic = {'fire': {'width': 240,
+                  'height': 160,
+                  'w': 4,
+                  'h': 3,
+                  'frames': 12,
+                  'x': 0,
+                  'y': 50,
+                  'x1': 150,
+                  'size': (1080, 720),
+                  'delay': 30},
+
+         'elfire': {'width': 240,
+                    'height': 160,
+                    'w': 4,
+                    'h': 4,
+                    'frames': 16,
+                    'x': 100,
+                    'y': 50,
+                    'x1': 50,
+                    'size': (1080, 720),
+                    'delay': 25},
+
+         'fimbulvetr': {'width': 240,
+                        'height': 160,
+                        'w': 4,
+                        'h': 11,
+                        'frames': 43,
+                        'x': 100,
+                        'y': 50,
+                        'x1': 50,
+                        'size': (1080, 720),
+                        'delay': 0},
+
+         'excalibur': {'width': 245,
+                       'height': 160,
+                       'w': 5,
+                       'h': 4,
+                       'frames': 43,
+                       'x': 0,
+                       'y': 0,
+                       'x1': 0,
+                       'size': (1200, 800),
+                       'delay': 0},
+
+         'miracle': {'width': 160,
+                     'height': 126,
+                     'w': 5,
+                     'h': 3,
+                     'frames': 15,
+                     'x': 400,
+                     'y': 0,
+                     'x1': 0,
+                     'size': (720, 570),
+                     'delay': 25},
+
+         'divine': {'width': 241,
+                    'height': 161,
+                    'w': 5,
+                    'h': 4,
+                    'frames': 43,
+                    'x': 100,
+                    'y': 50,
+                    'x1': 50,
+                    'size': (1080, 720),
+                    'delay': 10},
+
+         'lightning': {'width': 241,
+                       'height': 161,
+                       'w': 5,
+                       'h': 7,
+                       'frames': 32,
+                       'x': 100,
+                       'y': 50,
+                       'x1': 50,
+                       'size': (1080, 720),
+                       'delay': 0},
+
+         'flux': {'width': 65,
+                  'height': 99,
+                  'w': 5,
+                  'h': 7,
+                  'frames': 35,
+                  'x': 600,
+                  'y': 85,
+                  'x1': 260,
+                  'size': (290, 450),
+                  'delay': 0},
+
+         'ereshkigal': {'width': 240,
+                        'height': 128,
+                        'w': 6,
+                        'h': 10,
+                        'frames': 56,
+                        'x': 0,
+                        'y': 0,
+                        'x1': 0,
+                        'size': (1200, 800),
+                        'delay': 0},
          }
 
 
@@ -97,11 +195,28 @@ class Fight_images:
         self.magic_effects = {}
         self.upload_images = False
 
-    def read(self, file, script=False):
+    def read(self, file, weapon_, script=False):
         if script:
-            res = [i[:-1].split(';') for i in file if i[0] == 'f']
-            res = [[int(i[2][6:]), int(i[1])] for i in res]
-            return res
+            result = {'attack': [], 'critical': []}
+            dmg_times = {'attack': 0, 'critical': 0}
+            for attack in result:
+                res = []
+                dmg_time = 0
+                dmg_end = False
+                for i in file:
+                    if i[:2] == 'f;':
+                        if not dmg_end:
+                            dmg_time += int(i[2:3])
+                        res.append(i[:-1].split(';'))
+                    elif i[:9] == 'start_hit':
+                        dmg_end = True
+                    elif i[:4] == 'pose' and len(res) > 1:
+                        break
+                result[attack] = [[int(i[2][len(weapon_):]), int(i[1])] for i in res]
+                dmg_times[attack] = dmg_time
+                print(dmg_times)
+
+            return result, dmg_times
         else:
             res = [[i[:-1].split(';')[0]] + i[:-1].split(';')[1].split(',') +
                    i[:-1].split(';')[2].split(',') + i[:-1].split(';')[3].split(',')
@@ -137,28 +252,25 @@ class Fight_images:
                                                                 for i in self.magic_effects[magic_]['enemy']]
 
                 # persons
-                w_ = ['sword', 'axe', 'distance_axe', 'lance', 'distance_lance', 'bow', 'magic']
+                w_ = ['sword', 'axe', 'lance', 'magic']
                 self.images[name] = {i: [] for i in w_}
                 for weapon_ in w_:
-                    self.images[name][weapon_] = {'person': [], 'enemy': []}
-                    # enemy
-
                     try:
+                        self.images[name][weapon_] = {'person': [], 'enemy': []}
                         index = self.read(open(f'templates/persons/{name}/{weapon_}/Index.txt').readlines())
 
                         enemy_attack_img = [
-                            [pygame.transform.scale(pygame.image.load(f'templates/persons/roy/sword/attack.png').
+                            [pygame.transform.scale(pygame.image.load(f'templates/persons/{name}/{weapon_}/attack.png').
                                                     subsurface((i[0], i[1], i[2], i[3])), (i[2] * 5, i[3] * 5)) for i in
                              j] for j in index]
+                        # person
+                        person_attack_img = [[pygame.transform.flip(img, True, False) for img in array]
+                                             for array in enemy_attack_img]
+
+                        self.images[name][weapon_]['person'] = person_attack_img
+                        self.images[name][weapon_]['enemy'] = enemy_attack_img
                     except:
-                        enemy_attack_img = []
-
-                    # person
-                    person_attack_img = [[pygame.transform.flip(img, True, False) for img in array]
-                                         for array in enemy_attack_img]
-
-                    self.images[name][weapon_]['person'] = person_attack_img
-                    self.images[name][weapon_]['enemy'] = enemy_attack_img
+                        pass
 
 
 class Fight:
@@ -178,11 +290,11 @@ class Fight:
         self.enemy_dmg = calculate_damage(enemy, person)
         self.person_hit = person.hit + (15 if triangle(person.weapon.name, enemy.weapon.name) else -15) - enemy.avoid
         self.enemy_hit = enemy.hit + (15 if triangle(enemy.weapon.name, person.weapon.name) else -15) - person.avoid
-        # self.moves = [True if randint(0, 100) <= person.crt else False,
-        #               True if randint(0, 100) <= (100 - self.person_hit) else False,
-        #               True if randint(0, 100) <= enemy.crt else False,
-        #               True if randint(0, 100) <= (100 - self.enemy_hit) else False]
-        self.moves = [False, False, False, False]
+        self.moves = [True if randint(0, 100) <= person.crt else False,
+                      True if randint(0, 100) <= (100 - self.person_hit) else False,
+                      True if randint(0, 100) <= enemy.crt else False,
+                      True if randint(0, 100) <= (100 - self.enemy_hit) else False]
+        # self.moves = [False, False, True, False]
 
         self.person_count_attack = 1
         self.enemy_count_attack = 1
@@ -214,8 +326,6 @@ class Fight:
         # weapon
         self.person_weapon_img = weapon_img[person.weapon.name]
         self.enemy_weapon_img = weapon_img[enemy.weapon.name]
-        index_1 = self.need_moves[0] if not_my_fight else int(self.moves[0])
-        index_2 = self.need_moves[1] if not_my_fight else int(self.moves[2])
 
         self.person_img_id = 0
         self.enemy_img_id = 0
@@ -285,12 +395,6 @@ class Fight:
                     person_weapon_class = 'distance_axe'
                 elif person_weapon_class == 'lance' and 'distance_lance' in self.fight_img.images[person.name]:
                     person_weapon_class = 'distance_lance'
-
-        self.index = self.fight_img.read(open('templates/persons/roy/sword/Index.txt'))
-        self.script = self.fight_img.read(open('templates/persons/roy/sword/Script.txt'), True)
-        self.person_attack_img = self.fight_img.images[person.name][person_weapon_class]['person']
-        self.person_x, self.person_y = self.index[0][0][4] + 100, self.index[0][0][5] + 200
-
         enemy_weapon_class = enemy.weapon.class_
         if self.distance_fight:
             if range_persons in enemy.weapon.range:
@@ -299,30 +403,43 @@ class Fight:
                 elif enemy_weapon_class == 'lance' and 'distance_lance' in self.fight_img.images[enemy.name]:
                     enemy_weapon_class = 'distance_lance'
 
+        # files
+        self.person_index = self.fight_img.read(open(f'templates/persons/{self.person.name}/'
+                                                     f'{self.person.weapon.class_}/Index.txt'))
+        self.enemy_index = self.fight_img.read(open(f'templates/persons/{self.enemy.name}/'
+                                                    f'{self.enemy.weapon.class_}/Index.txt'))
+        self.person_script, person_times = self.fight_img.read(open(f'templates/persons/{self.person.name}/'
+                                                                    f'{self.person.weapon.class_}/Script.txt'), True)
+        self.enemy_script, enemy_times = self.fight_img.read(open(f'templates/persons/{self.enemy.name}/'
+                                                                  f'{self.enemy.weapon.class_}/Script.txt'), True)
+
+        self.person_dmg_time = person_times['critical' if self.moves[0] else 'attack']
+        self.enemy_dmg_time = enemy_times['critical' if self.moves[2] else 'attack']
+
+        self.person_attack_img = self.fight_img.images[person.name][person_weapon_class]['person']
+        self.person_x, self.person_y = self.person_index[0][0][4] + 100, self.person_index[0][0][5] + 200
+
         self.enemy_attack_img = self.fight_img.images[enemy.name][enemy_weapon_class]['enemy']
-        self.enemy_x, self.enemy_y = self.index[0][0][4] + 100 + 300, self.index[0][0][5] + 200
+        self.enemy_x, self.enemy_y = self.enemy_index[0][0][4] + 100 + 300, self.enemy_index[0][0][5] + 200
 
         self.person_stay_img = self.person_attack_img[0]
         self.enemy_stay_img = self.enemy_attack_img[0]
+
+        # attack time
+        self.person_attack_time = sum([i[1] for i in self.person_script['critical' if self.moves[0] else 'attack']])
+        self.enemy_attack_time = sum([i[1] for i in self.enemy_script['critical' if self.moves[2] else 'attack']])
 
         if self.distance_fight:
             self.person_x -= 200
             self.enemy_x += 200
 
-        self.person_dmg_time = 80
-        self.enemy_dmg_time = 80
-
-        # attack time
-        self.person_attack_time = sum([i[1] for i in self.script])
-        self.enemy_attack_time = self.person_attack_time
-        print(self.person_attack_time, self.enemy_attack_time)
-
         # time
         self.start_enemy_attack = 50 + self.person_attack_time + 100
 
-        self.enemy_dmg_tick = 50 + self.enemy_dmg_time
+        self.person_dmg_tick = 50 + self.person_dmg_time
+        self.enemy_dmg_tick = self.start_enemy_attack + self.enemy_dmg_time
+        print(self.person_dmg_tick, self.enemy_dmg_tick)
 
-        self.person_dmg_tick = self.start_enemy_attack + self.person_dmg_time
         if self.person.weapon.class_ == 'magic':
             self.end = self.start_enemy_attack + self.enemy_magic_effect_time + 50
         else:
@@ -334,17 +451,16 @@ class Fight:
         self.cadr_tick = 0
         self.script_navigator = 0
 
-    def attack(self, person=True):
+    def attack(self, script, person=True):
         self.cadr_tick += 1
-        if self.cadr_tick == self.script[self.script_navigator][1]:
-            self.cadr = self.script[self.script_navigator][0]
+        if self.cadr_tick == script[self.script_navigator][1]:
+            self.cadr = script[self.script_navigator][0]
             self.cadr_tick = 0
             self.script_navigator += 1
-            if self.script_navigator == len(self.script):
+            if self.script_navigator == len(script):
                 self.script_navigator = 0
                 self.cadr = 0
                 self.cadr_tick = 0
-                return self.person_attack_img[0] if person else self.enemy_attack_img[0]
         return self.person_attack_img[self.cadr] if person else self.enemy_attack_img[self.cadr]
 
     def miss(self):
@@ -441,6 +557,7 @@ class Fight:
 
     def render_fight(self, screen):
         self.tick += 1
+        print(self.tick)
 
         if self.tick <= 50:
             img = self.person_stay_img
@@ -449,35 +566,24 @@ class Fight:
             # person
             img = self.person_stay_img
             if self.tick <= 50 + self.person_attack_time:
-                img = self.attack()
+                img = self.attack(self.person_script['critical' if self.moves[0] else 'attack'])
 
             # enemy
             img_ = self.enemy_stay_img
             if (self.tick >= self.start_enemy_attack) and \
                     (self.tick <= self.start_enemy_attack + self.enemy_attack_time):
-                img_ = self.attack(False)
+                img_ = self.attack(self.enemy_script['critical' if self.moves[2] else 'attack'], False)
 
             # damage
+            if not self.moves[1]:
+                if self.tick == self.person_dmg_tick + 5:
+                    k_ = 3 if self.moves[0] else 1
+                    self.enemy.damage_for_me = self.person_dmg * k_
+
             if not self.moves[3]:
-                if (self.tick > self.person_dmg_tick) and (
-                        self.tick < self.person_dmg_tick + 5):
-                    self.person_x -= 10
-                elif (self.tick > self.person_dmg_tick + 5) and (
-                        self.tick < self.person_dmg_tick + 10):
-                    self.person_x += 10
-                if self.tick == self.person_dmg_tick + 6:
+                if self.tick == self.enemy_dmg_tick + 5:
                     k_ = 3 if self.moves[2] else 1
                     self.person.damage_for_me = self.enemy_dmg * k_
-
-            if not self.moves[1]:
-                if (self.tick > self.enemy_dmg_tick) and (self.tick < self.enemy_dmg_tick + 5):
-                    self.enemy_x += 10
-                elif (self.tick > self.enemy_dmg_tick + 5) and (
-                        self.tick < self.enemy_dmg_tick + 10):
-                    self.enemy_x -= 10
-                if self.tick == self.enemy_dmg_tick + 6:
-                    k_ = 3 if self.moves[0] else 1
-                    self.enemy.damage_for_me = self.person_dmg
 
             # deal damage
             for person in [self.person] + [self.enemy]:
@@ -517,27 +623,25 @@ class Fight:
             cords_ = self.enemy_magic_cords_sms
 
         # fight base
-        # x_, y_ = self.render_base_for_fight(screen)
-        x_, y_ = 200, 200
+        x_, y_ = self.render_base_for_fight(screen)
 
         # persons
-        screen.fill(BLACK)
         for i in range(len(img)):
             if self.tick < self.start_enemy_attack:
-                c_ = (1450 - self.index[self.cadr][i][2] * 5 - self.index[self.cadr][i][4] * 5,
-                      self.index[self.cadr][i][5] * 5)
+                c_ = (1450 - self.person_index[self.cadr][i][2] * 5 - self.person_index[self.cadr][i][4] * 5,
+                      self.person_index[self.cadr][i][5] * 5)
             else:
-                c_ = 1450 - self.index[0][i][2] * 5 - self.index[0][i][4] * 5, self.index[0][i][5] * 5
+                c_ = 1450 - self.person_index[0][i][2] * 5 - self.person_index[0][i][4] * 5, self.person_index[0][i][
+                    5] * 5
             screen.blit(img[i], c_)
         for i in range(len(img_)):
             if self.tick > self.start_enemy_attack:
-                c_ = (self.index[self.cadr][i][4] * 5 + 300, self.index[self.cadr][i][5] * 5)
+                c_ = (self.enemy_index[self.cadr][i][4] * 5 + 300, self.enemy_index[self.cadr][i][5] * 5)
             else:
-                c_ = self.index[0][i][4] * 5 + 300, self.index[0][i][5] * 5
+                c_ = self.enemy_index[0][i][4] * 5 + 300, self.enemy_index[0][i][5] * 5
             screen.blit(img_[i], c_)
-        # self.person_img_id = self.all_person_img.index(img)
-        # self.enemy_img_id = self.all_enemy_img.index(img_)
-        print('---------')
+        self.person_img_id = self.person_attack_img.index(img)
+        self.enemy_img_id = self.enemy_attack_img.index(img_)
 
         # magic
         if magic_img is not None:
@@ -558,45 +662,47 @@ class Fight:
                     self.tick <= self.person_dmg_tick + 40):
                 screen.blit(self.miss(), (250, 300))
 
+        if self.tick > self.end:
+            return None
         # end
-        if self.tick == self.enemy_dmg_tick:
-            self.person_count_attack -= 1
-        elif self.tick == self.person_dmg_tick:
-            self.enemy_count_attack -= 1
-
-        if self.tick == self.start_enemy_attack:
-            if self.enemy_count_attack == 0 and self.person_count_attack == 0:
-                return None
-            elif self.enemy_count_attack == 0 and self.person_count_attack > 0:
-                self.tick = 2
-                self.moves = [True if randint(0, 100) <= self.person.crt else False,
-                              True if randint(0, 100) <= (100 - self.person_hit) else False,
-                              True if randint(0, 100) <= self.enemy.crt else False,
-                              True if randint(0, 100) <= (100 - self.enemy_hit) else False]
-        else:
-            if self.tick > self.end:
-                if self.person_count_attack == 0 and self.enemy_count_attack == 0:
-                    return None
-                elif self.person_count_attack > 0:
-                    self.tick = 2
-                    self.moves = [True if randint(0, 100) <= self.person.crt else False,
-                                  True if randint(0, 100) <= (100 - self.person_hit) else False,
-                                  True if randint(0, 100) <= self.enemy.crt else False,
-                                  True if randint(0, 100) <= (100 - self.enemy_hit) else False]
-                elif self.enemy_count_attack > 0:
-                    self.tick = self.start_enemy_attack
-                    self.moves = [True if randint(0, 100) <= self.person.crt else False,
-                                  True if randint(0, 100) <= (100 - self.person_hit) else False,
-                                  True if randint(0, 100) <= self.enemy.crt else False,
-                                  True if randint(0, 100) <= (100 - self.enemy_hit) else False]
+        # if self.tick == self.enemy_dmg_tick:
+        #     self.person_count_attack -= 1
+        # elif self.tick == self.person_dmg_tick:
+        #     self.enemy_count_attack -= 1
+        #
+        # if self.tick == self.start_enemy_attack:
+        #     if self.enemy_count_attack == 0 and self.person_count_attack == 0:
+        #         return None
+        #     elif self.enemy_count_attack == 0 and self.person_count_attack > 0:
+        #         self.tick = 2
+        #         self.moves = [True if randint(0, 100) <= self.person.crt else False,
+        #                       True if randint(0, 100) <= (100 - self.person_hit) else False,
+        #                       True if randint(0, 100) <= self.enemy.crt else False,
+        #                       True if randint(0, 100) <= (100 - self.enemy_hit) else False]
+        # else:
+        #     if self.tick > self.end:
+        #         if self.person_count_attack == 0 and self.enemy_count_attack == 0:
+        #             return None
+        #         elif self.person_count_attack > 0:
+        #             self.tick = 2
+        #             self.moves = [True if randint(0, 100) <= self.person.crt else False,
+        #                           True if randint(0, 100) <= (100 - self.person_hit) else False,
+        #                           True if randint(0, 100) <= self.enemy.crt else False,
+        #                           True if randint(0, 100) <= (100 - self.enemy_hit) else False]
+        #         elif self.enemy_count_attack > 0:
+        #             self.tick = self.start_enemy_attack
+        #             self.moves = [True if randint(0, 100) <= self.person.crt else False,
+        #                           True if randint(0, 100) <= (100 - self.person_hit) else False,
+        #                           True if randint(0, 100) <= self.enemy.crt else False,
+        #                           True if randint(0, 100) <= (100 - self.enemy_hit) else False]
         return cords_
 
     def render_not_my_fight(self, screen, magic_data):
         self.tick += 1
 
         if self.tick <= 2:
-            self.person_x = self.index[0][4]
-            self.enemy_x = self.index[0][4] + 300
+            self.person_x = self.person_index[0][4]
+            self.enemy_x = self.enemy_index[0][4] + 300
             if self.distance_fight:
                 self.person_x -= 200
                 self.enemy_x += 200

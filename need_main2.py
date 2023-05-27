@@ -4,7 +4,7 @@ from person import Person, characters
 from player import Player
 from settings import *
 from dextr import *
-from fight import Fight, Fight_images, sizes, triangle
+from fight import Fight, Fight_images, triangle
 from menu import Menu
 from data.weapon import weapon, weapon_img, weapon_arrow, weapon_can_be_used
 
@@ -252,7 +252,7 @@ class Main:
     def list_of_weapon_can_be_used_by_person(self, person_name, person_class):
         res = []
         for weapon_ in weapon:
-            if weapon[weapon_]['class'] in sizes[self.menu.all_names_persons[self.menu.person_settings]]:
+            if weapon[weapon_]['class'] in self.fight_img[self.menu.all_names_persons[self.menu.person_settings]]:
                 if weapon_ in weapon_can_be_used:
                     if (person_name in weapon_can_be_used[weapon_]) or (person_class in weapon_can_be_used[weapon_]):
                         res.append(weapon_)
@@ -937,7 +937,6 @@ class Main:
                     data_ = self.find_persons_images(data_)
                     self.fight_img.uppload_images(data_)
                     self.start_game = True
-                    print('start')
                     self.sms = '<ready>'
                 elif data_[1:10].split(' ')[0] in self.menu.all_names_persons:
                     self.start_game = True

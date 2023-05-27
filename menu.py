@@ -18,10 +18,10 @@ class Menu:
         self.tick = 0
         self.phase = 'edit_team'
         self.person_choice_cords = [(i, j, 100, 100) for j in range(300, 730, 120) for i in range(970, 1770, 120)]
-        self.all_names_persons = ['roy', 'lyn', 'marth', 'ike', 'hero',
-                                  'hector', 'warrior',
-                                  'eirika', 'ephraim', 'eliwood',
-                                  'sorcerer', 'sagem']
+        self.all_names_persons = ['roy', 'lyn', 'marth', 'ike', 'eirika',
+                                  'eliwood', 'hector', 'dorcas',
+                                  'ephraim',
+                                  'sophia', 'lina']
         self.choice_persons_weapon = {name: [characters[name]['weapon']] for name in self.all_names_persons}
         self.person_img = [
             pygame.image.load(f'templates/persons/{i}/person/map_idle.png').subsurface((0, 0, 48, 48))

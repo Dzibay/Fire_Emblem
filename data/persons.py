@@ -113,7 +113,7 @@ characters = {'roy': {'hp': 18,
                          'speed': 10,
                          'con': 10,
                          'class': 'hero',
-                         'weapon': 'iron_sword'},
+                         'weapon': 'iron_axe'},
 
               'sophia': {'hp': 16,
                          'str': 0,

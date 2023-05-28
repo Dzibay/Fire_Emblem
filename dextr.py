@@ -71,7 +71,7 @@ def read(file, weapon_, script=False):
             if i[:4] == 'pose' and count > 1:
                 break
         res = [i[:-1].split(';') for i in file if i[:2] == 'f;']
-        res = [[int(i[2][len(weapon_):]), int(i[1])] for i in res[:count]]
+        res = [[int(i[2][len(weapon_) + 1:]), int(i[1])] for i in res[:count]]
         return res
     else:
         res = [[i[:-1].split(';')[0]] + i[:-1].split(';')[1].split(',') +
@@ -88,12 +88,12 @@ def read(file, weapon_, script=False):
 
 def test():
     pygame.init()
-    pers = 'hector'
-    weapon = 'axe'
+    pers = 'ephraim'
+    weapon = 'lance'
     screen = pygame.display.set_mode((1000, 800))
     clock = pygame.time.Clock()
     index = read(open(f'templates/persons/{pers}/{weapon}/Index.txt').readlines(), weapon)
-    script = read(open(f'templates/persons/{pers}/{weapon}/Script.txt', weapon).readlines(), True)
+    script = read(open(f'templates/persons/{pers}/{weapon}/Script.txt').readlines(), weapon, True)
     imgs = [[pygame.transform.flip(pygame.transform.scale(pygame.image.load(f'templates/persons/{pers}/{weapon}/attack.png').
             subsurface((i[0], i[1], i[2], i[3])), (i[2] * 5, i[3] * 5)), True, False) for i in j] for j in index]
     print(index)
@@ -132,4 +132,4 @@ def test():
         pygame.display.update()
 
 
-test()
+# test()

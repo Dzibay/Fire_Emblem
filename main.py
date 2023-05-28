@@ -344,10 +344,11 @@ class Main:
                                             for enemy in self.opponent.persons:
                                                 if mouse_pos == enemy.pos:
                                                     self.fight_flag = True
-                                                    self.fight = Fight(self.player.persons[
-                                                                           self.choice_person], enemy,
+                                                    self.fight = Fight(self.player.persons[self.choice_person], enemy,
                                                                        self.fight_img)
                                                     self.your_turn = False
+                                                    self.turn_phase = 'move'
+                                                    print('yeee')
                                                     self.choice_person = None
 
                             else:
@@ -854,11 +855,13 @@ class Main:
                                f'{person.hp} {person.hit} {person.dmg} {person.crt} {person.weapon.name},'
                     sms += '>'
                     self.sock.send(sms.encode())
+                    print(self.your_turn)
 
                     # recv sms
                     try:
                         data_ = self.sock.recv(1024).decode()
-                        if data_[:5] == '<True':
+                        if data_[:5] == '<True' and self.turn_phase == 'move':
+                            print('aaa')
                             self.your_turn = True
                         elif data_[:6] == '<False':
                             self.your_turn = False
@@ -873,6 +876,7 @@ class Main:
                         if data_ == '<wait>':
                             pass
                         if self.is_fight(data_):
+                            print('ye')
                             self.data = self.find_fight(data_)
                             self.not_my_fight = True
                             id_1, a_, b_, c_, d_ = self.data[1]

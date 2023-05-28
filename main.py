@@ -423,13 +423,15 @@ class Main:
                                         else:
                                             if len(self.menu.choice_persons) < 5:
                                                 self.menu.choice_persons.append(i)
-                    elif event.type == pygame.MOUSEBUTTONUP and event.button == 3:
-                        for i in self.menu.person_choice_cords:
-                            if in_box(self.big_mouse_pos, i):
-                                self.menu.person_settings = self.menu.person_choice_cords.index(i)
-                                name_ = self.menu.all_names_persons[self.menu.person_choice_cords.index(i)]
-                                class_ = characters[name_]['class']
-                                self.menu.list_of_weapon = self.list_of_weapon_can_be_used_by_person(name_, class_)
+                    elif event.type == pygame.MOUSEBUTTONUP and event.button == 3 and \
+                            self.menu.person_settings is None:
+                        for i in range(len(self.menu.person_choice_cords)):
+                            if in_box(self.big_mouse_pos, self.menu.person_choice_cords[i]):
+                                self.menu.person_settings = i
+                                print(i)
+                                class_ = characters[self.menu.all_names_persons[i]]['class']
+                                self.menu.list_of_weapon = self.list_of_weapon_can_be_used_by_person(
+                                    self.menu.all_names_persons[i], class_)
                                 self.menu.list_of_weapon_see = 0
                     elif event.type == pygame.KEYUP:
                         if event.key == pygame.K_UP:
@@ -594,8 +596,10 @@ class Main:
                                 i_ = (self.tick % 40 // 10)
                             else:
                                 i_ = 0
+                            self.opponent.persons[i].move_to = ''
                             self.opponent.persons[i].img = self.opponent.persons[i].map_images['enemy']['stand'][i_]
                         else:
+                            self.opponent.persons[i].move_to = self.data[i][3]
                             self.opponent.persons[i].img = self.opponent.persons[i].map_images['enemy'][self.data[i][3]][
                                 self.tick % 40 // 10]
                     except:
@@ -606,9 +610,10 @@ class Main:
                         (player.persons[i].pos[0] <= self.cam_pos[0] + 15) and \
                         (player.persons[i].pos[1] >= self.cam_pos[1]) and \
                         (player.persons[i].pos[1] <= self.cam_pos[1] + 10):
+                    offset = (135, 150) if player.persons[i].move_to == '' else (100, 150)
                     self.screen.blit(player.persons[i].img,
-                                     (player.persons[i].x - self.cam_pos[0] * TILE - 35,
-                                      player.persons[i].y - self.cam_pos[1] * TILE - 15))
+                                     (player.persons[i].x - self.cam_pos[0] * TILE - offset[0],
+                                      player.persons[i].y - self.cam_pos[1] * TILE - offset[1]))
 
         if len(self.menu.choice_persons) == 0:
             # turn menu
@@ -815,7 +820,10 @@ class Main:
                                 self.opponent.persons[j].y = self.data[j][2]
                     except:
                         pass
-                    self.fight.render_not_my_fight(self.screen, self.magic_data)
+                    try:
+                        self.fight.render_not_my_fight(self.screen, self.magic_data)
+                    except:
+                        print(self.fight)
                 else:
 
                     if len(self.menu.choice_persons) == 0:
@@ -872,6 +880,7 @@ class Main:
                             id_2, a_, b_, c_, d_ = self.data[0]
                             self.fight = Fight(self.player.persons[id_2],
                                                self.opponent.persons[id_1], self.fight_img, True)
+                            print(self.fight)
 
                         else:
                             self.not_my_fight = False
@@ -896,7 +905,7 @@ class Main:
                                     self.opponent.persons[j].change_weapon(w_new)
 
                     except:
-                        pass
+                        print('no')
 
                     # attack
                     for person in self.player.persons:

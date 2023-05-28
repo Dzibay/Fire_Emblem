@@ -22,7 +22,7 @@ magic = {'fire': {'width': 240,
                   'y': 50,
                   'x1': 150,
                   'size': (1080, 720),
-                  'delay': 0},
+                  'delay': 30},
 
          'elfire': {'width': 240,
                     'height': 160,
@@ -33,7 +33,7 @@ magic = {'fire': {'width': 240,
                     'y': 50,
                     'x1': 50,
                     'size': (1080, 720),
-                    'delay': 0},
+                    'delay': 25},
 
          'fimbulvetr': {'width': 240,
                         'height': 160,
@@ -66,7 +66,7 @@ magic = {'fire': {'width': 240,
                      'y': 0,
                      'x1': 0,
                      'size': (720, 570),
-                     'delay': 0},
+                     'delay': 25},
 
          'divine': {'width': 241,
                     'height': 161,
@@ -77,7 +77,7 @@ magic = {'fire': {'width': 240,
                     'y': 50,
                     'x1': 50,
                     'size': (1080, 720),
-                    'delay': 0},
+                    'delay': 10},
 
          'lightning': {'width': 241,
                        'height': 161,
@@ -193,7 +193,7 @@ class Fight_images:
     def __init__(self):
         self.images = {}
         self.magic_effects = {}
-        self.upload_images = False
+        self.uploaded_images = False
 
     def read(self, file, weapon_, script=False):
         if script:
@@ -228,11 +228,11 @@ class Fight_images:
                     result.append([[int(j) for j in i[1:]]])
             return result
 
-    def uppload_images(self, names):
+    def upload_images(self, names):
         for name in names:
             if name not in self.images:
-                if name in magic_names and not self.upload_images:
-                    self.upload_images = True
+                if name in magic_names and not self.uploaded_images:
+                    self.uploaded_images = True
                     # magic
                     for magic_ in magic:
                         self.magic_effects[magic_] = {'person': [], 'enemy': []}
@@ -275,7 +275,6 @@ class Fight_images:
 class Fight:
     def __init__(self, person, enemy, fight_images, not_my_fight=False):
         self.fight_img = fight_images
-        print(self.fight_img.images)
         self.img = None
         self.person = person
         self.enemy = enemy
@@ -711,13 +710,14 @@ class Fight:
         # person
         for i in range(len(self.person_attack_img[self.person_img_id])):
             img = self.person_attack_img[self.person_img_id][i]
-            c_ = (1450 - self.person_index[self.person_img_id][i][2] * 5 -
-                  self.person_index[self.person_img_id][i][4] * 5, self.person_index[self.person_img_id][i][5] * 5)
+            c_ = (1550 - self.person_index[self.person_img_id][i][2] * 5 - self.person_index[self.person_img_id][i][4]
+                  * 5 - (200 if self.distance_fight else 0), self.person_index[self.person_img_id][i][5] * 5 + 250)
             screen.blit(img, c_)
         # enemy
         for i in range(len(self.enemy_attack_img[self.enemy_img_id])):
             img = self.enemy_attack_img[self.enemy_img_id][i]
-            c_ = (self.enemy_index[self.enemy_img_id][i][4] * 5 + 300, self.enemy_index[self.enemy_img_id][i][5] * 5)
+            c_ = c_ = (self.enemy_index[self.enemy_img_id][i][4] * 5 + (580 if self.distance_fight else 380),
+                       self.enemy_index[self.enemy_img_id][i][5] * 5 + 250)
             screen.blit(img, c_)
 
         # magic

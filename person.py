@@ -49,26 +49,26 @@ class Person:
         for person in self.map_images:
             self.map_images[person]['stand'] = [
                 pygame.transform.scale(pygame.image.load(f'templates/persons/{self.name}/{person}/stand.png').
-                                       subsurface((i*64, 0, 64, 48)), (130, 130)) for i in range(3)]
+                                       subsurface((i*64, 0, 64, 48)), (350, 260)) for i in range(3)]
             self.map_images[person]['passive'] = [
                 pygame.transform.scale(pygame.image.load(f'templates/persons/{self.name}/{person}/stand.png').
-                                       subsurface((i*64, 48, 64, 48)), (130, 130)) for i in range(3)]
+                                       subsurface((i*64, 48, 64, 48)), (350, 260)) for i in range(3)]
             self.map_images[person]['active'] = [
                 pygame.transform.scale(pygame.image.load(f'templates/persons/{self.name}/{person}/stand.png').
-                                       subsurface((i*64, 96, 64, 48)), (130, 130)) for i in range(3)]
+                                       subsurface((i*64, 96, 64, 48)), (350, 260)) for i in range(3)]
 
             self.map_images[person]['down'] = [
                 pygame.transform.scale(pygame.image.load(f'templates/persons/{self.name}/{person}/move.png').
-                                       subsurface((i*48, 0, 48, 40)), (130, 130)) for i in range(4)]
+                                       subsurface((i*48, 0, 48, 40)), (260, 215)) for i in range(4)]
             self.map_images[person]['left'] = [
                 pygame.transform.scale(pygame.image.load(f'templates/persons/{self.name}/{person}/move.png').
-                                       subsurface((i*48, 40, 48, 40)), (130, 130)) for i in range(4)]
+                                       subsurface((i*48, 40, 48, 40)), (260, 215)) for i in range(4)]
             self.map_images[person]['right'] = [
                 pygame.transform.scale(pygame.image.load(f'templates/persons/{self.name}/{person}/move.png').
-                                       subsurface((i*48, 80, 48, 40)), (130, 130)) for i in range(4)]
+                                       subsurface((i*48, 80, 48, 40)), (260, 215)) for i in range(4)]
             self.map_images[person]['up'] = [
                 pygame.transform.scale(pygame.image.load(f'templates/persons/{self.name}/{person}/move.png').
-                                       subsurface((i*48, 120, 48, 40)), (130, 130)) for i in range(4)]
+                                       subsurface((i*48, 120, 48, 40)), (260, 215)) for i in range(4)]
         self.img = self.map_images['person']['stand'][0]
 
     def bonus_characters_from_weapon(self, new_weapon, characters_down=True):
@@ -101,7 +101,7 @@ class Person:
 
     def move(self, cords):
         if self.pos != self.want_move:
-            self.state = 'move_'
+            self.state = ''
             cords.reverse()
             cord = cords[0]
             if self.y < cord[1] * TILE:

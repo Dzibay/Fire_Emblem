@@ -926,9 +926,9 @@ class Main:
 
                 data_ = self.sock.recv(1024).decode()
                 if data_[:5] == '<wait' and data_[:6] != '<wait>':
-                    self.fight_img.uppload_images(self.menu.all_names_persons[i] for i in self.menu.choice_persons)
+                    self.fight_img.upload_images(self.menu.all_names_persons[i] for i in self.menu.choice_persons)
                     data_ = self.find_persons_images(data_)
-                    self.fight_img.uppload_images(data_)
+                    self.fight_img.upload_images(data_)
                     self.start_game = True
                     self.sms = '<ready>'
                 elif data_[1:10].split(' ')[0] in self.menu.all_names_persons:

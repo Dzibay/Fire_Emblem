@@ -43,25 +43,33 @@ class Person:
         self.avoid = self.attack_speed * 2 + self.lck
         self.dmg = (self.mag if self.weapon.class_ == 'magic' else self.str) + self.weapon.mt
 
-        # person
-        images = [pygame.transform.scale(pygame.image.load(f'templates/persons/{name}/person.png').
-                                         subsurface((0, 12 + i * 32, 32, 32)), (150, 150)) for i in range(15)]
-        self.stay_images = images[12:15]
-        self.move_up_images = images[8:12]
-        self.move_down_images = images[4:8]
-        self.move_left_images = images[0:4]
-        self.move_right_images = [pygame.transform.flip(i, True, False) for i in self.move_left_images]
-        self.img = self.stay_images[0]
+        # images
+        self.map_images = {'person': {},
+                           'enemy': {}}
+        for person in self.map_images:
+            self.map_images[person]['stand'] = [
+                pygame.transform.scale(pygame.image.load(f'templates/persons/{self.name}/{person}/stand.png').
+                                       subsurface((i*64, 0, 64, 48)), (130, 130)) for i in range(3)]
+            self.map_images[person]['passive'] = [
+                pygame.transform.scale(pygame.image.load(f'templates/persons/{self.name}/{person}/stand.png').
+                                       subsurface((i*64, 48, 64, 48)), (130, 130)) for i in range(3)]
+            self.map_images[person]['active'] = [
+                pygame.transform.scale(pygame.image.load(f'templates/persons/{self.name}/{person}/stand.png').
+                                       subsurface((i*64, 96, 64, 48)), (130, 130)) for i in range(3)]
 
-        # enemy
-        images = [pygame.transform.scale(pygame.image.load(f'templates/persons/{name}/enemy.png').
-                                         subsurface((0, 12 + i * 32, 32, 32)), (150, 150)) for i in range(15)]
-        self.stay_images = images[12:15]
-        self.move_up_images = images[8:12]
-        self.move_down_images = images[4:8]
-        self.move_left_images = images[0:4]
-        self.move_right_images = [pygame.transform.flip(i, True, False) for i in self.move_left_images]
-        self.img = self.stay_images[0]
+            self.map_images[person]['down'] = [
+                pygame.transform.scale(pygame.image.load(f'templates/persons/{self.name}/{person}/move.png').
+                                       subsurface((i*48, 0, 48, 40)), (130, 130)) for i in range(4)]
+            self.map_images[person]['left'] = [
+                pygame.transform.scale(pygame.image.load(f'templates/persons/{self.name}/{person}/move.png').
+                                       subsurface((i*48, 40, 48, 40)), (130, 130)) for i in range(4)]
+            self.map_images[person]['right'] = [
+                pygame.transform.scale(pygame.image.load(f'templates/persons/{self.name}/{person}/move.png').
+                                       subsurface((i*48, 80, 48, 40)), (130, 130)) for i in range(4)]
+            self.map_images[person]['up'] = [
+                pygame.transform.scale(pygame.image.load(f'templates/persons/{self.name}/{person}/move.png').
+                                       subsurface((i*48, 120, 48, 40)), (130, 130)) for i in range(4)]
+        self.img = self.map_images['person']['stand'][0]
 
     def bonus_characters_from_weapon(self, new_weapon, characters_down=True):
         if characters_down:
@@ -98,16 +106,16 @@ class Person:
             cord = cords[0]
             if self.y < cord[1] * TILE:
                 self.y += 8
-                self.move_to = 'D'
+                self.move_to = 'down'
             elif self.y > cord[1] * TILE:
                 self.y -= 8
-                self.move_to = 'U'
+                self.move_to = 'up'
             elif self.x < cord[0] * TILE:
                 self.x += 8
-                self.move_to = 'R'
+                self.move_to = 'right'
             elif self.x > cord[0] * TILE:
                 self.x -= 8
-                self.move_to = 'L'
+                self.move_to = 'left'
             else:
                 self.pos = cord
                 cords.reverse()
@@ -117,22 +125,12 @@ class Person:
         return cords
 
     def choice_image(self, tick, choice):
-        if self.pos != self.want_move:
-            if self.move_to == 'L':
-                self.img = self.move_left_images[tick % 40 // 10]
-            elif self.move_to == 'R':
-                self.img = self.move_right_images[tick % 40 // 10]
-            elif self.move_to == 'D':
-                self.img = self.move_down_images[tick % 40 // 10]
-            elif self.move_to == 'U':
-                self.img = self.move_up_images[tick % 40 // 10]
+        if self.pos != self.want_move and self.move_to != '':
+            self.img = self.map_images['person'][self.move_to][tick % 40 // 10]
+
         else:
             self.state = 'stay'
             self.move_to = ''
-            if tick % 120 < 40:
-                i_ = (tick % 30 // 10)
-                # + (4 if choice else 0)
-            else:
-                i_ = 0
 
-            self.img = self.stay_images[i_]
+            self.img = self.map_images['person']['active' if choice else 'stand'][
+                tick % 30 // 10 if tick % 120 < 40 else 0]

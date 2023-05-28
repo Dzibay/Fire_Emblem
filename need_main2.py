@@ -102,7 +102,6 @@ class Main:
         self.magic_data = [-1, 0, 0]
 
         # fight
-        self.fight_img = None
         self.fight_flag = False
         self.not_my_fight = False
         self.fight_img = Fight_images()
@@ -249,10 +248,11 @@ class Main:
                 result.append(i)
         return result
 
-    def list_of_weapon_can_be_used_by_person(self, person_name, person_class):
+    @staticmethod
+    def list_of_weapon_can_be_used_by_person(person_name, person_class):
         res = []
         for weapon_ in weapon:
-            if weapon[weapon_]['class'] in self.fight_img[self.menu.all_names_persons[self.menu.person_settings]]:
+            if weapon[weapon_]['class'] in characters[person_name]['can_use']:
                 if weapon_ in weapon_can_be_used:
                     if (person_name in weapon_can_be_used[weapon_]) or (person_class in weapon_can_be_used[weapon_]):
                         res.append(weapon_)
@@ -594,21 +594,13 @@ class Main:
                                 i_ = (self.tick % 40 // 10)
                             else:
                                 i_ = 0
-                            self.opponent.persons[i].img = self.opponent.persons[i].enemy_stay_images[i_]
-                        elif self.data[i][3] == 'move_L':
-                            self.opponent.persons[i].img = self.opponent.persons[i].enemy_move_left_images[
-                                self.tick % 40 // 10]
-                        elif self.data[i][3] == 'move_R':
-                            self.opponent.persons[i].img = self.opponent.persons[i].enemy_move_right_images[
-                                self.tick % 40 // 10]
-                        elif self.data[i][3] == 'move_D':
-                            self.opponent.persons[i].img = self.opponent.persons[i].enemy_move_down_images[
-                                self.tick % 40 // 10]
-                        elif self.data[i][3] == 'move_U':
-                            self.opponent.persons[i].img = self.opponent.persons[i].enemy_move_up_images[
+                            self.opponent.persons[i].img = self.opponent.persons[i].map_images['enemy']['stand'][i_]
+                        else:
+                            self.opponent.persons[i].img = self.opponent.persons[i].map_images['enemy'][self.data[i][3]][
                                 self.tick % 40 // 10]
                     except:
                         print('cant print')
+
                 # person blit
                 if (player.persons[i].pos[0] >= self.cam_pos[0]) and \
                         (player.persons[i].pos[0] <= self.cam_pos[0] + 15) and \
@@ -616,7 +608,7 @@ class Main:
                         (player.persons[i].pos[1] <= self.cam_pos[1] + 10):
                     self.screen.blit(player.persons[i].img,
                                      (player.persons[i].x - self.cam_pos[0] * TILE - 35,
-                                      player.persons[i].y - self.cam_pos[1] * TILE))
+                                      player.persons[i].y - self.cam_pos[1] * TILE - 15))
 
         if len(self.menu.choice_persons) == 0:
             # turn menu

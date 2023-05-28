@@ -88,8 +88,8 @@ def read(file, weapon_, script=False):
 
 def test():
     pygame.init()
-    pers = 'ephraim'
-    weapon = 'lance'
+    pers = 'dorcas'
+    weapon = 'axe'
     screen = pygame.display.set_mode((1000, 800))
     clock = pygame.time.Clock()
     index = read(open(f'templates/persons/{pers}/{weapon}/Index.txt').readlines(), weapon)

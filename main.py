@@ -386,7 +386,7 @@ class Main:
                             self.menu.choice_persons = [self.menu.person_choice_cords.index(j) for j in
                                                         self.menu.choice_persons]
                             self.menu.choice_persons = [i for i in self.menu.choice_persons if
-                                                        i < len(self.menu.person_img)]
+                                                        i < len(self.menu.person_faces)]
                             self.placing_persons_window = True
                             self.menu.choice_persons_weapon = {
                                 self.menu.all_names_persons[i]: self.menu.choice_persons_weapon[
@@ -615,8 +615,8 @@ class Main:
                         (player.persons[i].pos[1] >= self.cam_pos[1]) and \
                         (player.persons[i].pos[1] <= self.cam_pos[1] + 10):
                     self.screen.blit(player.persons[i].img,
-                                     (player.persons[i].x - self.cam_pos[0] * TILE - 88,
-                                      player.persons[i].y - self.cam_pos[1] * TILE - 100))
+                                     (player.persons[i].x - self.cam_pos[0] * TILE - 35,
+                                      player.persons[i].y - self.cam_pos[1] * TILE - 15))
 
         if len(self.menu.choice_persons) == 0:
             # turn menu
@@ -692,8 +692,8 @@ class Main:
         if self.placing_persons_window:
             pygame.draw.rect(self.screen, BLUE, (0, 650, WIDTH, 150))
             for i in range(len(self.menu.choice_persons)):
-                img = self.menu.person_img[self.menu.choice_persons[i]]
-                self.screen.blit(img, (self.placing_persons_pos[i][0] - 50, self.placing_persons_pos[i][1] - 50))
+                img = self.menu.person_faces[self.menu.choice_persons[i]]
+                self.screen.blit(img, (self.placing_persons_pos[i][0], self.placing_persons_pos[i][1]))
             if self.placing_choice_person is not None:
                 pos_ = self.placing_persons_pos[self.menu.choice_persons.index(self.placing_choice_person)]
                 pygame.draw.rect(self.screen, WHITE, (pos_[0], pos_[1], 100, 100), 2)
@@ -855,13 +855,11 @@ class Main:
                                f'{person.hp} {person.hit} {person.dmg} {person.crt} {person.weapon.name},'
                     sms += '>'
                     self.sock.send(sms.encode())
-                    print(self.your_turn)
 
                     # recv sms
                     try:
                         data_ = self.sock.recv(1024).decode()
                         if data_[:5] == '<True' and self.turn_phase == 'move':
-                            print('aaa')
                             self.your_turn = True
                         elif data_[:6] == '<False':
                             self.your_turn = False
@@ -876,7 +874,6 @@ class Main:
                         if data_ == '<wait>':
                             pass
                         if self.is_fight(data_):
-                            print('ye')
                             self.data = self.find_fight(data_)
                             self.not_my_fight = True
                             id_1, a_, b_, c_, d_ = self.data[1]

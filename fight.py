@@ -214,7 +214,6 @@ class Fight_images:
                         break
                 result[attack] = [[int(i[2][len(weapon_) + 1:]), int(i[1])] for i in res]
                 dmg_times[attack] = dmg_time
-                print(dmg_times)
 
             return result, dmg_times
         else:
@@ -422,11 +421,9 @@ class Fight:
         self.enemy_dmg_time = enemy_times['critical' if self.moves[2] else 'attack']
 
         self.person_attack_img = self.fight_img.images[person.name][person_weapon_class]['person']
-        print(self.person_attack_img)
         self.person_x, self.person_y = self.person_index[0][0][4] + 100, self.person_index[0][0][5] + 200
 
         self.enemy_attack_img = self.fight_img.images[enemy.name][enemy_weapon_class]['enemy']
-        print(self.enemy_attack_img)
         self.enemy_x, self.enemy_y = self.enemy_index[0][0][4] + 100 + 300, self.enemy_index[0][0][5] + 200
 
         self.person_stay_img = self.person_attack_img[0]
@@ -445,7 +442,6 @@ class Fight:
 
         self.person_dmg_tick = 50 + self.person_dmg_time
         self.enemy_dmg_tick = self.start_enemy_attack + self.enemy_dmg_time
-        print(self.person_dmg_tick, self.enemy_dmg_tick)
 
         if self.person.weapon.class_ == 'magic':
             self.end = self.start_enemy_attack + self.enemy_magic_effect_time + 50
@@ -564,7 +560,6 @@ class Fight:
 
     def render_fight(self, screen):
         self.tick += 1
-        print(self.tick)
 
         if self.tick <= 50:
             img = self.person_stay_img

@@ -19,17 +19,17 @@ class Menu:
         self.phase = 'edit_team'
         self.person_choice_cords = [(i, j, 100, 100) for j in range(300, 730, 120) for i in range(970, 1770, 120)]
         self.all_names_persons = ['roy', 'lyn', 'marth', 'ike', 'eirika',
-                                  'eliwood', 'hector', 'dorcas',
+                                  'eliwood', 'hector',
                                   'ephraim',
                                   'sophia', 'lina']
         self.choice_persons_weapon = {name: [characters[name]['weapon']] for name in self.all_names_persons}
-        self.person_img = [
-            pygame.image.load(f'templates/persons/{i}/person/map_idle.png').subsurface((0, 0, 48, 48))
-            for i in self.all_names_persons]
-        for i in range(len(self.person_img)):
-            self.person_img[i] = pygame.transform.scale(self.person_img[i], (200, 200))
-        self.choice_persons = []
 
+        f_ = [pygame.image.load(f'templates/persons/{i}/{i}_mugshot.png') for i in self.all_names_persons]
+        self.person_faces = [pygame.transform.scale(i, (100, 100)) for i in f_]
+        self.mini_person_faces = [pygame.transform.scale(i, (70, 70)) for i in f_]
+        print(self.person_faces)
+
+        self.choice_persons = []
         self.bg_sky = pygame.transform.scale(pygame.image.load('templates/menu/sky.png').convert_alpha(),
                                              (WIDTH, HEIGHT))
         self.second_sky = pygame.transform.flip(self.bg_sky, True, False)
@@ -78,15 +78,15 @@ class Menu:
                         c_ = BLUE if self.person_choice_cords[i] in self.choice_persons else WHITE
                         pygame.draw.rect(self.screen, c_, self.person_choice_cords[i])
                         try:
-                            self.screen.blit(self.person_img[i], (self.person_choice_cords[i][0] - 50,
-                                                                  self.person_choice_cords[i][1] - 50))
+                            self.screen.blit(self.person_faces[i], (self.person_choice_cords[i][0],
+                                                                    self.person_choice_cords[i][1]))
                         except:
                             pass
-                # pygame.draw.rect(self.screen, GREEN, self.start_btn)
+                pygame.draw.rect(self.screen, GREEN, self.start_btn)
 
                 for i in range(len(self.choice_persons)):
-                    self.screen.blit(self.person_img[self.person_choice_cords.index(self.choice_persons[i])],
-                                     (1100 + i * 90, 52))
+                    self.screen.blit(self.mini_person_faces[self.person_choice_cords.index(self.choice_persons[i])],
+                                     (1165 + i * 90, 120))
                 for img in self.bg[18:]:
                     self.screen.blit(img, (0, 0))
         else:

@@ -44,37 +44,24 @@ class Person:
         self.dmg = (self.mag if self.weapon.class_ == 'magic' else self.str) + self.weapon.mt
 
         # person
-        self.stay_images = [pygame.transform.scale(pygame.image.load(f'templates/persons/{name}/person/map_idle.png').
-                                                   subsurface((i * 48, 0, 48, 48)), (250, 250)) for i in range(4)] + \
-                           [pygame.transform.scale(
-                               pygame.image.load(f'templates/persons/{name}/person/map_selected.png').
-                               subsurface((i * 48, 0, 48, 48)), (250, 250)) for i in range(4)]
-        self.move_up_images = [pygame.transform.scale(pygame.image.load(f'templates/persons/{name}/person/map_up.png').
-                                                      subsurface((i * 48, 0, 48, 48)), (250, 250)) for i in range(4)]
-        self.move_down_images = [
-            pygame.transform.scale(pygame.image.load(f'templates/persons/{name}/person/map_down.png').
-                                   subsurface((i * 48, 0, 48, 48)), (250, 250)) for i in range(4)]
-        self.move_left_images = [
-            pygame.transform.scale(pygame.image.load(f'templates/persons/{name}/person/map_side.png').
-                                   subsurface((i * 48, 0, 48, 48)), (250, 250)) for i in range(4)]
+        images = [pygame.transform.scale(pygame.image.load(f'templates/persons/{name}/person.png').
+                                         subsurface((0, 12 + i * 32, 32, 32)), (150, 150)) for i in range(15)]
+        self.stay_images = images[12:15]
+        self.move_up_images = images[8:12]
+        self.move_down_images = images[4:8]
+        self.move_left_images = images[0:4]
         self.move_right_images = [pygame.transform.flip(i, True, False) for i in self.move_left_images]
         self.img = self.stay_images[0]
 
         # enemy
-        self.enemy_stay_images = [
-            pygame.transform.scale(pygame.image.load(f'templates/persons/{name}/enemy/map_idle.png').
-                                   subsurface((i * 48, 0, 48, 48)), (250, 250)) for i in range(4)]
-        self.enemy_move_up_images = [
-            pygame.transform.scale(pygame.image.load(f'templates/persons/{name}/enemy/map_up.png').
-                                   subsurface((i * 48, 0, 48, 48)), (250, 250)) for i in range(4)]
-        self.enemy_move_down_images = [
-            pygame.transform.scale(pygame.image.load(f'templates/persons/{name}/enemy/map_down.png').
-                                   subsurface((i * 48, 0, 48, 48)), (250, 250)) for i in range(4)]
-        self.enemy_move_left_images = [
-            pygame.transform.scale(pygame.image.load(f'templates/persons/{name}/enemy/map_side.png').
-                                   subsurface((i * 48, 0, 48, 48)), (250, 250)) for i in range(4)]
-        self.enemy_move_right_images = [
-            pygame.transform.flip(i, True, False) for i in self.move_left_images]
+        images = [pygame.transform.scale(pygame.image.load(f'templates/persons/{name}/enemy.png').
+                                         subsurface((0, 12 + i * 32, 32, 32)), (150, 150)) for i in range(15)]
+        self.stay_images = images[12:15]
+        self.move_up_images = images[8:12]
+        self.move_down_images = images[4:8]
+        self.move_left_images = images[0:4]
+        self.move_right_images = [pygame.transform.flip(i, True, False) for i in self.move_left_images]
+        self.img = self.stay_images[0]
 
     def bonus_characters_from_weapon(self, new_weapon, characters_down=True):
         if characters_down:
@@ -143,7 +130,8 @@ class Person:
             self.state = 'stay'
             self.move_to = ''
             if tick % 120 < 40:
-                i_ = (tick % 40 // 10) + (4 if choice else 0)
+                i_ = (tick % 30 // 10)
+                # + (4 if choice else 0)
             else:
                 i_ = 0
 

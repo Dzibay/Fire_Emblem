@@ -181,10 +181,7 @@ def calculate_damage(person, enemy):
             if weapon[person.weapon.name]['subclass'] == weapon[enemy.weapon.name]['subclass']:
                 bonus = 0
 
-    dmg = person.mag if person.weapon.class_ == 'magic' else person.str
-    dmg = (dmg + person.weapon.mt + bonus) * (2
-                                              if person.weapon.name in weapon_effective[types_class(enemy.class_)]
-                                              else 1)
+    dmg = (person.dmg + bonus) * (2 if person.weapon.name in weapon_effective[types_class(enemy.class_)] else 1)
     def_ = enemy.res if person.weapon.class_ == 'magic' else enemy.def_
     return dmg - def_
 
@@ -288,6 +285,10 @@ class Fight:
 
         self.person_dmg = calculate_damage(person, enemy)
         self.enemy_dmg = calculate_damage(enemy, person)
+        if self.person_dmg < 0:
+            self.person_dmg = 0
+        if self.enemy_dmg < 0:
+            self.enemy_dmg = 0
         self.person_hit = person.hit + (15 if triangle(person.weapon.name, enemy.weapon.name) else -15) - enemy.avoid
         self.enemy_hit = enemy.hit + (15 if triangle(enemy.weapon.name, person.weapon.name) else -15) - person.avoid
         self.moves = [True if randint(0, 100) <= person.crt else False,
@@ -298,7 +299,6 @@ class Fight:
 
         self.person_count_attack = 1
         self.enemy_count_attack = 1
-        self.indicate_attack = 'person'
         self.distance_fight = False
         range_persons = abs(person.pos[0] - enemy.pos[0]) + abs(person.pos[1] - enemy.pos[1])
         if person.attack_speed - enemy.attack_speed >= 4:
@@ -521,27 +521,28 @@ class Fight:
         text_hp = str(self.person.hp) if self.person.hp > 0 else '0'
         for i in range(len(text_hp)):
             screen.blit(self.numbers[int(text_hp[i])], (20 + i * 40 + x_, 725 + y_))
-        for i in range(0, 2 if self.person.max_hp > 40 else 1):
-            if self.person.max_hp > 40:
-                for j in range(0, self.person.max_hp):
-                    screen.blit(self.hp[0 if j + i * 40 < self.person.hp else 1],
+
+        for i in range(2 if self.person.max_hp > 45 else 1):
+            if self.person.max_hp > 45:
+                for j in range(0, 45):
+                    screen.blit(self.hp[0 if j + i * 45 < self.person.hp else 1],
                                 (110 + j * 10 + x_, 705 + y_ if i == 0 else 745 + y_))
             else:
                 for j in range(0, self.person.max_hp):
-                    screen.blit(self.hp[0 if j + i * 40 < self.person.hp else 1],
+                    screen.blit(self.hp[0 if j < self.person.hp else 1],
                                 (110 + j * 10 + x_, 726 + y_))
 
         text_hp = str(self.enemy.hp) if self.enemy.hp > 0 else '0'
         for i in range(len(text_hp)):
             screen.blit(self.numbers[int(text_hp[i])], (630 + i * 40 + x_, 725 + y_))
-        for i in range(0, 2 if self.enemy.max_hp > 40 else 1):
-            if self.enemy.max_hp > 40:
-                for j in range(0, self.enemy.max_hp):
-                    screen.blit(self.hp[0 if j + i * 40 < self.enemy.hp else 1],
+        for i in range(2 if self.enemy.max_hp > 45 else 1):
+            if self.enemy.max_hp > 45:
+                for j in range(0, 45):
+                    screen.blit(self.hp[0 if j + i * 45 < self.enemy.hp else 1],
                                 (720 + j * 10 + x_, 705 + y_ if i == 0 else 745 + y_))
             else:
                 for j in range(0, self.enemy.max_hp):
-                    screen.blit(self.hp[0 if j + i * 40 < self.enemy.hp else 1],
+                    screen.blit(self.hp[0 if j < self.enemy.hp else 1],
                                 (720 + j * 10 + x_, 726 + y_))
 
         # weapon
@@ -558,6 +559,7 @@ class Fight:
 
     def render_fight(self, screen):
         self.tick += 1
+        print(self.person_count_attack, self.enemy_count_attack)
 
         if self.tick <= 50:
             img = self.person_stay_img
@@ -664,13 +666,10 @@ class Fight:
                     self.tick <= self.enemy_dmg_tick + 40):
                 screen.blit(self.miss(), (250, 300))
 
-        if self.tick > self.end:
-            return None
-
         # end
-        if self.tick == self.person_dmg_tick:
+        if self.tick == 50 + self.person_attack_time:
             self.person_count_attack -= 1
-        elif self.tick == self.enemy_dmg_tick:
+        elif self.tick == self.start_enemy_attack + self.enemy_attack_time:
             self.enemy_count_attack -= 1
 
         if self.tick == self.start_enemy_attack:

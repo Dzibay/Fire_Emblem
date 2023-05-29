@@ -179,8 +179,9 @@ class Main:
                 end = i
                 res = s[first + 1:end].split(',')
                 res = [i.split(' ') for i in res if len(i) > 0]
-                result = [(i[0], int(i[1]), int(i[2]), i[3], int(i[4]), int(i[5]), int(i[6]), int(i[7]), i[8]) for i in
-                          res]
+                result = [(i[0], int(i[1]), int(i[2]), i[3], int(i[4]), int(i[5]),
+                           int(i[6]), int(i[7]), int(i[8]), int(i[9]), int(i[10]), i[11], int(i[12]))
+                          for i in res]
                 return result
         return None
 
@@ -368,6 +369,16 @@ class Main:
                         if self.menu.person_settings is not None:
                             if in_box(self.big_mouse_pos, self.menu.settings_exit_btn):
                                 self.menu.person_settings = None
+                            elif in_box(self.big_mouse_pos, self.menu.lvl_up_btn):
+                                if self.menu.choice_persons_lvl[
+                                    self.menu.all_names_persons[self.menu.person_settings]] < 20:
+                                    self.menu.choice_persons_lvl[self.menu.all_names_persons[
+                                        self.menu.person_settings]] += 1
+                            elif in_box(self.big_mouse_pos, self.menu.lvl_down_btn):
+                                if self.menu.choice_persons_lvl[
+                                    self.menu.all_names_persons[self.menu.person_settings]] > 1:
+                                    self.menu.choice_persons_lvl[self.menu.all_names_persons[
+                                        self.menu.person_settings]] -= 1
                             else:
                                 # weapon choice
                                 for i in range(5):
@@ -428,7 +439,6 @@ class Main:
                         for i in range(len(self.menu.person_choice_cords)):
                             if in_box(self.big_mouse_pos, self.menu.person_choice_cords[i]):
                                 self.menu.person_settings = i
-                                print(i)
                                 class_ = characters[self.menu.all_names_persons[i]]['class']
                                 self.menu.list_of_weapon = self.list_of_weapon_can_be_used_by_person(
                                     self.menu.all_names_persons[i], class_)
@@ -485,7 +495,8 @@ class Main:
                             self.player.persons.append(
                                 Person(self.mouse_pos[0] * TILE + self.cam_pos[0] * TILE,
                                        self.mouse_pos[1] * TILE + self.cam_pos[1] * TILE,
-                                       name_, self.menu.choice_persons_weapon[name_][0]))
+                                       name_, self.menu.choice_persons_lvl[name_],
+                                       self.menu.choice_persons_weapon[name_][0]))
                             self.menu.choice_persons.remove(self.placing_choice_person)
                             self.placing_choice_person = None
 
@@ -600,8 +611,9 @@ class Main:
                             self.opponent.persons[i].img = self.opponent.persons[i].map_images['enemy']['stand'][i_]
                         else:
                             self.opponent.persons[i].move_to = self.data[i][3]
-                            self.opponent.persons[i].img = self.opponent.persons[i].map_images['enemy'][self.data[i][3]][
-                                self.tick % 40 // 10]
+                            self.opponent.persons[i].img = \
+                                self.opponent.persons[i].map_images['enemy'][self.data[i][3]][
+                                    self.tick % 40 // 10]
                     except:
                         print('cant print')
 
@@ -814,7 +826,7 @@ class Main:
                             self.not_my_fight = False
                             self.data = self.find_sms(self.data)
                             if len(self.data) != len(self.opponent.persons):
-                                self.opponent.persons = [Person(j[1], j[2], j[0]) for j in self.data]
+                                self.opponent.persons = [Person(j[1], j[2], j[0], j[9]) for j in self.data]
                             for j in range(len(self.data)):
                                 self.opponent.persons[j].x = self.data[j][1]
                                 self.opponent.persons[j].y = self.data[j][2]
@@ -852,7 +864,8 @@ class Main:
                     sms = f'<{self.your_turn}|'
                     for person in self.player.persons:
                         sms += f'{person.name} {person.x} {person.y} {person.state}{person.move_to} ' \
-                               f'{person.hp} {person.hit} {person.dmg} {person.crt} {person.weapon.name},'
+                               f'{person.hp} {person.hit} {person.dmg} {person.crt} {person.def_} {person.res} ' \
+                               f'{person.avoid} {person.weapon.name} {person.lvl},'
                     sms += '>'
                     self.sock.send(sms.encode())
 
@@ -880,7 +893,6 @@ class Main:
                             id_2, a_, b_, c_, d_ = self.data[0]
                             self.fight = Fight(self.player.persons[id_2],
                                                self.opponent.persons[id_1], self.fight_img, True)
-                            print(self.fight)
 
                         else:
                             self.not_my_fight = False
@@ -888,7 +900,7 @@ class Main:
                             if len(self.data) != len(self.opponent.persons):
                                 if [(j[1] // TILE, j[2] // TILE) for j in self.data] != \
                                         [person.pos for person in self.player.persons]:
-                                    self.opponent.persons = [Person(j[1], j[2], j[0]) for j in self.data]
+                                    self.opponent.persons = [Person(j[1], j[2], j[0], j[12]) for j in self.data]
 
                             for j in range(len(self.data)):
                                 self.opponent.persons[j].x = self.data[j][1]
@@ -899,8 +911,11 @@ class Main:
                                 self.opponent.persons[j].hit = self.data[j][5]
                                 self.opponent.persons[j].dmg = self.data[j][6]
                                 self.opponent.persons[j].crt = self.data[j][7]
+                                self.opponent.persons[j].def_ = self.data[j][8]
+                                self.opponent.persons[j].res = self.data[j][9]
+                                self.opponent.persons[j].avoid = self.data[j][10]
                                 w_last = self.opponent.persons[j].weapon.name
-                                w_new = self.data[j][8]
+                                w_new = self.data[j][11]
                                 if w_new != w_last:
                                     self.opponent.persons[j].change_weapon(w_new)
 

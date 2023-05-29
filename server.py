@@ -22,33 +22,17 @@ fight_person = ''
 fight_sms = ''
 
 
-class Person:
-    def __init__(self, x, y, name, state, hp, hit, dmg, crt, weapon):
-        self.name = name
-        self.pos = (x, y)
-        self.state = state
-        self.weapon = weapon
-
-        self.hp = hp
-        self.hit = hit
-        self.dmg = dmg
-        self.crt = crt
-
-    def get_big_pos(self):
-        return (self.pos[0] * TILE, self.pos[1] * TILE)
-
-
 class Player:
     def __init__(self, conn, addr):
         self.addr = addr
         self.conn = conn
         self.errors = 0
-        self.persons = []
         self.is_fight = False
         self.ready = False
         self.person_names = []
         self.can_move = False
         self.last_sms_move = None
+        self.sms = ''
 
 
 def find(s):
@@ -66,7 +50,9 @@ def find(s):
             end = i
             res = s[first + 1:end].split(',')
             res = [i.split(' ') for i in res if i != '']
-            result = [[i[0], int(i[1]), int(i[2]), i[3], int(i[4]), int(i[5]), int(i[6]), int(i[7]), i[8]] for i in res]
+            result = [[i[0], int(i[1]), int(i[2]), i[3], int(i[4]), int(i[5]), int(i[6]), int(i[7]), i[8], int(i[9])]
+                      for i in res]
+            print('res', result)
             return can_move, result
     return ''
 
@@ -116,16 +102,15 @@ while run:
                 player.is_fight = True
                 fight_sms = data
                 message = data.split(' ')
-                hp = message[9]
-                hp = int(hp[:hp.index('>')])
-                if hp <= 0:
-                    for player_2 in players:
-                        if player_2 != player:
-                            id_ = int(message[6])
-                            player_2.persons.remove(player_2.persons[id_])
             else:
                 player.is_fight = False
-                a, data = find(data)
+                data = data.split('|')
+                if data[0] == '<True':
+                    a = True
+                elif data[0] == '<None':
+                    a = None
+                else:
+                    a = False
                 if a is None:
                     player.last_sms_move = player.can_move
                 elif player.last_sms_move != a and player.can_move:
@@ -134,10 +119,8 @@ while run:
                     for player_2 in players:
                         if player_2 != player:
                             player_2.can_move = not a
-                try:
-                    player.persons = [Person(i[1], i[2], i[0], i[3], i[4], i[5], i[6], i[7], i[8]) for i in data]
-                except:
-                    pass
+                player.sms = data[1][:-1]
+                print(player.sms)
         except:
             print('cant')
 
@@ -165,9 +148,7 @@ while run:
                     sms = f'<{player.can_move}|'
                     for player_2 in players:
                         if player_2 != player:
-                            for person in player_2.persons:
-                                sms += f'{person.name} {person.pos[0]} {person.pos[1]} {person.state} ' \
-                                       f'{person.hp} {person.hit} {person.dmg} {person.crt} {person.weapon},'
+                            sms += player_2.sms
                     sms += '>'
             player.conn.send(sms.encode())
             player.errors = 0

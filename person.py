@@ -2,6 +2,7 @@ import pygame
 from settings import *
 from data.persons import characters
 from weapon import Weapon
+from random import randint
 
 
 def cords(c):
@@ -9,7 +10,7 @@ def cords(c):
 
 
 class Person:
-    def __init__(self, x, y, name, choice_weapon=None):
+    def __init__(self, x, y, name, lvl, choice_weapon=None):
         print('person')
         self.x = x
         self.y = y
@@ -21,6 +22,7 @@ class Person:
         self.damage_for_me = 0
 
         # stats
+        self.lvl = lvl
         self.weapon = Weapon(choice_weapon if choice_weapon is not None else characters[self.name]['weapon'])
         self.hp = characters[self.name]['hp']
         self.max_hp = self.hp
@@ -32,12 +34,14 @@ class Person:
         self.res = characters[self.name]['res']
         self.con = characters[self.name]['con']
         self.movement = characters[self.name]['move']
+        self.speed = characters[self.name]['speed']
         self.class_ = characters[self.name]['class']
+        if self.lvl > 1:
+            self.change_lvl()
 
         self.bonus_characters_from_weapon(self.weapon.name, False)
 
-        self.attack_speed = characters[self.name]['speed'] - (self.weapon.wt - self.con
-                                                              if self.weapon.wt - self.con > 0 else 0)
+        self.attack_speed = self.speed - (self.weapon.wt - self.con if self.weapon.wt - self.con > 0 else 0)
         self.crt = self.weapon.crt + (self.skl // 2)
         self.hit = self.weapon.hit + (self.skl * 2) + (self.lck // 2)
         self.avoid = self.attack_speed * 2 + self.lck
@@ -95,6 +99,20 @@ class Person:
         self.crt = self.weapon.crt + (self.skl // 2)
         self.hit = self.weapon.hit + (self.skl * 2) + (self.lck // 2)
         self.dmg = (self.mag if self.weapon.class_ == 'magic' else self.str) + self.weapon.mt
+
+    def change_lvl(self):
+        for i in range(self.lvl):
+            self.hp += 2 if randint(0, 100) < characters[self.name]['rates']['hp'] else 0
+            if self.weapon.class_ == 'magic':
+                self.mag += 2 if randint(0, 100) < characters[self.name]['rates']['mag'] else 0
+            else:
+                self.str += 2 if randint(0, 100) < characters[self.name]['rates']['str'] else 0
+            self.skl += 2 if randint(0, 100) < characters[self.name]['rates']['skl'] else 0
+            self.speed += 2 if randint(0, 100) < characters[self.name]['rates']['speed'] else 0
+            self.lck += 2 if randint(0, 100) < characters[self.name]['rates']['lck'] else 0
+            self.def_ += 2 if randint(0, 100) < characters[self.name]['rates']['def'] else 0
+            self.res += 2 if randint(0, 100) < characters[self.name]['rates']['res'] else 0
+        self.max_hp = self.hp
 
     def get_big_pos(self):
         return (self.pos[0] * TILE, self.pos[1] * TILE)

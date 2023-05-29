@@ -195,7 +195,7 @@ class Fight_images:
         self.magic_effects = {}
         self.uploaded_images = False
 
-    def read(self, file, weapon_, script=False):
+    def read(self, file, script=False):
         if script:
             result = {'attack': [], 'critical': []}
             dmg_times = {'attack': 0, 'critical': 0}
@@ -212,7 +212,7 @@ class Fight_images:
                         dmg_end = True
                     elif i[:4] == 'pose' and len(res) > 1:
                         break
-                result[attack] = [[int(i[2][len(weapon_) + 1:]), int(i[1])] for i in res]
+                result[attack] = [[int(i[2].split('_')[1]), int(i[1])] for i in res]
                 dmg_times[attack] = dmg_time
 
             return result, dmg_times
@@ -251,12 +251,12 @@ class Fight_images:
                                                                 for i in self.magic_effects[magic_]['enemy']]
 
                 # persons
-                w_ = ['sword', 'axe', 'lance', 'magic']
+                w_ = ['sword', 'axe', 'lance', 'bow', 'magic']
                 self.images[name] = {i: [] for i in w_}
                 for weapon_ in w_:
                     try:
                         self.images[name][weapon_] = {'person': [], 'enemy': []}
-                        index = self.read(open(f'templates/persons/{name}/{weapon_}/Index.txt').readlines(), '_')
+                        index = self.read(open(f'templates/persons/{name}/{weapon_}/Index.txt').readlines())
 
                         enemy_attack_img = [
                             [pygame.transform.scale(pygame.image.load(f'templates/persons/{name}/{weapon_}/attack.png').
@@ -275,6 +275,7 @@ class Fight_images:
 class Fight:
     def __init__(self, person, enemy, fight_images, not_my_fight=False):
         self.fight_img = fight_images
+        print(self.fight_img.images)
         self.img = None
         self.person = person
         self.enemy = enemy
@@ -406,15 +407,13 @@ class Fight:
 
         # files
         self.person_index = self.fight_img.read(open(f'templates/persons/{self.person.name}/'
-                                                     f'{self.person.weapon.class_}/Index.txt'), '_')
+                                                     f'{self.person.weapon.class_}/Index.txt'))
         self.enemy_index = self.fight_img.read(open(f'templates/persons/{self.enemy.name}/'
-                                                    f'{self.enemy.weapon.class_}/Index.txt'), '_')
+                                                    f'{self.enemy.weapon.class_}/Index.txt'))
         self.person_script, person_times = self.fight_img.read(open(f'templates/persons/{self.person.name}/'
-                                                                    f'{self.person.weapon.class_}/Script.txt'),
-                                                               person_weapon_class, True)
+                                                                    f'{self.person.weapon.class_}/Script.txt'), True)
         self.enemy_script, enemy_times = self.fight_img.read(open(f'templates/persons/{self.enemy.name}/'
-                                                                  f'{self.enemy.weapon.class_}/Script.txt'),
-                                                             person_weapon_class, True)
+                                                                  f'{self.enemy.weapon.class_}/Script.txt'), True)
 
         self.person_dmg_time = person_times['critical' if self.moves[0] else 'attack']
         self.enemy_dmg_time = enemy_times['critical' if self.moves[2] else 'attack']

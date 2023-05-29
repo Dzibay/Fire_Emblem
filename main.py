@@ -610,7 +610,7 @@ class Main:
                         (player.persons[i].pos[0] <= self.cam_pos[0] + 15) and \
                         (player.persons[i].pos[1] >= self.cam_pos[1]) and \
                         (player.persons[i].pos[1] <= self.cam_pos[1] + 10):
-                    offset = (135, 150) if player.persons[i].move_to == '' else (100, 150)
+                    offset = (135, 140) if player.persons[i].move_to == '' else (100, 150)
                     self.screen.blit(player.persons[i].img,
                                      (player.persons[i].x - self.cam_pos[0] * TILE - offset[0],
                                       player.persons[i].y - self.cam_pos[1] * TILE - offset[1]))

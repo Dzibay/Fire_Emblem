@@ -180,7 +180,7 @@ class Main:
                 res = s[first + 1:end].split(',')
                 res = [i.split(' ') for i in res if len(i) > 0]
                 result = [(i[0], int(i[1]), int(i[2]), i[3], int(i[4]), int(i[5]),
-                           int(i[6]), int(i[7]), int(i[8]), int(i[9]), int(i[10]), i[11], int(i[12]))
+                           int(i[6]), int(i[7]), int(i[8]), int(i[9]), int(i[10]), int(i[11]), i[12], int(i[13]))
                           for i in res]
                 return result
         return None
@@ -865,7 +865,7 @@ class Main:
                     for person in self.player.persons:
                         sms += f'{person.name} {person.x} {person.y} {person.state}{person.move_to} ' \
                                f'{person.hp} {person.hit} {person.dmg} {person.crt} {person.def_} {person.res} ' \
-                               f'{person.avoid} {person.weapon.name} {person.lvl},'
+                               f'{person.avoid} {person.attack_speed} {person.weapon.name} {person.lvl},'
                     sms += '>'
                     self.sock.send(sms.encode())
 
@@ -900,7 +900,7 @@ class Main:
                             if len(self.data) != len(self.opponent.persons):
                                 if [(j[1] // TILE, j[2] // TILE) for j in self.data] != \
                                         [person.pos for person in self.player.persons]:
-                                    self.opponent.persons = [Person(j[1], j[2], j[0], j[12]) for j in self.data]
+                                    self.opponent.persons = [Person(j[1], j[2], j[0], j[13]) for j in self.data]
 
                             for j in range(len(self.data)):
                                 self.opponent.persons[j].x = self.data[j][1]
@@ -914,8 +914,9 @@ class Main:
                                 self.opponent.persons[j].def_ = self.data[j][8]
                                 self.opponent.persons[j].res = self.data[j][9]
                                 self.opponent.persons[j].avoid = self.data[j][10]
+                                self.opponent.persons[j].attack_speed = self.data[j][11]
                                 w_last = self.opponent.persons[j].weapon.name
-                                w_new = self.data[j][11]
+                                w_new = self.data[j][12]
                                 if w_new != w_last:
                                     self.opponent.persons[j].change_weapon(w_new)
 

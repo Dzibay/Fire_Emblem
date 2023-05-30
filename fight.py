@@ -667,16 +667,23 @@ class Fight:
                 screen.blit(self.miss(), (250, 300))
 
         # end
-        if self.tick == 50 + self.person_attack_time:
+        if self.tick == self.person_dmg_tick:
             self.person_count_attack -= 1
-        elif self.tick == self.start_enemy_attack + self.enemy_attack_time:
+        elif self.tick == self.enemy_dmg_tick:
             self.enemy_count_attack -= 1
+        # if self.tick == 40 + self.person_attack_time:
+        #     self.person_count_attack -= 1
+        # elif self.tick == self.start_enemy_attack + self.enemy_attack_time - 10:
+        #     self.enemy_count_attack -= 1
 
         if self.tick == self.start_enemy_attack:
             if self.enemy_count_attack == 0 and self.person_count_attack == 0:
                 return None
             elif self.enemy_count_attack == 0 and self.person_count_attack > 0:
                 self.tick = 2
+                self.cadr = 0
+                self.script_navigator = 0
+                self.cadr_tick = 0
                 self.moves = [True if randint(0, 100) <= self.person.crt else False,
                               True if randint(0, 100) <= (100 - self.person_hit) else False,
                               True if randint(0, 100) <= self.enemy.crt else False,
@@ -687,12 +694,18 @@ class Fight:
                     return None
                 elif self.person_count_attack > 0:
                     self.tick = 2
+                    self.cadr = 0
+                    self.script_navigator = 0
+                    self.cadr_tick = 0
                     self.moves = [True if randint(0, 100) <= self.person.crt else False,
                                   True if randint(0, 100) <= (100 - self.person_hit) else False,
                                   True if randint(0, 100) <= self.enemy.crt else False,
                                   True if randint(0, 100) <= (100 - self.enemy_hit) else False]
                 elif self.enemy_count_attack > 0:
                     self.tick = self.start_enemy_attack
+                    self.cadr = 0
+                    self.script_navigator = 0
+                    self.cadr_tick = 0
                     self.moves = [True if randint(0, 100) <= self.person.crt else False,
                                   True if randint(0, 100) <= (100 - self.person_hit) else False,
                                   True if randint(0, 100) <= self.enemy.crt else False,

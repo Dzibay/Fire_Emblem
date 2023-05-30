@@ -101,7 +101,7 @@ class Person:
         self.dmg = (self.mag if self.weapon.class_ == 'magic' else self.str) + self.weapon.mt
 
     def change_lvl(self):
-        for i in range(self.lvl):
+        for i in range(self.lvl - 1):
             self.hp += 2 if randint(0, 100) < characters[self.name]['rates']['hp'] else 0
             if self.weapon.class_ == 'magic':
                 self.mag += 2 if randint(0, 100) < characters[self.name]['rates']['mag'] else 0

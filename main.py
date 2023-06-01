@@ -179,10 +179,7 @@ class Main:
                 end = i
                 res = s[first + 1:end].split(',')
                 res = [i.split(' ') for i in res if len(i) > 0]
-                result = [(i[0], int(i[1]), int(i[2]), i[3], int(i[4]), int(i[5]),
-                           int(i[6]), int(i[7]), int(i[8]), int(i[9]), int(i[10]), int(i[11]), i[12], int(i[13]))
-                          for i in res]
-                return result
+                return res
         return None
 
     @staticmethod
@@ -825,11 +822,6 @@ class Main:
                         else:
                             self.not_my_fight = False
                             self.data = self.find_sms(self.data)
-                            if len(self.data) != len(self.opponent.persons):
-                                self.opponent.persons = [Person(j[1], j[2], j[0], j[9]) for j in self.data]
-                            for j in range(len(self.data)):
-                                self.opponent.persons[j].x = self.data[j][1]
-                                self.opponent.persons[j].y = self.data[j][2]
                     except:
                         pass
                     try:
@@ -864,8 +856,10 @@ class Main:
                     sms = f'<{self.your_turn}|'
                     for person in self.player.persons:
                         sms += f'{person.name} {person.x} {person.y} {person.state}{person.move_to} ' \
-                               f'{person.hp} {person.hit} {person.dmg} {person.crt} {person.def_} {person.res} ' \
-                               f'{person.avoid} {person.attack_speed} {person.weapon.name} {person.lvl},'
+                               f'{person.max_hp} {person.hp} {person.str} {person.mag} {person.skl} {person.lck} ' \
+                               f'{person.def_} {person.res} {person.con} {person.movement} {person.speed} ' \
+                               f'{person.hit} {person.dmg} {person.crt} {person.attack_speed} {person.avoid} ' \
+                               f'{person.weapon.name} {person.lvl},'
                     sms += '>'
                     self.sock.send(sms.encode())
 
@@ -898,30 +892,42 @@ class Main:
                             self.not_my_fight = False
                             self.data = self.find_sms(data_)
                             if len(self.data) != len(self.opponent.persons):
-                                if [(j[1] // TILE, j[2] // TILE) for j in self.data] != \
+                                if [(int(j[1]) // TILE, int(j[2]) // TILE) for j in self.data] != \
                                         [person.pos for person in self.player.persons]:
-                                    self.opponent.persons = [Person(j[1], j[2], j[0], j[13]) for j in self.data]
-
-                            for j in range(len(self.data)):
-                                self.opponent.persons[j].x = self.data[j][1]
-                                self.opponent.persons[j].y = self.data[j][2]
-                                self.opponent.persons[j].pos = (self.data[j][1] // TILE,
-                                                                self.data[j][2] // TILE)
-                                self.opponent.persons[j].hp = self.data[j][4]
-                                self.opponent.persons[j].hit = self.data[j][5]
-                                self.opponent.persons[j].dmg = self.data[j][6]
-                                self.opponent.persons[j].crt = self.data[j][7]
-                                self.opponent.persons[j].def_ = self.data[j][8]
-                                self.opponent.persons[j].res = self.data[j][9]
-                                self.opponent.persons[j].avoid = self.data[j][10]
-                                self.opponent.persons[j].attack_speed = self.data[j][11]
-                                w_last = self.opponent.persons[j].weapon.name
-                                w_new = self.data[j][12]
-                                if w_new != w_last:
-                                    self.opponent.persons[j].change_weapon(w_new)
-
+                                    self.opponent.persons = [Person(int(j[1]), int(j[2]), j[0], int(j[21]), j[20])
+                                                             for j in self.data]
                     except:
                         print('no')
+                    for j in range(len(self.data)):
+                        if len(self.data[j]) > 10:
+                            print(self.data)
+                            self.opponent.persons[j].x = int(self.data[j][1])
+                            self.opponent.persons[j].y = int(self.data[j][2])
+                            self.opponent.persons[j].pos = (int(self.data[j][1]) // TILE,
+                                                            int(self.data[j][2]) // TILE)
+                            self.opponent.persons[j].max_hp = int(self.data[j][4])
+                            self.opponent.persons[j].hp = int(self.data[j][5])
+                            self.opponent.persons[j].str = int(self.data[j][6])
+                            self.opponent.persons[j].mag = int(self.data[j][7])
+                            self.opponent.persons[j].skl = int(self.data[j][8])
+                            self.opponent.persons[j].lck = int(self.data[j][9])
+                            self.opponent.persons[j].def_ = int(self.data[j][10])
+                            self.opponent.persons[j].res = int(self.data[j][11])
+                            self.opponent.persons[j].con = int(self.data[j][12])
+                            self.opponent.persons[j].movement = int(self.data[j][13])
+                            self.opponent.persons[j].speed = int(self.data[j][14])
+                            self.opponent.persons[j].hit = int(self.data[j][15])
+                            self.opponent.persons[j].dmg = int(self.data[j][16])
+                            self.opponent.persons[j].crt = int(self.data[j][17])
+                            self.opponent.persons[j].attack_speed = int(self.data[j][18])
+                            self.opponent.persons[j].avoid = int(self.data[j][19])
+
+                            w_last = self.opponent.persons[j].weapon.name
+                            w_new = self.data[j][20]
+                            if w_new != w_last:
+                                self.opponent.persons[j].change_weapon(w_new)
+
+                            self.opponent.persons[j].lvl = int(self.data[j][21])
 
                     # attack
                     for person in self.player.persons:
@@ -962,6 +968,22 @@ class Main:
 
                 if not self.start_game:
                     self.menu.render(self.sms[:8] != '<my_pers')
+
+            for person in self.player.persons + self.opponent.persons:
+                print(person.name)
+                print('hp ', person.hp)
+                print('str ', person.str)
+                print('mag ', person.mag)
+                print('skl ', person.skl)
+                print('speed ', person.speed)
+                print('lck ', person.lck)
+                print('def ', person.def_)
+                print('res ', person.res)
+                print('dmg ', person.dmg)
+                print('attack_spped ', person.attack_speed)
+                print('hit ', person.hit)
+                print('avoid ', person.avoid)
+                print('---------------------')
 
             pygame.display.update()
 

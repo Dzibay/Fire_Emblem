@@ -41,11 +41,11 @@ class Person:
 
         self.bonus_characters_from_weapon(self.weapon.name, False)
 
-        self.attack_speed = self.speed - (self.weapon.wt - self.con if self.weapon.wt - self.con > 0 else 0)
-        self.crt = self.weapon.crt + (self.skl // 2)
         self.hit = self.weapon.hit + (self.skl * 2) + (self.lck // 2)
-        self.avoid = self.attack_speed * 2 + self.lck
         self.dmg = (self.mag if self.weapon.class_ == 'magic' else self.str) + self.weapon.mt
+        self.crt = self.weapon.crt + (self.skl // 2)
+        self.attack_speed = self.speed - (self.weapon.wt - self.con if self.weapon.wt - self.con > 0 else 0)
+        self.avoid = self.attack_speed * 2 + self.lck
 
         # images
         self.map_images = {'person': {},
@@ -102,16 +102,16 @@ class Person:
 
     def change_lvl(self):
         for i in range(self.lvl - 1):
-            self.hp += 2 if randint(0, 100) < characters[self.name]['rates']['hp'] else 0
+            self.hp += 1 if randint(0, 100) < characters[self.name]['rates']['hp'] else 0
             if self.weapon.class_ == 'magic':
-                self.mag += 2 if randint(0, 100) < characters[self.name]['rates']['mag'] else 0
+                self.mag += 1 if randint(0, 100) < characters[self.name]['rates']['mag'] else 0
             else:
-                self.str += 2 if randint(0, 100) < characters[self.name]['rates']['str'] else 0
-            self.skl += 2 if randint(0, 100) < characters[self.name]['rates']['skl'] else 0
-            self.speed += 2 if randint(0, 100) < characters[self.name]['rates']['speed'] else 0
-            self.lck += 2 if randint(0, 100) < characters[self.name]['rates']['lck'] else 0
-            self.def_ += 2 if randint(0, 100) < characters[self.name]['rates']['def'] else 0
-            self.res += 2 if randint(0, 100) < characters[self.name]['rates']['res'] else 0
+                self.str += 1 if randint(0, 100) < characters[self.name]['rates']['str'] else 0
+            self.skl += 1 if randint(0, 100) < characters[self.name]['rates']['skl'] else 0
+            self.speed += 1 if randint(0, 100) < characters[self.name]['rates']['speed'] else 0
+            self.lck += 1 if randint(0, 100) < characters[self.name]['rates']['lck'] else 0
+            self.def_ += 1 if randint(0, 100) < characters[self.name]['rates']['def'] else 0
+            self.res += 1 if randint(0, 100) < characters[self.name]['rates']['res'] else 0
         self.max_hp = self.hp
 
     def get_big_pos(self):

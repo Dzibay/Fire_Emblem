@@ -2,21 +2,24 @@ from data.persons import characters
 from data.weapon import weapon_img
 from settings import *
 import pygame
+from random import randint
 
 
 class Menu:
     def __init__(self, screen):
         self.screen = screen
         self.person_settings = None
+        self.ally_growth_person = None
         self.list_of_weapon = []
         self.list_of_weapon_see = 0
         self.edit_team_btn = (175, 180, 445, 80)
         self.ally_growth_btn = (175, 285, 445, 80)
         self.equipment_btn = (175, 392, 445, 80)
-        self.start_btn = (450, 550, 300, 50)
+        self.start_btn = (175, 792, 445, 80)
         self.settings_exit_btn = (700, 600, 200, 50)
-        self.lvl_up_btn = (100, 300, 50, 50)
-        self.lvl_down_btn = (100, 360, 50, 50)
+        self.lvl_up_btn = (1240, 622, 30, 30)
+        self.lvl_down_btn = (1288, 622, 30, 30)
+        self.lvl_result_btn = (1350, 622, 50, 30)
         self.tick = 0
         self.phase = 'edit_team'
         self.person_choice_cords = [(i, j, 100, 100) for j in range(300, 730, 120) for i in range(970, 1770, 120)]
@@ -25,7 +28,25 @@ class Menu:
                                   'ephraim',
                                   'sophia', 'lina']
         self.choice_persons_weapon = {name: [characters[name]['weapon']] for name in self.all_names_persons}
-        self.choice_persons_lvl = {name: 1 for name in self.all_names_persons}
+        self.result_person_stats = {name: {'lvl': 1,
+                                           'hp': characters[name]['hp'],
+                                           'str': characters[name]['str'],
+                                           'speed': characters[name]['speed'],
+                                           'def_': characters[name]['def'],
+                                           'res': characters[name]['res'],
+                                           'lck': characters[name]['lck'],
+                                           'skl': characters[name]['skl'],
+                                           'con': characters[name]['con']} for name in self.all_names_persons}
+        self.ally_growth_stats_cords = {'lvl': (1180, 622),
+                                        'hp': (1160, 665),
+                                        'str': (1160, 702),
+                                        'speed': (1160, 739),
+                                        'def_': (1160, 778),
+                                        'res': (1160, 817),
+                                        'lck': (1160, 854),
+                                        'skl': (1160, 891),
+                                        'con': (1160, 928)}
+        self.old_lvl = {name: 1 for name in self.all_names_persons}
 
         f_ = [pygame.image.load(f'templates/persons/{i}/{i}_mugshot.png') for i in self.all_names_persons]
         self.person_faces = [pygame.transform.scale(i, (100, 100)) for i in f_]
@@ -33,11 +54,16 @@ class Menu:
         self.choice_persons = []
 
         # bg
-        self.bg_sky = pygame.transform.scale(pygame.image.load('templates/menu/sky.png').convert_alpha(),
+        self.bg_sky = pygame.transform.scale(pygame.image.load('templates/menu/base/sky.png').convert_alpha(),
                                              (WIDTH, HEIGHT))
         self.second_sky = pygame.transform.flip(self.bg_sky, True, False)
-        self.bg = [pygame.transform.scale(pygame.image.load(f'templates/menu/{i}.png').convert_alpha(), (WIDTH, HEIGHT))
-                   for i in range(25)]
+        self.bg = {
+            'base': [pygame.transform.scale(pygame.image.load(f'templates/menu/base/{i}.png').
+                                            convert_alpha(), (WIDTH, HEIGHT)) for i in range(25)],
+            'edit_team': [pygame.transform.scale(pygame.image.load(f'templates/menu/edit_team/{i}.png').
+                                                 convert_alpha(), (WIDTH, HEIGHT)) for i in range(1)],
+            'ally_growth': [pygame.transform.scale(pygame.image.load(f'templates/menu/ally_growth/{i}.png').
+                                                   convert_alpha(), (WIDTH, HEIGHT)) for i in range(22)]}
         self.x_1 = 0
         self.x_2 = -1920
 
@@ -46,7 +72,24 @@ class Menu:
         self.f2 = pygame.font.Font(None, 50)
         self.f3 = pygame.font.Font(None, 70)
 
-    def render(self, flag):
+    def change_lvl(self):
+        for i in range(self.result_person_stats[self.ally_growth_person]['lvl'] - self.old_lvl[self.ally_growth_person]):
+            self.result_person_stats[self.ally_growth_person]['hp'] += 1 if randint(0, 100) < \
+                                                   characters[self.ally_growth_person]['rates']['hp'] else 0
+            self.result_person_stats[self.ally_growth_person]['str'] += 1 if randint(0, 100) < \
+                                                    characters[self.ally_growth_person]['rates']['str'] else 0
+            self.result_person_stats[self.ally_growth_person]['skl'] += 1 if randint(0, 100) < \
+                                                    characters[self.ally_growth_person]['rates']['skl'] else 0
+            self.result_person_stats[self.ally_growth_person]['speed'] += 1 if randint(0, 100) < \
+                                                      characters[self.ally_growth_person]['rates']['speed'] else 0
+            self.result_person_stats[self.ally_growth_person]['lck'] += 1 if randint(0, 100) < \
+                                                    characters[self.ally_growth_person]['rates']['lck'] else 0
+            self.result_person_stats[self.ally_growth_person]['def_'] += 1 if randint(0, 100) < \
+                                                     characters[self.ally_growth_person]['rates']['def'] else 0
+            self.result_person_stats[self.ally_growth_person]['res'] += 1 if randint(0, 100) < \
+                                                    characters[self.ally_growth_person]['rates']['res'] else 0
+
+    def render(self, person_settings):
         self.tick += 1
         self.x_1 += 1 if self.tick % 2 == 0 else 0
         self.x_2 += 1 if self.tick % 2 == 0 else 0
@@ -56,9 +99,10 @@ class Menu:
             self.x_2 = -1920
         self.screen.blit(self.bg_sky, (self.x_1, 0))
         self.screen.blit(self.second_sky, (self.x_2, 0))
-        for img in self.bg[:18]:
+        for img in self.bg['base'][:19]:
             self.screen.blit(img, (0, 0))
-        if flag:
+
+        if person_settings:
             # person settings
             if self.person_settings is not None:
                 self.screen.fill(GREY)
@@ -79,14 +123,10 @@ class Menu:
                     name_weapon = self.f1.render(weapon_, True, BLACK if c_ == WHITE else WHITE)
                     self.screen.blit(weapon_img[weapon_], (600, 195 + i * 75))
                     self.screen.blit(name_weapon, (700, 220 + i * 75))
-
-                # lvl
-                pygame.draw.rect(self.screen, GREEN, self.lvl_up_btn)
-                pygame.draw.rect(self.screen, RED, self.lvl_down_btn)
-                lvl = self.f3.render(str(self.choice_persons_lvl[self.all_names_persons[self.person_settings]]), True, BLACK)
-                self.screen.blit(lvl, (160, 330))
             else:
                 if self.phase == 'edit_team':
+                    for img in self.bg['edit_team']:
+                        self.screen.blit(img, (0, 0))
                     for i in range(len(self.person_choice_cords)):
                         c_ = BLUE if self.person_choice_cords[i] in self.choice_persons else WHITE
                         pygame.draw.rect(self.screen, c_, self.person_choice_cords[i])
@@ -95,13 +135,25 @@ class Menu:
                                                                     self.person_choice_cords[i][1]))
                         except:
                             pass
-                pygame.draw.rect(self.screen, GREEN, self.start_btn)
+                elif self.phase == 'ally_growth':
+                    for img in self.bg['ally_growth']:
+                        self.screen.blit(img, (0, 0))
+                    for stat in self.result_person_stats[self.ally_growth_person]:
+                        text = self.f2.render(str(self.result_person_stats[self.ally_growth_person][stat]), True, WHITE)
+                        c_ = self.ally_growth_stats_cords[stat]
+                        c_ = c_ if self.result_person_stats[self.ally_growth_person][stat] > 9 else (c_[0] + 20, c_[1])
+                        self.screen.blit(text, c_)
 
-                for i in range(len(self.choice_persons)):
-                    self.screen.blit(self.mini_person_faces[self.person_choice_cords.index(self.choice_persons[i])],
-                                     (1165 + i * 90, 120))
-                for img in self.bg[18:]:
-                    self.screen.blit(img, (0, 0))
+                    pygame.draw.rect(self.screen, GREEN, self.lvl_up_btn)
+                    pygame.draw.rect(self.screen, RED, self.lvl_down_btn)
+                    pygame.draw.rect(self.screen, BLUE, self.lvl_result_btn)
+
+            for i in range(len(self.choice_persons)):
+                self.screen.blit(self.mini_person_faces[self.person_choice_cords.index(self.choice_persons[i])],
+                                 (1165 + i * 90, 120))
+
+            for img in self.bg['base'][19:]:
+                self.screen.blit(img, (0, 0))
         else:
             i_ = self.tick % 160 // 20
             if i_ == 1:

@@ -366,16 +366,6 @@ class Main:
                         if self.menu.person_settings is not None:
                             if in_box(self.big_mouse_pos, self.menu.settings_exit_btn):
                                 self.menu.person_settings = None
-                            elif in_box(self.big_mouse_pos, self.menu.lvl_up_btn):
-                                if self.menu.choice_persons_lvl[
-                                    self.menu.all_names_persons[self.menu.person_settings]] < 20:
-                                    self.menu.choice_persons_lvl[self.menu.all_names_persons[
-                                        self.menu.person_settings]] += 1
-                            elif in_box(self.big_mouse_pos, self.menu.lvl_down_btn):
-                                if self.menu.choice_persons_lvl[
-                                    self.menu.all_names_persons[self.menu.person_settings]] > 1:
-                                    self.menu.choice_persons_lvl[self.menu.all_names_persons[
-                                        self.menu.person_settings]] -= 1
                             else:
                                 # weapon choice
                                 for i in range(5):
@@ -407,20 +397,13 @@ class Main:
                         else:
                             # menu phase
                             if in_box(self.big_mouse_pos, self.menu.edit_team_btn):
-                                if self.menu.phase == '':
-                                    self.menu.phase = 'edit_team'
-                                else:
-                                    self.menu.phase = ''
+                                self.menu.phase = 'edit_team'
                             if in_box(self.big_mouse_pos, self.menu.ally_growth_btn):
-                                if self.menu.phase == '':
-                                    self.menu.phase = 'ally_growth'
-                                else:
-                                    self.menu.phase = ''
+                                self.menu.phase = 'ally_growth'
+                                self.menu.ally_growth_person = self.menu.all_names_persons[
+                                    self.menu.person_choice_cords.index(self.menu.choice_persons[0])]
                             if in_box(self.big_mouse_pos, self.menu.equipment_btn):
-                                if self.menu.phase == '':
-                                    self.menu.phase = 'equipment'
-                                else:
-                                    self.menu.phase = ''
+                                self.menu.phase = 'equipment'
 
                             # add/remove person
                             if self.menu.phase == 'edit_team':
@@ -431,6 +414,24 @@ class Main:
                                         else:
                                             if len(self.menu.choice_persons) < 5:
                                                 self.menu.choice_persons.append(i)
+                            if self.menu.phase == 'ally_growth':
+                                if in_box(self.big_mouse_pos, self.menu.lvl_up_btn):
+                                    if self.menu.result_person_stats[self.menu.ally_growth_person]['lvl'] < 20:
+                                        self.menu.result_person_stats[self.menu.ally_growth_person]['lvl'] += 1
+                                elif in_box(self.big_mouse_pos, self.menu.lvl_down_btn):
+                                    if self.menu.result_person_stats[self.menu.ally_growth_person]['lvl'] > \
+                                            self.menu.old_lvl[self.menu.ally_growth_person]:
+                                        self.menu.result_person_stats[self.menu.ally_growth_person]['lvl'] -= 1
+                                elif in_box(self.big_mouse_pos, self.menu.lvl_result_btn):
+                                    self.menu.change_lvl()
+                                    self.menu.old_lvl[self.menu.ally_growth_person] = \
+                                        self.menu.result_person_stats[self.menu.ally_growth_person]['lvl']
+                                else:
+                                    for i in range(len(self.menu.choice_persons)):
+                                        if in_box(self.big_mouse_pos, (1165 + i * 90, 120, 100, 100)):
+                                            self.menu.ally_growth_person = self.menu.all_names_persons[
+                                                self.menu.person_choice_cords.index(self.menu.choice_persons[i])]
+
                     elif event.type == pygame.MOUSEBUTTONUP and event.button == 3 and \
                             self.menu.person_settings is None:
                         for i in range(len(self.menu.person_choice_cords)):
@@ -492,7 +493,7 @@ class Main:
                             self.player.persons.append(
                                 Person(self.mouse_pos[0] * TILE + self.cam_pos[0] * TILE,
                                        self.mouse_pos[1] * TILE + self.cam_pos[1] * TILE,
-                                       name_, self.menu.choice_persons_lvl[name_],
+                                       name_, self.menu.result_person_stats[name_],
                                        self.menu.choice_persons_weapon[name_][0]))
                             self.menu.choice_persons.remove(self.placing_choice_person)
                             self.placing_choice_person = None
@@ -894,7 +895,7 @@ class Main:
                             if len(self.data) != len(self.opponent.persons):
                                 if [(int(j[1]) // TILE, int(j[2]) // TILE) for j in self.data] != \
                                         [person.pos for person in self.player.persons]:
-                                    self.opponent.persons = [Person(int(j[1]), int(j[2]), j[0], int(j[21]), j[20])
+                                    self.opponent.persons = [Person(int(j[1]), int(j[2]), j[0], None, j[20])
                                                              for j in self.data]
                     except:
                         print('no')

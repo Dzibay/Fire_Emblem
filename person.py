@@ -2,7 +2,6 @@ import pygame
 from settings import *
 from data.persons import characters
 from weapon import Weapon
-from random import randint
 
 
 def cords(c):
@@ -10,7 +9,7 @@ def cords(c):
 
 
 class Person:
-    def __init__(self, x, y, name, lvl, choice_weapon=None):
+    def __init__(self, x, y, name, stats, choice_weapon=None):
         print('person')
         self.x = x
         self.y = y
@@ -22,22 +21,32 @@ class Person:
         self.damage_for_me = 0
 
         # stats
-        self.lvl = lvl
-        self.weapon = Weapon(choice_weapon if choice_weapon is not None else characters[self.name]['weapon'])
-        self.hp = characters[self.name]['hp']
+        if stats is not None:
+            self.lvl = stats['lvl']
+            self.hp = stats['hp']
+            self.str = stats['str']
+            self.mag = 0
+            self.skl = stats['skl']
+            self.lck = stats['lck']
+            self.def_ = stats['def_']
+            self.res = stats['res']
+            self.con = stats['con']
+            self.speed = stats['speed']
+        else:
+            self.lvl = 0
+            self.hp = 0
+            self.str = 0
+            self.mag = 0
+            self.skl = 0
+            self.lck = 0
+            self.def_ = 0
+            self.res = 0
+            self.con = 0
+            self.speed = 0
         self.max_hp = self.hp
-        self.str = characters[self.name]['str']
-        self.mag = characters[self.name]['mag']
-        self.skl = characters[self.name]['skl']
-        self.lck = characters[self.name]['lck']
-        self.def_ = characters[self.name]['def']
-        self.res = characters[self.name]['res']
-        self.con = characters[self.name]['con']
         self.movement = characters[self.name]['move']
-        self.speed = characters[self.name]['speed']
         self.class_ = characters[self.name]['class']
-        if self.lvl > 1:
-            self.change_lvl()
+        self.weapon = Weapon(choice_weapon if choice_weapon is not None else characters[self.name]['weapon'])
 
         self.bonus_characters_from_weapon(self.weapon.name, False)
 
@@ -99,20 +108,6 @@ class Person:
         self.crt = self.weapon.crt + (self.skl // 2)
         self.hit = self.weapon.hit + (self.skl * 2) + (self.lck // 2)
         self.dmg = (self.mag if self.weapon.class_ == 'magic' else self.str) + self.weapon.mt
-
-    def change_lvl(self):
-        for i in range(self.lvl - 1):
-            self.hp += 1 if randint(0, 100) < characters[self.name]['rates']['hp'] else 0
-            if self.weapon.class_ == 'magic':
-                self.mag += 1 if randint(0, 100) < characters[self.name]['rates']['mag'] else 0
-            else:
-                self.str += 1 if randint(0, 100) < characters[self.name]['rates']['str'] else 0
-            self.skl += 1 if randint(0, 100) < characters[self.name]['rates']['skl'] else 0
-            self.speed += 1 if randint(0, 100) < characters[self.name]['rates']['speed'] else 0
-            self.lck += 1 if randint(0, 100) < characters[self.name]['rates']['lck'] else 0
-            self.def_ += 1 if randint(0, 100) < characters[self.name]['rates']['def'] else 0
-            self.res += 1 if randint(0, 100) < characters[self.name]['rates']['res'] else 0
-        self.max_hp = self.hp
 
     def get_big_pos(self):
         return (self.pos[0] * TILE, self.pos[1] * TILE)

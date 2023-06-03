@@ -399,9 +399,10 @@ class Main:
                             if in_box(self.big_mouse_pos, self.menu.edit_team_btn):
                                 self.menu.phase = 'edit_team'
                             if in_box(self.big_mouse_pos, self.menu.ally_growth_btn):
-                                self.menu.phase = 'ally_growth'
-                                self.menu.ally_growth_person = self.menu.all_names_persons[
-                                    self.menu.person_choice_cords.index(self.menu.choice_persons[0])]
+                                if len(self.menu.choice_persons) > 0:
+                                    self.menu.phase = 'ally_growth'
+                                    self.menu.ally_growth_person = self.menu.all_names_persons[
+                                        self.menu.person_choice_cords.index(self.menu.choice_persons[0])]
                             if in_box(self.big_mouse_pos, self.menu.equipment_btn):
                                 self.menu.phase = 'equipment'
 
@@ -860,7 +861,7 @@ class Main:
                                f'{person.max_hp} {person.hp} {person.str} {person.mag} {person.skl} {person.lck} ' \
                                f'{person.def_} {person.res} {person.con} {person.movement} {person.speed} ' \
                                f'{person.hit} {person.dmg} {person.crt} {person.attack_speed} {person.avoid} ' \
-                               f'{person.weapon.name} {person.lvl},'
+                               f'{person.weapon.name} {person.lvl} {person.class_},'
                     sms += '>'
                     self.sock.send(sms.encode())
 
@@ -929,6 +930,7 @@ class Main:
                                 self.opponent.persons[j].change_weapon(w_new)
 
                             self.opponent.persons[j].lvl = int(self.data[j][21])
+                            self.opponent.persons[j].class_ = self.data[j][22]
 
                     # attack
                     for person in self.player.persons:
@@ -984,6 +986,7 @@ class Main:
                 print('attack_spped ', person.attack_speed)
                 print('hit ', person.hit)
                 print('avoid ', person.avoid)
+                print('class ', person.class_)
                 print('---------------------')
 
             pygame.display.update()

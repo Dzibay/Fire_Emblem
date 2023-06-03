@@ -3,6 +3,7 @@ from data.weapon import weapon_img
 from settings import *
 import pygame
 from random import randint
+from data.classes import classes_bonus
 
 
 class Menu:
@@ -32,20 +33,23 @@ class Menu:
                                            'hp': characters[name]['hp'],
                                            'str': characters[name]['str'],
                                            'speed': characters[name]['speed'],
-                                           'def_': characters[name]['def'],
+                                           'def': characters[name]['def'],
                                            'res': characters[name]['res'],
                                            'lck': characters[name]['lck'],
                                            'skl': characters[name]['skl'],
-                                           'con': characters[name]['con']} for name in self.all_names_persons}
+                                           'con': characters[name]['con'],
+                                           'move': characters[name]['move'],
+                                           'class': characters[name]['class']} for name in self.all_names_persons}
         self.ally_growth_stats_cords = {'lvl': (1180, 622),
                                         'hp': (1160, 665),
                                         'str': (1160, 702),
                                         'speed': (1160, 739),
-                                        'def_': (1160, 778),
+                                        'def': (1160, 778),
                                         'res': (1160, 817),
                                         'lck': (1160, 854),
                                         'skl': (1160, 891),
-                                        'con': (1160, 928)}
+                                        'con': (1160, 928),
+                                        'class': (1300, 700)}
         self.old_lvl = {name: 1 for name in self.all_names_persons}
 
         f_ = [pygame.image.load(f'templates/persons/{i}/{i}_mugshot.png') for i in self.all_names_persons]
@@ -72,22 +76,22 @@ class Menu:
         self.f2 = pygame.font.Font(None, 50)
         self.f3 = pygame.font.Font(None, 70)
 
+    def change_class(self):
+        class_ = characters[self.ally_growth_person]['up_to']
+        self.result_person_stats[self.ally_growth_person]['class'] = class_
+        for stat in classes_bonus[class_]:
+            self.result_person_stats[self.ally_growth_person][stat] += classes_bonus[class_][stat]
+
     def change_lvl(self):
-        for i in range(self.result_person_stats[self.ally_growth_person]['lvl'] - self.old_lvl[self.ally_growth_person]):
-            self.result_person_stats[self.ally_growth_person]['hp'] += 1 if randint(0, 100) < \
-                                                   characters[self.ally_growth_person]['rates']['hp'] else 0
-            self.result_person_stats[self.ally_growth_person]['str'] += 1 if randint(0, 100) < \
-                                                    characters[self.ally_growth_person]['rates']['str'] else 0
-            self.result_person_stats[self.ally_growth_person]['skl'] += 1 if randint(0, 100) < \
-                                                    characters[self.ally_growth_person]['rates']['skl'] else 0
-            self.result_person_stats[self.ally_growth_person]['speed'] += 1 if randint(0, 100) < \
-                                                      characters[self.ally_growth_person]['rates']['speed'] else 0
-            self.result_person_stats[self.ally_growth_person]['lck'] += 1 if randint(0, 100) < \
-                                                    characters[self.ally_growth_person]['rates']['lck'] else 0
-            self.result_person_stats[self.ally_growth_person]['def_'] += 1 if randint(0, 100) < \
-                                                     characters[self.ally_growth_person]['rates']['def'] else 0
-            self.result_person_stats[self.ally_growth_person]['res'] += 1 if randint(0, 100) < \
-                                                    characters[self.ally_growth_person]['rates']['res'] else 0
+        for i in range(
+                self.result_person_stats[self.ally_growth_person]['lvl'] - self.old_lvl[self.ally_growth_person]):
+            for stat in characters[self.ally_growth_person]['rates']:
+                self.result_person_stats[self.ally_growth_person][stat] += 1 if randint(0, 100) < \
+                                                                                characters[self.ally_growth_person][
+                                                                                    'rates'][stat] else 0
+        if (self.result_person_stats[self.ally_growth_person]['lvl'] >= 10) and \
+                (self.old_lvl[self.ally_growth_person] < 10):
+            self.change_class()
 
     def render(self, person_settings):
         self.tick += 1
@@ -139,10 +143,13 @@ class Menu:
                     for img in self.bg['ally_growth']:
                         self.screen.blit(img, (0, 0))
                     for stat in self.result_person_stats[self.ally_growth_person]:
-                        text = self.f2.render(str(self.result_person_stats[self.ally_growth_person][stat]), True, WHITE)
-                        c_ = self.ally_growth_stats_cords[stat]
-                        c_ = c_ if self.result_person_stats[self.ally_growth_person][stat] > 9 else (c_[0] + 20, c_[1])
-                        self.screen.blit(text, c_)
+                        if stat != 'move':
+                            text = self.f2.render(str(self.result_person_stats[self.ally_growth_person][stat]), True, WHITE)
+                            c_ = self.ally_growth_stats_cords[stat]
+                            if stat != 'class':
+                                c_ = c_ if self.result_person_stats[self.ally_growth_person][stat] > 9 \
+                                    else (c_[0] + 20, c_[1])
+                            self.screen.blit(text, c_)
 
                     pygame.draw.rect(self.screen, GREEN, self.lvl_up_btn)
                     pygame.draw.rect(self.screen, RED, self.lvl_down_btn)

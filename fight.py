@@ -2,17 +2,10 @@ from settings import *
 import pygame
 from random import randint
 from data.weapon import weapon, weapon_img, weapon_arrow, weapon_effective, weapon_have_triangle_bonus
+from data.classes import types
 
 magic_names = ['sophia', 'lina']
-types = {'infinite': ['lord'],
-         'cavalry': ['knight_lord', 'cavalier', 'troubadour', 'valkyrie',
-                     'nomad', 'nomadic_trooper'],
-         'armored': ['great_lord', 'knight', 'general'],
-         'swords': ['mercenary', 'hero', 'myrmidon', 'sword_master', 'blade_lord'],
-         'flying': ['pegasus_knight', 'falco_knight', 'wyvern_rider', 'wyvern_lord'],
-         'dragons': ['wyvern_rider', 'wyvern_lord', 'fire_dragon'],
-         'nergal': ['dark_druid'],
-         }
+
 magic = {'fire': {'width': 240,
                   'height': 160,
                   'w': 4,
@@ -118,6 +111,7 @@ def types_class(class_):
     for type_ in types:
         if class_ in types[type_]:
             return type_
+    return None
 
 
 def triangle(weapon_1, weapon_2):
@@ -181,7 +175,12 @@ def calculate_damage(person, enemy):
             if weapon[person.weapon.name]['subclass'] == weapon[enemy.weapon.name]['subclass']:
                 bonus = 0
 
-    dmg = (person.dmg + bonus) * (2 if person.weapon.name in weapon_effective[types_class(enemy.class_)] else 1)
+    effective = 1
+    if types_class(enemy.class_) is None:
+        pass
+    elif person.weapon.name in weapon_effective[types_class(enemy.class_)]:
+        effective = 2
+    dmg = (person.dmg + bonus) * effective
     def_ = enemy.res if person.weapon.class_ == 'magic' else enemy.def_
     return dmg - def_
 

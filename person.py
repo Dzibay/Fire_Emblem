@@ -28,10 +28,11 @@ class Person:
             self.mag = 0
             self.skl = stats['skl']
             self.lck = stats['lck']
-            self.def_ = stats['def_']
+            self.def_ = stats['def']
             self.res = stats['res']
             self.con = stats['con']
             self.speed = stats['speed']
+            self.class_ = stats['class']
         else:
             self.lvl = 0
             self.hp = 0
@@ -43,9 +44,9 @@ class Person:
             self.res = 0
             self.con = 0
             self.speed = 0
+            self.class_ = characters[self.name]['class']
         self.max_hp = self.hp
         self.movement = characters[self.name]['move']
-        self.class_ = characters[self.name]['class']
         self.weapon = Weapon(choice_weapon if choice_weapon is not None else characters[self.name]['weapon'])
 
         self.bonus_characters_from_weapon(self.weapon.name, False)

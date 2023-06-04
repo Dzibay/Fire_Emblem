@@ -252,10 +252,10 @@ class Fight_images:
                 for weapon_ in w_:
                     try:
                         self.images[name][weapon_] = {'person': [], 'enemy': []}
-                        index = self.read(open(f'templates/persons/{name}/{weapon_}/Index.txt').readlines())
+                        index = self.read(open(f'templates/persons/{name}/battle/{weapon_}/Index.txt').readlines())
 
                         enemy_attack_img = [
-                            [pygame.transform.scale(pygame.image.load(f'templates/persons/{name}/{weapon_}/attack.png').
+                            [pygame.transform.scale(pygame.image.load(f'templates/persons/{name}/battle/{weapon_}/attack.png').
                                                     subsurface((i[0], i[1], i[2], i[3])), (i[2] * 5, i[3] * 5)) for i in
                              j] for j in index]
                         # person
@@ -271,7 +271,6 @@ class Fight_images:
 class Fight:
     def __init__(self, person, enemy, fight_images, not_my_fight=False):
         self.fight_img = fight_images
-        print(self.fight_img.images)
         self.img = None
         self.person = person
         self.enemy = enemy
@@ -294,7 +293,7 @@ class Fight:
                       True if randint(0, 100) <= (100 - self.person_hit) else False,
                       True if randint(0, 100) <= enemy.crt else False,
                       True if randint(0, 100) <= (100 - self.enemy_hit) else False]
-        # self.moves = [False, False, True, False]
+        # self.moves = [False, False, False, False]
 
         self.person_count_attack = 1
         self.enemy_count_attack = 1
@@ -405,13 +404,13 @@ class Fight:
                     enemy_weapon_class = 'distance_lance'
 
         # files
-        self.person_index = self.fight_img.read(open(f'templates/persons/{self.person.name}/'
+        self.person_index = self.fight_img.read(open(f'templates/persons/{self.person.name}/battle/'
                                                      f'{self.person.weapon.class_}/Index.txt'))
-        self.enemy_index = self.fight_img.read(open(f'templates/persons/{self.enemy.name}/'
+        self.enemy_index = self.fight_img.read(open(f'templates/persons/{self.enemy.name}/battle/'
                                                     f'{self.enemy.weapon.class_}/Index.txt'))
-        self.person_script, person_times = self.fight_img.read(open(f'templates/persons/{self.person.name}/'
+        self.person_script, person_times = self.fight_img.read(open(f'templates/persons/{self.person.name}/battle/'
                                                                     f'{self.person.weapon.class_}/Script.txt'), True)
-        self.enemy_script, enemy_times = self.fight_img.read(open(f'templates/persons/{self.enemy.name}/'
+        self.enemy_script, enemy_times = self.fight_img.read(open(f'templates/persons/{self.enemy.name}/battle/'
                                                                   f'{self.enemy.weapon.class_}/Script.txt'), True)
 
         self.person_dmg_time = person_times['critical' if self.moves[0] else 'attack']
@@ -734,8 +733,3 @@ class Fight:
         id_, x__, y__ = magic_data[0], magic_data[1], magic_data[2]
         if id_ >= 0:
             screen.blit(self.all_effects[id_], (x__ + x_, y__ + y_))
-
-
-i_ = open(f'templates/persons/roy/sword/Index.txt').readlines()
-s_ = open(f'templates/persons/roy/sword/Script.txt').readlines()
-fight_img = Fight_images()

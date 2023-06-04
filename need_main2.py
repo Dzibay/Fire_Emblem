@@ -417,16 +417,15 @@ class Main:
                                                 self.menu.choice_persons.append(i)
                             if self.menu.phase == 'ally_growth':
                                 if in_box(self.big_mouse_pos, self.menu.lvl_up_btn):
-                                    if self.menu.result_person_stats[self.menu.ally_growth_person]['lvl'] < 20:
-                                        self.menu.result_person_stats[self.menu.ally_growth_person]['lvl'] += 1
+                                    if self.menu.result_person_stats[self.menu.ally_growth_person]['lvl'] + self.menu.up_lvl < 20:
+                                        self.menu.up_lvl += 1
                                 elif in_box(self.big_mouse_pos, self.menu.lvl_down_btn):
-                                    if self.menu.result_person_stats[self.menu.ally_growth_person]['lvl'] > \
-                                            self.menu.old_lvl[self.menu.ally_growth_person]:
-                                        self.menu.result_person_stats[self.menu.ally_growth_person]['lvl'] -= 1
+                                    if self.menu.up_lvl > 0:
+                                        self.menu.up_lvl -= 1
                                 elif in_box(self.big_mouse_pos, self.menu.lvl_result_btn):
                                     self.menu.change_lvl()
-                                    self.menu.old_lvl[self.menu.ally_growth_person] = \
-                                        self.menu.result_person_stats[self.menu.ally_growth_person]['lvl']
+                                    self.menu.result_person_stats[self.menu.ally_growth_person]['lvl'] += self.menu.up_lvl
+                                    self.menu.up_lvl = 0
                                 else:
                                     for i in range(len(self.menu.choice_persons)):
                                         if in_box(self.big_mouse_pos, (1165 + i * 90, 120, 100, 100)):
@@ -607,12 +606,13 @@ class Main:
                             else:
                                 i_ = 0
                             self.opponent.persons[i].move_to = ''
-                            self.opponent.persons[i].img = self.opponent.persons[i].map_images['enemy']['stand'][i_]
+                            self.opponent.persons[i].img = self.opponent.persons[i].map_images[
+                                self.opponent.persons[i].weapon.class_]['enemy']['stand'][i_]
                         else:
                             self.opponent.persons[i].move_to = self.data[i][3]
                             self.opponent.persons[i].img = \
-                                self.opponent.persons[i].map_images['enemy'][self.data[i][3]][
-                                    self.tick % 40 // 10]
+                                self.opponent.persons[i].map_images[
+                                    self.opponent.persons[i].weapon.class_]['enemy'][self.data[i][3]][self.tick % 40 // 10]
                     except:
                         print('cant print')
 

@@ -983,7 +983,7 @@ class Main:
                 print('def ', person.def_)
                 print('res ', person.res)
                 print('dmg ', person.dmg)
-                print('attack_spped ', person.attack_speed)
+                print('attack_speed ', person.attack_speed)
                 print('hit ', person.hit)
                 print('avoid ', person.avoid)
                 print('class ', person.class_)

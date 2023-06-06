@@ -43,7 +43,7 @@ class Main:
 
         # socket
         self.server_ip = 'localhost'
-        # self.server_ip = '82.146.45.210'
+        self.server_ip = '82.146.45.210'
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
         self.sock.connect((self.server_ip, 10000))
@@ -247,10 +247,10 @@ class Main:
         return result
 
     @staticmethod
-    def list_of_weapon_can_be_used_by_person(person_name, person_class):
+    def list_of_weapon_can_be_used_by_person(person_name, person_class, t2=False):
         res = []
         for weapon_ in weapon:
-            if weapon[weapon_]['class'] in characters[person_name]['can_use']:
+            if weapon[weapon_]['class'] in characters[person_name]['can_use' if not t2 else 't2_can_use']:
                 if weapon_ in weapon_can_be_used:
                     if (person_name in weapon_can_be_used[weapon_]) or (person_class in weapon_can_be_used[weapon_]):
                         res.append(weapon_)
@@ -440,7 +440,7 @@ class Main:
                                 self.menu.person_settings = i
                                 class_ = characters[self.menu.all_names_persons[i]]['class']
                                 self.menu.list_of_weapon = self.list_of_weapon_can_be_used_by_person(
-                                    self.menu.all_names_persons[i], class_)
+                                    self.menu.all_names_persons[i], class_, self.menu.result_person_stats[self.menu.all_names_persons[self.menu.person_settings]]['lvl'] > 10)
                                 self.menu.list_of_weapon_see = 0
                     elif event.type == pygame.KEYUP:
                         if event.key == pygame.K_UP:

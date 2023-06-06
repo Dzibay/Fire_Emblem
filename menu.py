@@ -1,5 +1,5 @@
 from data.persons import characters
-from data.weapon import weapon_img
+from data.weapon import weapon_img, weapon
 from settings import *
 import pygame
 from random import randint
@@ -78,6 +78,7 @@ class Menu:
         self.f1_f2 = pygame.font.Font(None, 40)
 
     def change_class(self):
+        self.choice_persons_weapon[self.ally_growth_person] = [i for i in self.choice_persons_weapon[self.ally_growth_person] if weapon[i]['class'] in characters[self.ally_growth_person]['t2_can_use']]
         class_ = characters[self.ally_growth_person]['up_to']
         self.result_person_stats[self.ally_growth_person]['class'] = class_
         for stat in classes_bonus[class_]:

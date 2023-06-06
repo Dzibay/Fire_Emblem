@@ -618,9 +618,9 @@ class Main:
 
                 # person blit
                 if (player.persons[i].pos[0] >= self.cam_pos[0]) and \
-                        (player.persons[i].pos[0] <= self.cam_pos[0] + 15) and \
+                        (player.persons[i].pos[0] <= self.cam_pos[0] + 16) and \
                         (player.persons[i].pos[1] >= self.cam_pos[1]) and \
-                        (player.persons[i].pos[1] <= self.cam_pos[1] + 10):
+                        (player.persons[i].pos[1] <= self.cam_pos[1] + 13):
                     offset = (135, 140) if player.persons[i].move_to == '' else (100, 150)
                     self.screen.blit(player.persons[i].img,
                                      (player.persons[i].x - self.cam_pos[0] * TILE - offset[0],
@@ -898,39 +898,40 @@ class Main:
                                         [person.pos for person in self.player.persons]:
                                     self.opponent.persons = [Person(int(j[1]), int(j[2]), j[0], None, j[20])
                                                              for j in self.data]
+                            for j in range(len(self.data)):
+                                if len(self.data[j]) > 10:
+                                    print(self.data)
+                                    self.opponent.persons[j].x = int(self.data[j][1])
+                                    self.opponent.persons[j].y = int(self.data[j][2])
+                                    self.opponent.persons[j].pos = (int(self.data[j][1]) // TILE,
+                                                                    int(self.data[j][2]) // TILE)
+                                    self.opponent.persons[j].max_hp = int(self.data[j][4])
+                                    self.opponent.persons[j].hp = int(self.data[j][5])
+                                    self.opponent.persons[j].str = int(self.data[j][6])
+                                    self.opponent.persons[j].mag = int(self.data[j][7])
+                                    self.opponent.persons[j].skl = int(self.data[j][8])
+                                    self.opponent.persons[j].lck = int(self.data[j][9])
+                                    self.opponent.persons[j].def_ = int(self.data[j][10])
+                                    self.opponent.persons[j].res = int(self.data[j][11])
+                                    self.opponent.persons[j].con = int(self.data[j][12])
+                                    self.opponent.persons[j].movement = int(self.data[j][13])
+                                    self.opponent.persons[j].speed = int(self.data[j][14])
+                                    self.opponent.persons[j].hit = int(self.data[j][15])
+                                    self.opponent.persons[j].dmg = int(self.data[j][16])
+                                    self.opponent.persons[j].crt = int(self.data[j][17])
+                                    self.opponent.persons[j].attack_speed = int(self.data[j][18])
+                                    self.opponent.persons[j].avoid = int(self.data[j][19])
+
+                                    w_last = self.opponent.persons[j].weapon.name
+                                    w_new = self.data[j][20]
+                                    if w_new != w_last:
+                                        self.opponent.persons[j].change_weapon(w_new)
+
+                                    self.opponent.persons[j].lvl = int(self.data[j][21])
+                                    self.opponent.persons[j].class_ = self.data[j][22]
                     except:
                         print('no')
-                    for j in range(len(self.data)):
-                        if len(self.data[j]) > 10:
-                            print(self.data)
-                            self.opponent.persons[j].x = int(self.data[j][1])
-                            self.opponent.persons[j].y = int(self.data[j][2])
-                            self.opponent.persons[j].pos = (int(self.data[j][1]) // TILE,
-                                                            int(self.data[j][2]) // TILE)
-                            self.opponent.persons[j].max_hp = int(self.data[j][4])
-                            self.opponent.persons[j].hp = int(self.data[j][5])
-                            self.opponent.persons[j].str = int(self.data[j][6])
-                            self.opponent.persons[j].mag = int(self.data[j][7])
-                            self.opponent.persons[j].skl = int(self.data[j][8])
-                            self.opponent.persons[j].lck = int(self.data[j][9])
-                            self.opponent.persons[j].def_ = int(self.data[j][10])
-                            self.opponent.persons[j].res = int(self.data[j][11])
-                            self.opponent.persons[j].con = int(self.data[j][12])
-                            self.opponent.persons[j].movement = int(self.data[j][13])
-                            self.opponent.persons[j].speed = int(self.data[j][14])
-                            self.opponent.persons[j].hit = int(self.data[j][15])
-                            self.opponent.persons[j].dmg = int(self.data[j][16])
-                            self.opponent.persons[j].crt = int(self.data[j][17])
-                            self.opponent.persons[j].attack_speed = int(self.data[j][18])
-                            self.opponent.persons[j].avoid = int(self.data[j][19])
 
-                            w_last = self.opponent.persons[j].weapon.name
-                            w_new = self.data[j][20]
-                            if w_new != w_last:
-                                self.opponent.persons[j].change_weapon(w_new)
-
-                            self.opponent.persons[j].lvl = int(self.data[j][21])
-                            self.opponent.persons[j].class_ = self.data[j][22]
 
                     # attack
                     for person in self.player.persons:

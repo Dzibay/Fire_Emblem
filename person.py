@@ -60,31 +60,59 @@ class Person:
 
         # images
         t_ = 'T1' if self.lvl < 10 else 'T2'
-        self.map_images = {weapon_: {'person': {}, 'enemy': {}} for weapon_ in characters[self.name]['can_use' if self.lvl < 10 else 't2_can_use']}
+        self.map_images = {weapon_: {'person': {}, 'enemy': {}} for weapon_ in
+                           characters[self.name]['can_use' if self.lvl < 10 else 't2_can_use']}
         for weapon_ in self.map_images:
             for person in self.map_images[weapon_]:
-                self.map_images[weapon_][person]['stand'] = [
-                    pygame.transform.scale(pygame.image.load(f'templates/persons/{self.name}/map/{t_}/{weapon_}/{person}/stand.png').
-                                           subsurface((i*64, 0, 64, 48)), (350, 260)) for i in range(3)]
-                self.map_images[weapon_][person]['passive'] = [
-                    pygame.transform.scale(pygame.image.load(f'templates/persons/{self.name}/map/{t_}/{weapon_}/{person}/stand.png').
-                                           subsurface((i*64, 48, 64, 48)), (350, 260)) for i in range(3)]
-                self.map_images[weapon_][person]['active'] = [
-                    pygame.transform.scale(pygame.image.load(f'templates/persons/{self.name}/map/{t_}/{weapon_}/{person}/stand.png').
-                                           subsurface((i*64, 96, 64, 48)), (350, 260)) for i in range(3)]
+                self.map_images[weapon_][person]['stand'] = []
+                for i in range(3):
+                    image = pygame.transform.scale(pygame.image.load(f'templates/persons/{self.name}/map/{t_}/{weapon_}/{person}/stand.png').convert().subsurface((i * 64, 0, 64, 48)), (350, 260))
+                    trans_color = image.get_at((0, 0))
+                    image.set_colorkey(trans_color)
+                    self.map_images[weapon_][person]['stand'].append(image)
 
-                self.map_images[weapon_][person]['down'] = [
-                    pygame.transform.scale(pygame.image.load(f'templates/persons/{self.name}/map/{t_}/{weapon_}/{person}/move.png').
-                                           subsurface((i*48, 0, 48, 40)), (260, 215)) for i in range(4)]
-                self.map_images[weapon_][person]['left'] = [
-                    pygame.transform.scale(pygame.image.load(f'templates/persons/{self.name}/map/{t_}/{weapon_}/{person}/move.png').
-                                           subsurface((i*48, 40, 48, 40)), (260, 215)) for i in range(4)]
-                self.map_images[weapon_][person]['right'] = [
-                    pygame.transform.scale(pygame.image.load(f'templates/persons/{self.name}/map/{t_}/{weapon_}/{person}/move.png').
-                                           subsurface((i*48, 80, 48, 40)), (260, 215)) for i in range(4)]
-                self.map_images[weapon_][person]['up'] = [
-                    pygame.transform.scale(pygame.image.load(f'templates/persons/{self.name}/map/{t_}/{weapon_}/{person}/move.png').
-                                           subsurface((i*48, 120, 48, 40)), (260, 215)) for i in range(4)]
+                self.map_images[weapon_][person]['passive'] = []
+                for i in range(3):
+                    image = pygame.transform.scale(pygame.image.load(f'templates/persons/{self.name}/map/{t_}/{weapon_}/{person}/stand.png').convert().subsurface((i * 64, 48, 64, 48)), (350, 260))
+                    trans_color = image.get_at((0, 0))
+                    image.set_colorkey(trans_color)
+                    self.map_images[weapon_][person]['passive'].append(image)
+
+                self.map_images[weapon_][person]['active'] = []
+                for i in range(3):
+                    image = pygame.transform.scale(pygame.image.load(f'templates/persons/{self.name}/map/{t_}/{weapon_}/{person}/stand.png').convert().subsurface((i * 64, 96, 64, 48)), (350, 260))
+                    trans_color = image.get_at((0, 0))
+                    image.set_colorkey(trans_color)
+                    self.map_images[weapon_][person]['active'].append(image)
+
+                self.map_images[weapon_][person]['down'] = []
+                for i in range(4):
+                    image = pygame.transform.scale(pygame.image.load(f'templates/persons/{self.name}/map/{t_}/{weapon_}/{person}/move.png').convert().subsurface((i * 48, 0, 48, 40)), (260, 215))
+                    trans_color = image.get_at((0, 0))
+                    image.set_colorkey(trans_color)
+                    self.map_images[weapon_][person]['down'].append(image)
+
+                self.map_images[weapon_][person]['left'] = []
+                for i in range(4):
+                    image = pygame.transform.scale(pygame.image.load(f'templates/persons/{self.name}/map/{t_}/{weapon_}/{person}/move.png').convert().subsurface((i * 48, 40, 48, 40)), (260, 215))
+                    trans_color = image.get_at((0, 0))
+                    image.set_colorkey(trans_color)
+                    self.map_images[weapon_][person]['left'].append(image)
+
+                self.map_images[weapon_][person]['right'] = []
+                for i in range(4):
+                    image = pygame.transform.scale(pygame.image.load(f'templates/persons/{self.name}/map/{t_}/{weapon_}/{person}/move.png').convert().subsurface((i * 48, 80, 48, 40)), (260, 215))
+                    trans_color = image.get_at((0, 0))
+                    image.set_colorkey(trans_color)
+                    self.map_images[weapon_][person]['right'].append(image)
+
+                self.map_images[weapon_][person]['up'] = []
+                for i in range(4):
+                    image = pygame.transform.scale(pygame.image.load(f'templates/persons/{self.name}/map/{t_}/{weapon_}/{person}/move.png').convert().subsurface((i * 48, 120, 48, 40)), (260, 215))
+                    trans_color = image.get_at((0, 0))
+                    image.set_colorkey(trans_color)
+                    self.map_images[weapon_][person]['up'].append(image)
+
         self.img = self.map_images[self.weapon.class_]['person']['stand'][0]
 
     def bonus_characters_from_weapon(self, new_weapon, characters_down=True):

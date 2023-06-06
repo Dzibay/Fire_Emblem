@@ -234,7 +234,7 @@ class Fight_images:
                         self.magic_effects[magic_] = {'person': [], 'enemy': []}
                         # enemy magic
                         self.magic_effects[magic_]['enemy'] = [pygame.transform.scale(
-                            pygame.image.load(f'templates/magic/{magic_}.png').
+                            pygame.image.load(f'templates/magic/{magic_}.png').convert_alpha().
                             subsurface(x * magic[f'{magic_}']['width'], y * magic[f'{magic_}']['height'],
                                        magic[f'{magic_}']['width'], magic[f'{magic_}']['height']),
                             magic[f'{magic_}']['size'])
@@ -255,7 +255,7 @@ class Fight_images:
                         index = self.read(open(f'templates/persons/{name}/battle/{weapon_}/Index.txt').readlines())
 
                         enemy_attack_img = [
-                            [pygame.transform.scale(pygame.image.load(f'templates/persons/{name}/battle/{weapon_}/attack.png').
+                            [pygame.transform.scale(pygame.image.load(f'templates/persons/{name}/battle/{weapon_}/attack.png').convert_alpha().
                                                     subsurface((i[0], i[1], i[2], i[3])), (i[2] * 5, i[3] * 5)) for i in
                              j] for j in index]
                         # person

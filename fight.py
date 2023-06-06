@@ -590,8 +590,10 @@ class Fight:
                 if person.damage_for_me > 0:
                     person.hp -= 1
                     person.damage_for_me -= 1
-                if person.hp <= 0 and ((self.tick >= self.start_enemy_attack) or (self.tick >= 10)):
-                    return None
+            if self.person.hp <= 0 and (self.tick >= 10):
+                return None
+            if self.enemy.hp <= 0 and (self.tick >= self.start_enemy_attack):
+                return None
 
         # magic effect
         magic_img = None

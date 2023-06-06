@@ -144,3 +144,6 @@ def test():
 
 
 # test()
+a, b, c = False, False, False
+l = [a, b, c]
+print(any(l))

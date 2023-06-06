@@ -408,13 +408,13 @@ class Fight:
                                                      f'{self.person.weapon.class_}/Index.txt'))
         self.enemy_index = self.fight_img.read(open(f'templates/persons/{self.enemy.name}/battle/'
                                                     f'{self.enemy.weapon.class_}/Index.txt'))
-        self.person_script, person_times = self.fight_img.read(open(f'templates/persons/{self.person.name}/battle/'
+        self.person_script, self.person_times = self.fight_img.read(open(f'templates/persons/{self.person.name}/battle/'
                                                                     f'{self.person.weapon.class_}/Script.txt'), True)
-        self.enemy_script, enemy_times = self.fight_img.read(open(f'templates/persons/{self.enemy.name}/battle/'
+        self.enemy_script, self.enemy_times = self.fight_img.read(open(f'templates/persons/{self.enemy.name}/battle/'
                                                                   f'{self.enemy.weapon.class_}/Script.txt'), True)
 
-        self.person_dmg_time = person_times['critical' if self.moves[0] else 'attack']
-        self.enemy_dmg_time = enemy_times['critical' if self.moves[2] else 'attack']
+        self.person_dmg_time = self.person_times['critical' if self.moves[0] else 'attack']
+        self.enemy_dmg_time = self.enemy_times['critical' if self.moves[2] else 'attack']
 
         self.person_attack_img = self.fight_img.images[person.name][person_weapon_class]['person']
         self.person_x, self.person_y = self.person_index[0][0][4] + 100, self.person_index[0][0][5] + 200
@@ -429,10 +429,6 @@ class Fight:
         self.person_attack_time = sum([i[1] for i in self.person_script['critical' if self.moves[0] else 'attack']])
         self.enemy_attack_time = sum([i[1] for i in self.enemy_script['critical' if self.moves[2] else 'attack']])
 
-        if self.distance_fight:
-            self.person_x -= 200
-            self.enemy_x += 200
-
         # time
         self.start_enemy_attack = 50 + self.person_attack_time + 100
 
@@ -445,6 +441,8 @@ class Fight:
             self.end = self.start_enemy_attack + self.enemy_attack_time + 50
         if self.moves[2]:
             self.end = self.start_enemy_attack + self.enemy_attack_time + 50
+
+        print(self.person_script)
 
         self.cadr = 0
         self.cadr_tick = 0
@@ -564,15 +562,17 @@ class Fight:
             img_ = self.enemy_stay_img
         else:
             # person
-            img = self.person_stay_img
             if self.tick <= 50 + self.person_attack_time:
                 img = self.attack(self.person_script['critical' if self.moves[0] else 'attack'])
+            else:
+                img = self.person_stay_img
 
             # enemy
-            img_ = self.enemy_stay_img
             if (self.tick >= self.start_enemy_attack) and \
                     (self.tick <= self.start_enemy_attack + self.enemy_attack_time):
                 img_ = self.attack(self.enemy_script['critical' if self.moves[2] else 'attack'], False)
+            else:
+                img_ = self.enemy_stay_img
 
             # damage
             if not self.moves[1]:
@@ -590,10 +590,6 @@ class Fight:
                 if person.damage_for_me > 0:
                     person.hp -= 1
                     person.damage_for_me -= 1
-            if self.person.hp <= 0 and (self.tick >= 10):
-                return None
-            if self.enemy.hp <= 0 and (self.tick >= self.start_enemy_attack):
-                return None
 
         # magic effect
         magic_img = None
@@ -636,6 +632,7 @@ class Fight:
                 c_ = (1550 - self.person_index[0][i][2] * 5 - self.person_index[0][i][4] * 5 -
                       (200 if self.distance_fight else 0), self.person_index[0][i][5] * 5 + 250)
             screen.blit(img[i], c_)
+
         for i in range(len(img_)):
             if self.tick > self.start_enemy_attack:
                 c_ = (self.enemy_index[self.cadr][i][4] * 5 + (580 if self.distance_fight else 380),
@@ -671,10 +668,11 @@ class Fight:
             self.person_count_attack -= 1
         elif self.tick == self.enemy_dmg_tick:
             self.enemy_count_attack -= 1
-        # if self.tick == 40 + self.person_attack_time:
-        #     self.person_count_attack -= 1
-        # elif self.tick == self.start_enemy_attack + self.enemy_attack_time - 10:
-        #     self.enemy_count_attack -= 1
+
+        if self.person.hp <= 0 and (self.tick >= 10):
+            return None
+        if self.enemy.hp <= 0 and (self.tick >= self.start_enemy_attack):
+            return None
 
         if self.tick == self.start_enemy_attack:
             if self.enemy_count_attack == 0 and self.person_count_attack == 0:
@@ -688,6 +686,18 @@ class Fight:
                               True if randint(0, 100) <= (100 - self.person_hit) else False,
                               True if randint(0, 100) <= self.enemy.crt else False,
                               True if randint(0, 100) <= (100 - self.enemy_hit) else False]
+
+                # time
+                self.person_dmg_time = self.person_times['critical' if self.moves[0] else 'attack']
+                self.enemy_dmg_time = self.enemy_times['critical' if self.moves[2] else 'attack']
+                self.person_attack_time = sum(
+                    [i[1] for i in self.person_script['critical' if self.moves[0] else 'attack']])
+                self.enemy_attack_time = sum(
+                    [i[1] for i in self.enemy_script['critical' if self.moves[2] else 'attack']])
+                self.start_enemy_attack = 50 + self.person_attack_time + 100
+
+                self.person_dmg_tick = 50 + self.person_dmg_time
+                self.enemy_dmg_tick = self.start_enemy_attack + self.enemy_dmg_time
         else:
             if self.tick > self.end:
                 if self.person_count_attack == 0 and self.enemy_count_attack == 0:
@@ -701,6 +711,18 @@ class Fight:
                                   True if randint(0, 100) <= (100 - self.person_hit) else False,
                                   True if randint(0, 100) <= self.enemy.crt else False,
                                   True if randint(0, 100) <= (100 - self.enemy_hit) else False]
+
+                    # time
+                    self.person_dmg_time = self.person_times['critical' if self.moves[0] else 'attack']
+                    self.enemy_dmg_time = self.enemy_times['critical' if self.moves[2] else 'attack']
+                    self.person_attack_time = sum(
+                        [i[1] for i in self.person_script['critical' if self.moves[0] else 'attack']])
+                    self.enemy_attack_time = sum(
+                        [i[1] for i in self.enemy_script['critical' if self.moves[2] else 'attack']])
+                    self.start_enemy_attack = 50 + self.person_attack_time + 100
+
+                    self.person_dmg_tick = 50 + self.person_dmg_time
+                    self.enemy_dmg_tick = self.start_enemy_attack + self.enemy_dmg_time
                 elif self.enemy_count_attack > 0:
                     self.tick = self.start_enemy_attack
                     self.cadr = 0
@@ -710,6 +732,18 @@ class Fight:
                                   True if randint(0, 100) <= (100 - self.person_hit) else False,
                                   True if randint(0, 100) <= self.enemy.crt else False,
                                   True if randint(0, 100) <= (100 - self.enemy_hit) else False]
+
+                    # time
+                    self.person_dmg_time = self.person_times['critical' if self.moves[0] else 'attack']
+                    self.enemy_dmg_time = self.enemy_times['critical' if self.moves[2] else 'attack']
+                    self.person_attack_time = sum(
+                        [i[1] for i in self.person_script['critical' if self.moves[0] else 'attack']])
+                    self.enemy_attack_time = sum(
+                        [i[1] for i in self.enemy_script['critical' if self.moves[2] else 'attack']])
+                    self.start_enemy_attack = 50 + self.person_attack_time + 100
+
+                    self.person_dmg_tick = 50 + self.person_dmg_time
+                    self.enemy_dmg_tick = self.start_enemy_attack + self.enemy_dmg_time
         return cords_
 
     def render_not_my_fight(self, screen, magic_data):

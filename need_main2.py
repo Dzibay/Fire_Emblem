@@ -330,6 +330,7 @@ class Main:
                                             elif in_box(self.big_mouse_pos, self.wait_btn):
                                                 self.your_turn = False
                                                 self.turn_menu = False
+                                                self.player.persons[self.choice_person].active = False
                                     else:
                                         # move
                                         if self.person_want_move and mouse_pos in self.can_move_to:
@@ -346,13 +347,13 @@ class Main:
                                                                        self.fight_img)
                                                     self.your_turn = False
                                                     self.turn_phase = 'move'
-                                                    print('yeee')
+                                                    self.player.persons[self.choice_person].active = False
                                                     self.choice_person = None
 
                             else:
                                 # choice person
                                 for person in self.player.persons:
-                                    if mouse_pos == person.pos:
+                                    if mouse_pos == person.pos and person.active:
                                         if self.choice_person is None:
                                             self.choice_person = self.player.persons.index(person)
                                             self.turn_menu = True
@@ -896,7 +897,7 @@ class Main:
                             if len(self.data) != len(self.opponent.persons):
                                 if [(int(j[1]) // TILE, int(j[2]) // TILE) for j in self.data] != \
                                         [person.pos for person in self.player.persons]:
-                                    self.opponent.persons = [Person(int(j[1]), int(j[2]), j[0], None, j[20])
+                                    self.opponent.persons = [Person(int(j[1]), int(j[2]), j[0], None, j[20], int(j[21]))
                                                              for j in self.data]
                             for j in range(len(self.data)):
                                 if len(self.data[j]) > 10:
@@ -932,7 +933,6 @@ class Main:
                     except:
                         print('no')
 
-
                     # attack
                     for person in self.player.persons:
                         a_ = []
@@ -956,6 +956,11 @@ class Main:
                         pass
                     else:
                         self.render()
+
+                    # persons active
+                    if not any([person.active for person in self.player.persons]):
+                        for person in self.player.persons:
+                            person.active = True
             else:
                 self.events('menu')
 
@@ -973,22 +978,22 @@ class Main:
                 if not self.start_game:
                     self.menu.render(self.sms[:8] != '<my_pers')
 
-            for person in self.player.persons + self.opponent.persons:
-                print(person.name)
-                print('hp ', person.hp)
-                print('str ', person.str)
-                print('mag ', person.mag)
-                print('skl ', person.skl)
-                print('speed ', person.speed)
-                print('lck ', person.lck)
-                print('def ', person.def_)
-                print('res ', person.res)
-                print('dmg ', person.dmg)
-                print('attack_speed ', person.attack_speed)
-                print('hit ', person.hit)
-                print('avoid ', person.avoid)
-                print('class ', person.class_)
-                print('---------------------')
+            # for person in self.player.persons + self.opponent.persons:
+            #     print(person.name)
+            #     print('hp ', person.hp)
+            #     print('str ', person.str)
+            #     print('mag ', person.mag)
+            #     print('skl ', person.skl)
+            #     print('speed ', person.speed)
+            #     print('lck ', person.lck)
+            #     print('def ', person.def_)
+            #     print('res ', person.res)
+            #     print('dmg ', person.dmg)
+            #     print('attack_speed ', person.attack_speed)
+            #     print('hit ', person.hit)
+            #     print('avoid ', person.avoid)
+            #     print('class ', person.class_)
+            #     print('---------------------')
 
             pygame.display.update()
 

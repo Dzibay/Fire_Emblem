@@ -229,7 +229,7 @@ characters = {'roy': {'lvl': 1,
                          'class': 'recruit',
                          'can_use': ['lance'],
                          'weapon': 'iron_lance',
-                         'up_to': ['knight', 'general'],
+                         'up_to': ['knight', 'cavalier'],
                          't2_can_use': ['lance'],
                          'rates': {
                              'hp': 75,

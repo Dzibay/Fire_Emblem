@@ -19,8 +19,8 @@ class Menu:
         self.start_btn = (175, 792, 445, 80)
         self.settings_exit_btn = (700, 600, 200, 50)
         self.lvl_up_btn = (1240, 622, 30, 30)
-        self.up_class_btns = [(1200, 700, 300, 50),
-                              (1200, 760, 300, 50)]
+        self.up_class_btns = [(1250, 700, 300, 50),
+                              (1250, 760, 300, 50)]
         self.tick = 0
         self.phase = 'edit_team'
         self.person_choice_cords = [(i, j, 100, 100) for j in range(300, 730, 120) for i in range(970, 1770, 120)]
@@ -174,8 +174,10 @@ class Menu:
                     if not self.up_classes[self.ally_growth_person]:
                         pygame.draw.rect(self.screen, GREEN, self.lvl_up_btn)
                     else:
-                        for btn in self.up_class_btns:
-                            pygame.draw.rect(self.screen, GREEN, btn)
+                        for i in range(len(self.up_class_btns)):
+                            pygame.draw.rect(self.screen, GREEN, self.up_class_btns[i])
+                            text = self.f2.render(characters[self.ally_growth_person]['up_to'][i], True, WHITE)
+                            self.screen.blit(text, (self.up_class_btns[i][0] + 20, self.up_class_btns[i][1] + 10))
 
             for i in range(len(self.choice_persons)):
                 self.screen.blit(self.mini_person_faces[self.person_choice_cords.index(self.choice_persons[i])],

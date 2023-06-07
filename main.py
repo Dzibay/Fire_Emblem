@@ -401,11 +401,10 @@ class Main:
                             self.sms = f'<my_pers |'
                             for i in self.menu.choice_persons:
                                 if self.menu.all_names_persons[i] in lords:
-                                    self.sms += self.menu.all_names_persons[i] + ','
+                                    self.sms += str(self.menu.result_person_stats[self.menu.all_names_persons[i]]['lvl'] // 10 + 1) + self.menu.all_names_persons[i] + ','
                                 else:
-                                    self.sms += characters[self.menu.all_names_persons[i]]['class'
-                                    if self.menu.result_person_stats[self.menu.all_names_persons[i]]['lvl']
-                                       < 10 else 'up_to'] + ','
+                                    self.sms += f'{characters[self.menu.all_names_persons[i]]["gender"]}_' \
+                                                f'{characters[self.menu.all_names_persons[i]]["class" if self.menu.result_person_stats[self.menu.all_names_persons[i]]["lvl"] < 10 else "up_to"]},'
                             self.sms += '>'
                         else:
                             # menu phase
@@ -977,9 +976,10 @@ class Main:
 
                 data_ = self.sock.recv(1024).decode()
                 if data_[:5] == '<wait' and data_[:6] != '<wait>':
-                    self.fight_img.upload_images([self.menu.all_names_persons[i] if self.menu.all_names_persons[i] in lords
-                                                  else characters[self.menu.all_names_persons[i]]['class'
-                    if self.menu.result_person_stats[self.menu.all_names_persons[i]]['lvl'] < 10 else 'up_to']
+                    self.fight_img.upload_images([str(self.menu.result_person_stats[self.menu.all_names_persons[i]]['lvl'] // 10 + 1) + self.menu.all_names_persons[i]
+                                                  if self.menu.all_names_persons[i] in lords
+                                                  else f'{characters[self.menu.all_names_persons[i]]["gender"]}_' \
+                                                       f'{characters[self.menu.all_names_persons[i]]["class" if self.menu.result_person_stats[self.menu.all_names_persons[i]]["lvl"] < 10 else "up_to"]}'
                                                   for i in self.menu.choice_persons])
                     data_ = self.find_persons_images(data_)
                     self.fight_img.upload_images(data_)

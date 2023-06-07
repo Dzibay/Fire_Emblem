@@ -62,7 +62,7 @@ def get_cords(graph, start, goal):
     return cords
 
 
-def read(file, script=False):
+def read(file, weapon, script=False):
     if script:
         result = {'attack': [], 'critical': []}
         dmg_times = {'attack': 0, 'critical': 0}
@@ -89,7 +89,8 @@ def read(file, script=False):
                for i in file]
         result = []
         for i in res:
-            if i[0][10:15] == 'under':
+            if i[0][len(weapon) + 5:len(weapon) + 10] == 'under':
+                print(i)
                 result[len(result) - 1].append([int(j) for j in i[1:]])
             else:
                 result.append([[int(j) for j in i[1:]]])
@@ -98,14 +99,14 @@ def read(file, script=False):
 
 def test():
     pygame.init()
-    pers = 'eliwood'
-    weapon = 'bow'
-    choice = 'critical'
+    pers = 'falco_knight'
+    weapon = 'lance'
+    choice = 'attack'
     screen = pygame.display.set_mode((1000, 800))
     clock = pygame.time.Clock()
-    index = read(open(f'templates/persons/{pers}/{weapon}/Index.txt').readlines())
-    script = read(open(f'templates/persons/{pers}/{weapon}/Script.txt').readlines(), True)
-    imgs = [[pygame.transform.flip(pygame.transform.scale(pygame.image.load(f'templates/persons/{pers}/{weapon}/attack.png').
+    index = read(open(f'templates/persons/other/{pers}/battle/{weapon}/Index.txt').readlines(), weapon)
+    script = read(open(f'templates/persons/other/{pers}/battle/{weapon}/Script.txt').readlines(), weapon, True)
+    imgs = [[pygame.transform.flip(pygame.transform.scale(pygame.image.load(f'templates/persons/other/{pers}/battle/{weapon}/attack.png').
             subsurface((i[0], i[1], i[2], i[3])), (i[2] * 5, i[3] * 5)), True, False) for i in j] for j in index]
     print(index)
     print(script)
@@ -134,7 +135,9 @@ def test():
                 if script_navigator == len(script[0][choice]):
                     attack = False
                     script_navigator = 0
+
             for i in range(len(imgs[cadr])):
+                print(cadr, (index[cadr][i][4] * 5, index[cadr][i][5] * 5))
                 screen.blit(imgs[cadr][i], (900 - index[cadr][i][2] * 5 - index[cadr][i][4] * 5, index[cadr][i][5] * 5))
             cadr_tick += 1
         else:
@@ -144,6 +147,3 @@ def test():
 
 
 # test()
-a, b, c = False, False, False
-l = [a, b, c]
-print(any(l))

@@ -24,6 +24,7 @@ class Person:
         self.move_to = ''
         self.damage_for_me = 0
         self.active = True
+        self.gender = characters[self.name]['gender']
 
         # stats
         if stats is not None:
@@ -124,7 +125,7 @@ class Person:
                     self.map_images[weapon_][person]['stand'] = []
                     for i in range(3):
                         image = pygame.transform.scale(pygame.image.load(
-                            f'templates/persons/other/{self.class_}/map/{weapon_}/{person}/stand.png').convert_alpha().subsurface(
+                            f'templates/persons/other/{self.class_}/{self.gender}/map/{weapon_}/{person}/stand.png').convert_alpha().subsurface(
                             (i * 64, 0, 64, 48)), (350, 260))
                         trans_color = image.get_at((0, 0))
                         image.set_colorkey(trans_color)
@@ -133,7 +134,7 @@ class Person:
                     self.map_images[weapon_][person]['passive'] = []
                     for i in range(3):
                         image = pygame.transform.scale(pygame.image.load(
-                            f'templates/persons/other/{self.class_}/map/{weapon_}/{person}/stand.png').convert_alpha().subsurface(
+                            f'templates/persons/other/{self.class_}/{self.gender}/map/{weapon_}/{person}/stand.png').convert_alpha().subsurface(
                             (i * 64, 48, 64, 48)), (350, 260))
                         trans_color = image.get_at((0, 0))
                         image.set_colorkey(trans_color)
@@ -142,7 +143,7 @@ class Person:
                     self.map_images[weapon_][person]['active'] = []
                     for i in range(3):
                         image = pygame.transform.scale(pygame.image.load(
-                            f'templates/persons/other/{self.class_}/map/{weapon_}/{person}/stand.png').convert_alpha().subsurface(
+                            f'templates/persons/other/{self.class_}/{self.gender}/map/{weapon_}/{person}/stand.png').convert_alpha().subsurface(
                             (i * 64, 96, 64, 48)), (350, 260))
                         trans_color = image.get_at((0, 0))
                         image.set_colorkey(trans_color)
@@ -151,7 +152,7 @@ class Person:
                     self.map_images[weapon_][person]['down'] = []
                     for i in range(4):
                         image = pygame.transform.scale(pygame.image.load(
-                            f'templates/persons/other/{self.class_}/map/{weapon_}/{person}/move.png').convert_alpha().subsurface(
+                            f'templates/persons/other/{self.class_}/{self.gender}/map/{weapon_}/{person}/move.png').convert_alpha().subsurface(
                             (i * 48, 0, 48, 40)), (260, 215))
                         trans_color = image.get_at((0, 0))
                         image.set_colorkey(trans_color)
@@ -160,7 +161,7 @@ class Person:
                     self.map_images[weapon_][person]['left'] = []
                     for i in range(4):
                         image = pygame.transform.scale(pygame.image.load(
-                            f'templates/persons/other/{self.class_}/map/{weapon_}/{person}/move.png').convert_alpha().subsurface(
+                            f'templates/persons/other/{self.class_}/{self.gender}/map/{weapon_}/{person}/move.png').convert_alpha().subsurface(
                             (i * 48, 40, 48, 40)), (260, 215))
                         trans_color = image.get_at((0, 0))
                         image.set_colorkey(trans_color)
@@ -169,7 +170,7 @@ class Person:
                     self.map_images[weapon_][person]['right'] = []
                     for i in range(4):
                         image = pygame.transform.scale(pygame.image.load(
-                            f'templates/persons/other/{self.class_}/map/{weapon_}/{person}/move.png').convert_alpha().subsurface(
+                            f'templates/persons/other/{self.class_}/{self.gender}/map/{weapon_}/{person}/move.png').convert_alpha().subsurface(
                             (i * 48, 80, 48, 40)), (260, 215))
                         trans_color = image.get_at((0, 0))
                         image.set_colorkey(trans_color)
@@ -178,7 +179,7 @@ class Person:
                     self.map_images[weapon_][person]['up'] = []
                     for i in range(4):
                         image = pygame.transform.scale(pygame.image.load(
-                            f'templates/persons/other/{self.class_}/map/{weapon_}/{person}/move.png').convert_alpha().subsurface(
+                            f'templates/persons/other/{self.class_}/{self.gender}/map/{weapon_}/{person}/move.png').convert_alpha().subsurface(
                             (i * 48, 120, 48, 40)), (260, 215))
                         trans_color = image.get_at((0, 0))
                         image.set_colorkey(trans_color)

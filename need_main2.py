@@ -7,6 +7,8 @@ from dextr import *
 from fight import Fight, Fight_images, triangle
 from menu import Menu
 from data.weapon import weapon, weapon_img, weapon_arrow, weapon_can_be_used
+from person import lords
+from data.classes import class_weapon_can_use
 
 
 def mapping(pos):
@@ -43,7 +45,7 @@ class Main:
 
         # socket
         self.server_ip = 'localhost'
-        self.server_ip = '82.146.45.210'
+        # self.server_ip = '82.146.45.210'
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
         self.sock.connect((self.server_ip, 10000))
@@ -107,7 +109,7 @@ class Main:
         self.fight_img = Fight_images()
 
         # persons
-        f_ = {i: pygame.image.load(f'templates/persons/{i}/{i}_mugshot.png') for i in self.menu.all_names_persons}
+        f_ = {i: pygame.image.load(f'templates/persons/mugshots/{i}.png') for i in self.menu.all_names_persons}
         self.person_faces = {i: pygame.transform.scale(f_[i], (300, 300)) for i in f_}
         self.mini_person_faces = {i: pygame.transform.scale(f_[i], (100, 100)) for i in f_}
 
@@ -249,8 +251,13 @@ class Main:
     @staticmethod
     def list_of_weapon_can_be_used_by_person(person_name, person_class, t2=False):
         res = []
+        if person_name in lords:
+            person_can_use = characters[person_name]['can_use' if not t2 else 't2_can_use']
+        else:
+            person_can_use = class_weapon_can_use[characters[person_name]['class' if not t2 else 'up_to']]
+
         for weapon_ in weapon:
-            if weapon[weapon_]['class'] in characters[person_name]['can_use' if not t2 else 't2_can_use']:
+            if weapon[weapon_]['class'] in person_can_use:
                 if weapon_ in weapon_can_be_used:
                     if (person_name in weapon_can_be_used[weapon_]) or (person_class in weapon_can_be_used[weapon_]):
                         res.append(weapon_)
@@ -393,7 +400,12 @@ class Main:
                                 for i in self.menu.choice_persons}
                             self.sms = f'<my_pers |'
                             for i in self.menu.choice_persons:
-                                self.sms += self.menu.all_names_persons[i] + ','
+                                if self.menu.all_names_persons[i] in lords:
+                                    self.sms += self.menu.all_names_persons[i] + ','
+                                else:
+                                    self.sms += characters[self.menu.all_names_persons[i]]['class'
+                                    if self.menu.result_person_stats[self.menu.all_names_persons[i]]['lvl']
+                                       < 10 else 'up_to'] + ','
                             self.sms += '>'
                         else:
                             # menu phase
@@ -440,7 +452,7 @@ class Main:
                                 self.menu.person_settings = i
                                 class_ = characters[self.menu.all_names_persons[i]]['class']
                                 self.menu.list_of_weapon = self.list_of_weapon_can_be_used_by_person(
-                                    self.menu.all_names_persons[i], class_, self.menu.result_person_stats[self.menu.all_names_persons[self.menu.person_settings]]['lvl'] > 10)
+                                    self.menu.all_names_persons[i], class_, self.menu.result_person_stats[self.menu.all_names_persons[self.menu.person_settings]]['lvl'] >= 10)
                                 self.menu.list_of_weapon_see = 0
                     elif event.type == pygame.KEYUP:
                         if event.key == pygame.K_UP:
@@ -830,7 +842,7 @@ class Main:
                     try:
                         self.fight.render_not_my_fight(self.screen, self.magic_data)
                     except:
-                        print(self.fight)
+                        pass
                 else:
 
                     if len(self.menu.choice_persons) == 0:
@@ -901,7 +913,6 @@ class Main:
                                                              for j in self.data]
                             for j in range(len(self.data)):
                                 if len(self.data[j]) > 10:
-                                    print(self.data)
                                     self.opponent.persons[j].x = int(self.data[j][1])
                                     self.opponent.persons[j].y = int(self.data[j][2])
                                     self.opponent.persons[j].pos = (int(self.data[j][1]) // TILE,
@@ -966,7 +977,10 @@ class Main:
 
                 data_ = self.sock.recv(1024).decode()
                 if data_[:5] == '<wait' and data_[:6] != '<wait>':
-                    self.fight_img.upload_images(self.menu.all_names_persons[i] for i in self.menu.choice_persons)
+                    self.fight_img.upload_images([self.menu.all_names_persons[i] if self.menu.all_names_persons[i] in lords
+                                                  else characters[self.menu.all_names_persons[i]]['class'
+                    if self.menu.result_person_stats[self.menu.all_names_persons[i]]['lvl'] < 10 else 'up_to']
+                                                  for i in self.menu.choice_persons])
                     data_ = self.find_persons_images(data_)
                     self.fight_img.upload_images(data_)
                     self.start_game = True

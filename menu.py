@@ -3,7 +3,8 @@ from data.weapon import weapon_img, weapon
 from settings import *
 import pygame
 from random import randint
-from data.classes import classes_bonus
+from data.classes import classes_bonus, class_weapon_can_use
+from person import lords
 
 
 class Menu:
@@ -25,8 +26,8 @@ class Menu:
         self.phase = 'edit_team'
         self.person_choice_cords = [(i, j, 100, 100) for j in range(300, 730, 120) for i in range(970, 1770, 120)]
         self.all_names_persons = ['roy', 'lyn', 'marth', 'ike', 'eirika', 'eliwood', 'hector', 'ephraim',
-                                  'barthe', 'amelia', 'kent', 'wil', 'florina', 'marisa',
-                                  'sophia', 'lina']
+                                  'barthe', 'amelia', 'kent', 'wil', 'florina', 'marisa']
+
         self.choice_persons_weapon = {name: [characters[name]['weapon']] for name in self.all_names_persons}
         self.result_person_stats = {name: {'lvl': characters[name]['lvl'],
                                            'hp': characters[name]['hp'],
@@ -52,7 +53,7 @@ class Menu:
                                         'class': (1300, 700)}
         self.up_lvl = 0
 
-        f_ = [pygame.image.load(f'templates/persons/{i}/{i}_mugshot.png') for i in self.all_names_persons]
+        f_ = [pygame.image.load(f'templates/persons/mugshots/{i}.png') for i in self.all_names_persons]
         self.person_faces = [pygame.transform.scale(i, (100, 100)) for i in f_]
         self.mini_person_faces = [pygame.transform.scale(i, (70, 70)) for i in f_]
         self.choice_persons = []
@@ -78,7 +79,16 @@ class Menu:
         self.f1_f2 = pygame.font.Font(None, 40)
 
     def change_class(self):
-        self.choice_persons_weapon[self.ally_growth_person] = [i for i in self.choice_persons_weapon[self.ally_growth_person] if weapon[i]['class'] in characters[self.ally_growth_person]['t2_can_use']]
+        if self.ally_growth_person in lords:
+            self.choice_persons_weapon[self.ally_growth_person] = \
+                [i for i in self.choice_persons_weapon[self.ally_growth_person]
+                 if weapon[i]['class'] in characters[self.ally_growth_person]['can_use'
+                    if self.result_person_stats[self.ally_growth_person]['lvl'] < 10 else 't2_can_use']]
+        else:
+            self.choice_persons_weapon[self.ally_growth_person] = \
+                [i for i in self.choice_persons_weapon[self.ally_growth_person]
+                 if weapon[i]['class'] in class_weapon_can_use[characters[self.ally_growth_person]['class'
+                if self.result_person_stats[self.ally_growth_person]['lvl'] < 10 else 'up_to']]]
         class_ = characters[self.ally_growth_person]['up_to']
         self.result_person_stats[self.ally_growth_person]['class'] = class_
         for stat in classes_bonus[class_]:

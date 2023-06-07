@@ -1,251 +1,271 @@
 pose;Attack
 f;6;Axe_000
-f;6;Axe_001
+f;10;Axe_001
+f;6;Axe_002
 sound;Horse Step 3
-f;7;Axe_001
+f;1;Axe_002
+f;6;Axe_003
 sound;Axe Pull
-f;1;Axe_001
-f;16;Axe_002
-f;4;Axe_003
-sound;Axe Push
 f;1;Axe_003
-f;3;Axe_004
+f;16;Axe_004
+f;4;Axe_005
+sound;Axe Push
+f;1;Axe_005
+f;3;Axe_006
 platform_shake
-f;1;Axe_004
+f;1;Axe_006
 enemy_flash_white;8
-f;1;Axe_004
+f;1;Axe_006
 screen_flash_white;4
-f;1;Axe_004
-f;3;Axe_005;Axe_005_under
+f;1;Axe_006
+f;3;Axe_007;Axe_007_under
 hit_spark
 start_hit
-wait_for_hit;Axe_005;Axe_005_under
-f;4;Axe_005;Axe_005_under
-f;3;Axe_006
+wait_for_hit;Axe_007;Axe_007_under
+f;4;Axe_007;Axe_007_under
+f;3;Axe_008
 sound;Horse Step 2
-f;1;Axe_006
-f;2;Axe_007
+f;1;Axe_008
+f;2;Axe_009
+f;2;Axe_010
 sound;Axe Push
-f;1;Axe_007
-f;2;Axe_008
-f;3;Axe_009
-f;4;Axe_010
-f;6;Axe_011
-f;1;Axe_012
+f;1;Axe_010
+f;4;Axe_011
+f;6;Axe_012
 f;1;Axe_013
 f;1;Axe_014
 f;1;Axe_015
-f;7;Axe_016
-f;2;Axe_017
+f;1;Axe_016
+f;7;Axe_017
+f;2;Axe_018
+f;1;Axe_019
+f;1;Axe_020
 platform_shake
-f;1;Axe_017
-f;3;Axe_018
+f;1;Axe_020
+f;3;Axe_021
+f;4;Axe_022
 sound;Horse Step 2
-f;1;Axe_018
-f;4;Axe_019
-f;5;Axe_020
-f;5;Axe_021
-f;6;Axe_022
-f;8;Axe_023
-f;6;Axe_024
+f;1;Axe_022
+f;5;Axe_023
+f;5;Axe_024
+f;6;Axe_025
+f;8;Axe_026
+f;10;Axe_027
 sound;Horse Step 1
-f;1;Axe_024
-f;11;Axe_025
+f;1;Axe_027
+f;7;Axe_028
 
 pose;Critical
 f;6;Axe_000
-f;6;Axe_001
+f;10;Axe_001
+f;6;Axe_002
 sound;Horse Step 3
-f;7;Axe_001
+f;1;Axe_002
+f;6;Axe_003
 sound;Axe Pull
-f;1;Axe_001
-f;16;Axe_002
-f;3;Axe_026
+f;1;Axe_003
+f;6;Axe_004
+f;3;Axe_029;Axe_029_under
 sound;Heavy Spear Spin
-f;1;Axe_026
-f;3;Axe_027
-f;3;Axe_028
-f;3;Axe_029
-f;3;Axe_030
-f;6;Axe_031
-f;6;Axe_032
-f;6;Axe_033
-f;6;Axe_032
-f;6;Axe_031
-f;3;Axe_034
-f;2;Axe_035
-f;3;Axe_036
-sound;Horse Step 1
-f;1;Axe_036
-platform_shake
-f;1;Axe_036
-f;2;Axe_037
-f;3;Axe_038
-f;5;Axe_039
-sound;Horse Step 1
-f;1;Axe_039
-platform_shake
-f;1;Axe_039
-f;5;Axe_035
-f;5;Axe_036
-f;2;Axe_037
-sound;Horse Step 1
-f;1;Axe_037
-platform_shake
-f;1;Axe_037
-f;3;Axe_038
-f;2;Axe_039
-f;3;Axe_035
-sound;Horse Step 1
-f;1;Axe_035
-platform_shake
-f;1;Axe_035
-f;5;Axe_036
-f;5;Axe_037
-f;4;Axe_038
-sound;Horse Step 1
-f;1;Axe_038
-platform_shake
-f;1;Axe_038
-f;1;Axe_039
-f;2;Axe_035
-f;1;Axe_036
-sound;Horse Step 1
-f;1;Axe_036
-platform_shake
-f;1;Axe_036
-f;2;Axe_037
-f;3;Axe_038
+f;1;Axe_029;Axe_029_under
+f;3;Axe_030;Axe_030_under
+f;3;Axe_031;Axe_031_under
+f;3;Axe_032;Axe_032_under
+f;3;Axe_033;Axe_033_under
+f;3;Axe_034;Axe_034_under
+f;6;Axe_035;Axe_035_under
+f;6;Axe_034;Axe_034_under
+f;6;Axe_036;Axe_036_under
+f;6;Axe_034;Axe_034_under
+f;6;Axe_035;Axe_035_under
+f;3;Axe_037;Axe_037_under
+f;2;Axe_038
 f;3;Axe_039
 sound;Horse Step 1
 f;1;Axe_039
 platform_shake
 f;1;Axe_039
-f;3;Axe_035
-f;1;Axe_036
-f;2;Axe_037
-f;1;Axe_038
+f;2;Axe_040
+f;3;Axe_041
+f;5;Axe_042
+sound;Horse Step 1
+f;1;Axe_042
+platform_shake
+f;1;Axe_042
+f;5;Axe_043
+f;5;Axe_044
+f;2;Axe_038
 sound;Horse Step 1
 f;1;Axe_038
 platform_shake
 f;1;Axe_038
-f;2;Axe_039
-f;3;Axe_035
-f;3;Axe_036
-f;3;Axe_037
+f;3;Axe_039
+f;2;Axe_040
+f;3;Axe_041
 sound;Horse Step 1
-f;1;Axe_037
+f;1;Axe_041
 platform_shake
-f;1;Axe_037
+f;1;Axe_041
+f;5;Axe_042
+f;5;Axe_043
+f;4;Axe_044
+sound;Horse Step 1
+f;1;Axe_044
+platform_shake
+f;1;Axe_044
 f;1;Axe_038
 f;2;Axe_039
-sound;Axe Push
+f;1;Axe_040
+sound;Horse Step 1
+f;1;Axe_040
+platform_shake
+f;1;Axe_040
+f;2;Axe_041
+f;3;Axe_042
+f;3;Axe_043
+sound;Horse Step 1
+f;1;Axe_043
+platform_shake
+f;1;Axe_043
+f;3;Axe_044
+f;1;Axe_038
+f;2;Axe_039
+f;1;Axe_040
+sound;Horse Step 1
+f;1;Axe_040
+platform_shake
+f;1;Axe_040
+f;2;Axe_041
+f;3;Axe_042
+f;3;Axe_043
+f;3;Axe_044
+sound;Horse Step 1
+f;1;Axe_044
+platform_shake
+f;1;Axe_044
+f;1;Axe_038
+f;2;Axe_039
+f;1;Axe_040
+f;2;Axe_041
+sound;Horse Step 1
+f;1;Axe_041
+platform_shake
+f;1;Axe_041
+f;3;Axe_042
+f;3;Axe_043
+f;3;Axe_044
+f;1;Axe_038
+f;2;Axe_039
+sound;Horse Step 1
 f;1;Axe_039
-f;3;Axe_004
+platform_shake
+f;1;Axe_039
+f;1;Axe_040
+f;2;Axe_041
+f;3;Axe_042
+f;3;Axe_043
+f;3;Axe_044
 enemy_flash_white;8
-f;1;Axe_004
+f;1;Axe_044
 foreground_blend;2;248,248,248
 start_hit
-f;2;Axe_005;Axe_005_under
+f;2;Axe_007;Axe_007_under
 crit_spark
-wait_for_hit;Axe_005;Axe_005_under
-f;4;Axe_005;Axe_005_under
-f;3;Axe_006
+wait_for_hit;Axe_007;Axe_007_under
+f;4;Axe_007;Axe_007_under
+f;3;Axe_008
 sound;Horse Step 2
-f;1;Axe_006
-f;2;Axe_007
+f;1;Axe_008
+f;2;Axe_009
+f;2;Axe_010
 sound;Axe Push
-f;1;Axe_007
-f;2;Axe_008
-f;3;Axe_009
-f;4;Axe_010
-f;6;Axe_011
-f;1;Axe_012
+f;1;Axe_010
+f;4;Axe_011
+f;6;Axe_012
 f;1;Axe_013
 f;1;Axe_014
 f;1;Axe_015
-f;7;Axe_016
-f;2;Axe_017
+f;1;Axe_016
+f;7;Axe_017
+f;2;Axe_018
+f;1;Axe_019
+f;1;Axe_020
 platform_shake
-f;1;Axe_017
-f;3;Axe_018
+f;1;Axe_020
+f;3;Axe_021
+f;4;Axe_022
 sound;Horse Step 2
-f;1;Axe_018
-f;4;Axe_019
-f;5;Axe_020
-f;5;Axe_021
-f;6;Axe_022
-f;8;Axe_023
-f;6;Axe_024
+f;1;Axe_022
+f;5;Axe_023
+f;5;Axe_024
+f;6;Axe_025
+f;8;Axe_026
+f;10;Axe_027
 sound;Horse Step 1
-f;1;Axe_024
-f;11;Axe_025
+f;1;Axe_027
+f;7;Axe_028
 
 pose;Dodge
 f;1;Axe_000
 sound;Horse Step 1
 f;1;Axe_000
-f;3;Axe_040
-f;26;Axe_041
+f;3;Axe_054
+f;26;Axe_055
 sound;Horse Step 1
-f;1;Axe_041
-f;4;Axe_040
+f;1;Axe_055
+f;4;Axe_054
 
 pose;Stand
 f;4;Axe_000
 
 pose;Miss
 f;6;Axe_000
-f;6;Axe_001
+f;10;Axe_001
+f;6;Axe_002
 sound;Horse Step 3
-f;7;Axe_001
+f;1;Axe_002
+f;6;Axe_003
 sound;Axe Pull
-f;1;Axe_001
-f;16;Axe_002
-f;4;Axe_003
-sound;Axe Push
 f;1;Axe_003
-f;3;Axe_004
-platform_shake
-f;1;Axe_004
-enemy_flash_white;8
-f;1;Axe_004
-screen_flash_white;4
-f;1;Axe_004
-f;3;Axe_005;Axe_005_under
-hit_spark
-start_hit
-f;1;Axe_005;Axe_005_under
-miss
-f;30;Axe_005;Axe_005_under
-f;3;Axe_006
-sound;Horse Step 2
-f;1;Axe_006
-f;2;Axe_007
+f;16;Axe_004
+f;4;Axe_005
 sound;Axe Push
-f;1;Axe_007
-f;2;Axe_008
-f;3;Axe_009
-f;4;Axe_010
-f;6;Axe_011
-f;1;Axe_012
+f;1;Axe_005
+f;3;Axe_006
+platform_shake
+f;1;Axe_006
+f;2;Axe_056
+miss
+f;30;Axe_056
+f;3;Axe_008
+sound;Horse Step 2
+f;1;Axe_008
+f;2;Axe_009
+f;2;Axe_010
+sound;Axe Push
+f;1;Axe_010
+f;4;Axe_011
+f;6;Axe_012
 f;1;Axe_013
 f;1;Axe_014
 f;1;Axe_015
-f;7;Axe_016
-f;2;Axe_017
+f;1;Axe_016
+f;7;Axe_017
+f;2;Axe_018
+f;1;Axe_019
+f;1;Axe_020
 platform_shake
-f;1;Axe_017
-f;3;Axe_018
+f;1;Axe_020
+f;3;Axe_021
+f;4;Axe_022
 sound;Horse Step 2
-f;1;Axe_018
-f;4;Axe_019
-f;5;Axe_020
-f;5;Axe_021
-f;6;Axe_022
-f;8;Axe_023
-f;6;Axe_024
+f;1;Axe_022
+f;5;Axe_023
+f;5;Axe_024
+f;6;Axe_025
+f;8;Axe_026
+f;10;Axe_027
 sound;Horse Step 1
-f;1;Axe_024
-f;11;Axe_025
+f;1;Axe_027
+f;7;Axe_028
 

@@ -102,9 +102,9 @@ f;4;Sword_017
 
 pose;Dodge
 f;1;Sword_000
-f;3;Sword_034
-f;27;Sword_035
-f;4;Sword_034
+f;3;Sword_033
+f;27;Sword_034
+f;4;Sword_033
 
 pose;Stand
 f;4;Sword_000
@@ -115,20 +115,13 @@ sound;Horse Step 1
 f;1;Sword_000
 f;20;Sword_001
 f;4;Sword_002
-enemy_flash_white;8
-f;1;Sword_002
-screen_flash_white;4
-f;1;Sword_002
 sound;Weapon Push
 f;1;Sword_002
-f;3;Sword_003;Sword_003_under
-hit_spark
-start_hit
-f;1;Sword_003;Sword_003_under
+f;2;Sword_035
 miss
-f;30;Sword_003;Sword_003_under
+f;30;Sword_035
 sound;Weapon Pull
-f;1;Sword_003;Sword_003_under
+f;1;Sword_035
 f;2;Sword_004
 f;2;Sword_005
 f;5;Sword_006

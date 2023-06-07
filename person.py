@@ -2,7 +2,6 @@ import pygame
 from settings import *
 from data.persons import characters
 from weapon import Weapon
-from data.classes import class_weapon_can_use
 
 
 lords = ['roy', 'lyn', 'marth', 'ike', 'eirika', 'eliwood', 'hector', 'ephraim']
@@ -119,7 +118,7 @@ class Person:
                         image.set_colorkey(trans_color)
                         self.map_images[weapon_][person]['up'].append(image)
         else:
-            self.map_images = {weapon_: {'person': {}, 'enemy': {}} for weapon_ in class_weapon_can_use[self.class_]}
+            self.map_images = {weapon_: {'person': {}, 'enemy': {}} for weapon_ in characters[self.name]['can_use' if self.lvl < 10 else 't2_can_use']}
             for weapon_ in self.map_images:
                 for person in self.map_images[weapon_]:
                     self.map_images[weapon_][person]['stand'] = []

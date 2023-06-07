@@ -3,7 +3,7 @@ from data.weapon import weapon_img, weapon
 from settings import *
 import pygame
 from random import randint
-from data.classes import classes_bonus, class_weapon_can_use
+from data.classes import classes_bonus
 from person import lords
 
 
@@ -87,8 +87,8 @@ class Menu:
         else:
             self.choice_persons_weapon[self.ally_growth_person] = \
                 [i for i in self.choice_persons_weapon[self.ally_growth_person]
-                 if weapon[i]['class'] in class_weapon_can_use[characters[self.ally_growth_person]['class'
-                if self.result_person_stats[self.ally_growth_person]['lvl'] < 10 else 'up_to']]]
+                 if weapon[i]['class'] in characters[self.ally_growth_person]['can_use'
+                if self.result_person_stats[self.ally_growth_person]['lvl'] < 10 else 't2_can_use']]
         class_ = characters[self.ally_growth_person]['up_to']
         self.result_person_stats[self.ally_growth_person]['class'] = class_
         for stat in classes_bonus[class_]:

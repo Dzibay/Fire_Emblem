@@ -7,19 +7,6 @@ types = {'infinite': ['lord'],
          'dragons': ['wyvern_rider', 'wyvern_lord', 'fire_dragon'],
          'nergal': ['druid']}
 
-class_weapon_can_use = {'archer': ['bow'],
-                        'sniper': ['bow'],
-                        'recruit': ['lance'],
-                        'knight': ['sword', 'axe', 'lance'],
-                        'general': ['sword', 'axe', 'lance'],
-                        'myrmidon': ['sword'],
-                        'sword_master': ['sword'],
-                        'pegasus_knight': ['lance'],
-                        'falco_knight': ['lance'],
-                        'cavalier': ['sword', 'lance'],
-                        'paladin': ['sword', 'axe', 'lance'],
-                        }
-
 classes_bonus = {'great_lord': {'hp': 4,
                                 'str': 2,
                                 'skl': 3,

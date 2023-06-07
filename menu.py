@@ -4,7 +4,6 @@ from settings import *
 import pygame
 from random import randint
 from data.classes import classes_bonus
-from person import lords
 
 
 class Menu:
@@ -20,13 +19,14 @@ class Menu:
         self.start_btn = (175, 792, 445, 80)
         self.settings_exit_btn = (700, 600, 200, 50)
         self.lvl_up_btn = (1240, 622, 30, 30)
-        self.lvl_down_btn = (1288, 622, 30, 30)
-        self.lvl_result_btn = (1350, 622, 50, 30)
+        self.up_class_btns = [(1200, 700, 300, 50),
+                              (1200, 760, 300, 50)]
         self.tick = 0
         self.phase = 'edit_team'
         self.person_choice_cords = [(i, j, 100, 100) for j in range(300, 730, 120) for i in range(970, 1770, 120)]
         self.all_names_persons = ['roy', 'lyn', 'marth', 'ike', 'eirika', 'eliwood', 'hector', 'ephraim',
                                   'barthe', 'amelia', 'kent', 'wil', 'florina', 'marisa']
+        self.up_classes = {name: False for name in self.all_names_persons}
 
         self.choice_persons_weapon = {name: [characters[name]['weapon']] for name in self.all_names_persons}
         self.result_person_stats = {name: {'lvl': characters[name]['lvl'],
@@ -41,7 +41,8 @@ class Menu:
                                            'con': characters[name]['con'],
                                            'move': characters[name]['move'],
                                            'class': characters[name]['class']} for name in self.all_names_persons}
-        self.ally_growth_stats_cords = {'hp': (1160, 665),
+        self.ally_growth_stats_cords = {'lvl': (1180, 622),
+                                        'hp': (1160, 665),
                                         'str': (1160, 702),
                                         'mag': (1160, 702),
                                         'speed': (1160, 739),
@@ -51,7 +52,6 @@ class Menu:
                                         'skl': (1160, 891),
                                         'con': (1160, 928),
                                         'class': (1300, 700)}
-        self.up_lvl = 0
 
         f_ = [pygame.image.load(f'templates/persons/mugshots/{i}.png') for i in self.all_names_persons]
         self.person_faces = [pygame.transform.scale(i, (100, 100)) for i in f_]
@@ -78,31 +78,30 @@ class Menu:
         self.f3 = pygame.font.Font(None, 70)
         self.f1_f2 = pygame.font.Font(None, 40)
 
-    def change_class(self):
-        if self.ally_growth_person in lords:
-            self.choice_persons_weapon[self.ally_growth_person] = \
-                [i for i in self.choice_persons_weapon[self.ally_growth_person]
-                 if weapon[i]['class'] in characters[self.ally_growth_person]['can_use'
-                    if self.result_person_stats[self.ally_growth_person]['lvl'] < 10 else 't2_can_use']]
-        else:
-            self.choice_persons_weapon[self.ally_growth_person] = \
-                [i for i in self.choice_persons_weapon[self.ally_growth_person]
-                 if weapon[i]['class'] in characters[self.ally_growth_person]['can_use'
-                if self.result_person_stats[self.ally_growth_person]['lvl'] < 10 else 't2_can_use']]
-        class_ = characters[self.ally_growth_person]['up_to']
+    def change_class(self, id_):
+        self.choice_persons_weapon[self.ally_growth_person] = \
+            [i for i in self.choice_persons_weapon[self.ally_growth_person]
+             if weapon[i]['class'] in characters[self.ally_growth_person]['can_use'
+            if self.result_person_stats[self.ally_growth_person]['lvl'] < 10 else 't2_can_use']]
+
+        class_ = characters[self.ally_growth_person]['up_to'][id_]
         self.result_person_stats[self.ally_growth_person]['class'] = class_
         for stat in classes_bonus[class_]:
             self.result_person_stats[self.ally_growth_person][stat] += classes_bonus[class_][stat]
 
+        self.up_classes[self.ally_growth_person] = False
+
     def change_lvl(self):
-        for i in range(self.up_lvl):
-            for stat in characters[self.ally_growth_person]['rates']:
-                self.result_person_stats[self.ally_growth_person][stat] += 1 if randint(0, 100) < \
-                                                                                characters[self.ally_growth_person][
-                                                                                    'rates'][stat] else 0
-        if (self.result_person_stats[self.ally_growth_person]['lvl'] < 10) and \
-                (self.result_person_stats[self.ally_growth_person]['lvl'] + self.up_lvl >= 10):
-            self.change_class()
+        self.result_person_stats[self.ally_growth_person]['lvl'] += 1
+        for stat in characters[self.ally_growth_person]['rates']:
+            self.result_person_stats[self.ally_growth_person][stat] += 1 if randint(0, 100) < \
+                                                                            characters[self.ally_growth_person][
+                                                                                'rates'][stat] else 0
+        if self.result_person_stats[self.ally_growth_person]['lvl'] == 10:
+            if len(characters[self.ally_growth_person]['up_to']) < 2:
+                self.change_class(0)
+            else:
+                self.up_classes[self.ally_growth_person] = True
 
     def render(self, person_settings):
         self.tick += 1
@@ -154,36 +153,29 @@ class Menu:
                     for img in self.bg['ally_growth']:
                         self.screen.blit(img, (0, 0))
                     for stat in self.result_person_stats[self.ally_growth_person]:
-                        if stat != 'move' and stat != 'lvl':
-                            if stat == 'str' or stat == 'mag':
-                                stat = 'str' if self.result_person_stats[self.ally_growth_person]['str'] > \
-                                    self.result_person_stats[self.ally_growth_person]['mag'] else 'mag'
-                            text = self.f2.render(str(self.result_person_stats[self.ally_growth_person][stat]), True, WHITE)
-                            c_ = self.ally_growth_stats_cords[stat]
+                        if stat != 'move':
                             if stat != 'class':
-                                c_ = c_ if self.result_person_stats[self.ally_growth_person][stat] > 9 \
-                                    else (c_[0] + 20, c_[1])
-                            self.screen.blit(text, c_)
-
-                    text1 = self.f1_f2.render(str(self.result_person_stats[self.ally_growth_person]["lvl"]), True, WHITE)
-                    if self.up_lvl == 0:
-                        if self.result_person_stats[self.ally_growth_person]["lvl"] < 10:
-                            c_ = (1200, 625)
-                        else:
-                            c_ = (1180, 625)
-                        self.screen.blit(text1, c_)
+                                if stat == 'str' or stat == 'mag':
+                                    stat = 'str' if self.result_person_stats[self.ally_growth_person]['str'] > \
+                                                    self.result_person_stats[self.ally_growth_person]['mag'] else 'mag'
+                                text = self.f2.render(str(self.result_person_stats[self.ally_growth_person][stat]), True,
+                                                      WHITE)
+                                c_ = self.ally_growth_stats_cords[stat]
+                                if stat != 'class':
+                                    c_ = c_ if self.result_person_stats[self.ally_growth_person][stat] > 9 \
+                                        else (c_[0] + 20, c_[1])
+                                self.screen.blit(text, c_)
+                            else:
+                                if self.up_classes[self.ally_growth_person]:
+                                    pass
+                                else:
+                                    text = self.f2.render(str(self.result_person_stats[self.ally_growth_person]['class']), True, WHITE)
+                                    self.screen.blit(text, self.ally_growth_stats_cords['class'])
+                    if not self.up_classes[self.ally_growth_person]:
+                        pygame.draw.rect(self.screen, GREEN, self.lvl_up_btn)
                     else:
-                        text2 = self.f1_f2.render(f'+{self.up_lvl}', True, GREEN)
-                        if self.result_person_stats[self.ally_growth_person]["lvl"] < 10:
-                            self.screen.blit(text1, (1170, 625))
-                            self.screen.blit(text2, (1182, 625))
-                        else:
-                            self.screen.blit(text1, (1165, 625))
-                            self.screen.blit(text2, (1195, 625))
-
-                    pygame.draw.rect(self.screen, GREEN, self.lvl_up_btn)
-                    pygame.draw.rect(self.screen, RED, self.lvl_down_btn)
-                    pygame.draw.rect(self.screen, BLUE, self.lvl_result_btn)
+                        for btn in self.up_class_btns:
+                            pygame.draw.rect(self.screen, GREEN, btn)
 
             for i in range(len(self.choice_persons)):
                 self.screen.blit(self.mini_person_faces[self.person_choice_cords.index(self.choice_persons[i])],

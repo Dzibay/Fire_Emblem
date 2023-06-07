@@ -104,9 +104,9 @@ def test():
     choice = 'attack'
     screen = pygame.display.set_mode((1000, 800))
     clock = pygame.time.Clock()
-    index = read(open(f'templates/persons/other/{pers}/battle/{weapon}/Index.txt').readlines(), weapon)
-    script = read(open(f'templates/persons/other/{pers}/battle/{weapon}/Script.txt').readlines(), weapon, True)
-    imgs = [[pygame.transform.flip(pygame.transform.scale(pygame.image.load(f'templates/persons/other/{pers}/battle/{weapon}/attack.png').
+    index = read(open(f'templates/persons/other/knight/amelia/battle/{weapon}/Index.txt').readlines(), weapon)
+    script = read(open(f'templates/persons/other/knight/amelia/battle/{weapon}/Script.txt').readlines(), weapon, True)
+    imgs = [[pygame.transform.flip(pygame.transform.scale(pygame.image.load(f'templates/persons/other/knight/amelia/battle/{weapon}/attack.png').
             subsurface((i[0], i[1], i[2], i[3])), (i[2] * 5, i[3] * 5)), True, False) for i in j] for j in index]
     print(index)
     print(script)

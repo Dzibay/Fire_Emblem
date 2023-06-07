@@ -7,7 +7,6 @@ from dextr import *
 from fight import Fight, Fight_images, triangle
 from menu import Menu
 from data.weapon import weapon, weapon_img, weapon_arrow, weapon_can_be_used
-from person import lords
 
 
 def mapping(pos):
@@ -396,7 +395,8 @@ class Main:
                                 for i in self.menu.choice_persons}
                             self.sms = f'<my_pers |'
                             for i in self.menu.choice_persons:
-                                self.sms += str(self.menu.result_person_stats[self.menu.all_names_persons[i]]['lvl'] // 10 + 1) + self.menu.all_names_persons[i] + ','
+                                self.sms += self.menu.all_names_persons[i] + '_' + \
+                                            self.menu.result_person_stats[self.menu.all_names_persons[i]]['class'] + ','
                             self.sms += '>'
                         else:
                             # menu phase
@@ -421,15 +421,13 @@ class Main:
                                                 self.menu.choice_persons.append(i)
                             if self.menu.phase == 'ally_growth':
                                 if in_box(self.big_mouse_pos, self.menu.lvl_up_btn):
-                                    if self.menu.result_person_stats[self.menu.ally_growth_person]['lvl'] + self.menu.up_lvl < 20:
-                                        self.menu.up_lvl += 1
-                                elif in_box(self.big_mouse_pos, self.menu.lvl_down_btn):
-                                    if self.menu.up_lvl > 0:
-                                        self.menu.up_lvl -= 1
-                                elif in_box(self.big_mouse_pos, self.menu.lvl_result_btn):
-                                    self.menu.change_lvl()
-                                    self.menu.result_person_stats[self.menu.ally_growth_person]['lvl'] += self.menu.up_lvl
-                                    self.menu.up_lvl = 0
+                                    if not self.menu.up_classes[self.menu.ally_growth_person]:
+                                        if self.menu.result_person_stats[self.menu.ally_growth_person]['lvl'] < 20:
+                                            self.menu.change_lvl()
+                                elif self.menu.up_classes[self.menu.ally_growth_person]:
+                                    for btn in self.menu.up_class_btns:
+                                        if in_box(self.big_mouse_pos, btn):
+                                            self.menu.change_class(self.menu.up_class_btns.index(btn))
                                 else:
                                     for i in range(len(self.menu.choice_persons)):
                                         if in_box(self.big_mouse_pos, (1165 + i * 90, 120, 100, 100)):
@@ -443,7 +441,10 @@ class Main:
                                 self.menu.person_settings = i
                                 class_ = characters[self.menu.all_names_persons[i]]['class']
                                 self.menu.list_of_weapon = self.list_of_weapon_can_be_used_by_person(
-                                    self.menu.all_names_persons[i], class_, self.menu.result_person_stats[self.menu.all_names_persons[self.menu.person_settings]]['lvl'] >= 10)
+                                    self.menu.all_names_persons[i], class_, self.menu.result_person_stats[
+                                                                                self.menu.all_names_persons[
+                                                                                    self.menu.person_settings]][
+                                                                                'lvl'] >= 10)
                                 self.menu.list_of_weapon_see = 0
                     elif event.type == pygame.KEYUP:
                         if event.key == pygame.K_UP:
@@ -616,7 +617,8 @@ class Main:
                             self.opponent.persons[i].move_to = self.data[i][3]
                             self.opponent.persons[i].img = \
                                 self.opponent.persons[i].map_images[
-                                    self.opponent.persons[i].weapon.class_]['enemy'][self.data[i][3]][self.tick % 40 // 10]
+                                    self.opponent.persons[i].weapon.class_]['enemy'][self.data[i][3]][
+                                    self.tick % 40 // 10]
                     except:
                         print('cant print')
 
@@ -900,8 +902,21 @@ class Main:
                             if len(self.data) != len(self.opponent.persons):
                                 if [(int(j[1]) // TILE, int(j[2]) // TILE) for j in self.data] != \
                                         [person.pos for person in self.player.persons]:
-                                    self.opponent.persons = [Person(int(j[1]), int(j[2]), j[0], None, j[20], int(j[21]))
-                                                             for j in self.data]
+                                    stats = {j[22]: {'lvl': int(j[21]),
+                                                     'hp': 0,
+                                                     'str': 0,
+                                                     'mag': 0,
+                                                     'speed': 0,
+                                                     'def': 0,
+                                                     'res': 0,
+                                                     'lck': 0,
+                                                     'skl': 0,
+                                                     'con': 0,
+                                                     'move': 0,
+                                                     'class': j[22]} for j in self.data}
+                                    self.opponent.persons = [
+                                        Person(int(j[1]), int(j[2]), j[0], stats[j[22]], j[20]) for j in self.data]
+
                             for j in range(len(self.data)):
                                 if len(self.data[j]) > 10:
                                     self.opponent.persons[j].x = int(self.data[j][1])
@@ -968,7 +983,8 @@ class Main:
 
                 data_ = self.sock.recv(1024).decode()
                 if data_[:5] == '<wait' and data_[:6] != '<wait>':
-                    self.fight_img.upload_images([str(self.menu.result_person_stats[self.menu.all_names_persons[i]]['lvl'] // 10 + 1) + self.menu.all_names_persons[i]
+                    self.fight_img.upload_images([self.menu.all_names_persons[i] + '_' +
+                                                  self.menu.result_person_stats[self.menu.all_names_persons[i]]['class']
                                                   for i in self.menu.choice_persons])
                     data_ = self.find_persons_images(data_)
                     self.fight_img.upload_images(data_)

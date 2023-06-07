@@ -12,7 +12,7 @@ def cords(c):
 
 
 class Person:
-    def __init__(self, x, y, name, stats, choice_weapon=None, lvl=0):
+    def __init__(self, x, y, name, stats, choice_weapon=None):
         print('person')
         self.x = x
         self.y = y
@@ -26,30 +26,18 @@ class Person:
         self.gender = characters[self.name]['gender']
 
         # stats
-        if stats is not None:
-            self.lvl = stats['lvl']
-            self.hp = stats['hp']
-            self.str = stats['str']
-            self.mag = stats['mag']
-            self.skl = stats['skl']
-            self.lck = stats['lck']
-            self.def_ = stats['def']
-            self.res = stats['res']
-            self.con = stats['con']
-            self.speed = stats['speed']
-            self.class_ = stats['class']
-        else:
-            self.lvl = lvl
-            self.hp = 0
-            self.str = 0
-            self.mag = 0
-            self.skl = 0
-            self.lck = 0
-            self.def_ = 0
-            self.res = 0
-            self.con = 0
-            self.speed = 0
-            self.class_ = characters[self.name]['class' if lvl < 10 else 'up_to']
+        self.lvl = stats['lvl']
+        self.hp = stats['hp']
+        self.str = stats['str']
+        self.mag = stats['mag']
+        self.skl = stats['skl']
+        self.lck = stats['lck']
+        self.def_ = stats['def']
+        self.res = stats['res']
+        self.con = stats['con']
+        self.speed = stats['speed']
+        self.class_ = stats['class']
+
         self.max_hp = self.hp
         self.movement = characters[self.name]['move']
         self.weapon = Weapon(choice_weapon if choice_weapon is not None else characters[self.name]['weapon'])

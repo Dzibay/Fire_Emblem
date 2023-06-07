@@ -3,8 +3,8 @@ import pygame
 from random import randint
 from data.weapon import weapon, weapon_img, weapon_arrow, weapon_effective, weapon_have_triangle_bonus
 from data.classes import types
-from person import lords
 from data.persons import characters
+from person import lords
 
 magic_names = ['sophia', 'lina']
 
@@ -227,7 +227,10 @@ class Fight_images:
             return result
 
     def upload_images(self, names):
-        for name in names:
+        for person in names:
+            h_ = person.split('_')
+            name = h_[0]
+            class_ = h_[1]
             if name not in self.images:
                 if name in magic_names and not self.uploaded_images:
                     self.uploaded_images = True
@@ -249,15 +252,15 @@ class Fight_images:
                                                                 for i in self.magic_effects[magic_]['enemy']]
 
                 # persons
-                if name[1:] in lords:
-                    t_ = name[:1]
-                    w_ = characters[name[1:]]['can_use']
-                    self.images[name] = {i: [] for i in w_}
+                if name in lords:
+                    w_ = characters[name]['can_use']
+                    t_ = 1 if class_ == characters[name]['class'] else 2
+                    self.images[person] = {i: [] for i in w_}
                     for weapon_ in w_:
-                        self.images[name][weapon_] = {'person': [], 'enemy': []}
-                        index = self.read(open(f'templates/persons/lords/{name[1:]}/battle/T{t_}/{weapon_}/Index.txt').readlines(), weapon_)
+                        self.images[person][weapon_] = {'person': [], 'enemy': []}
+                        index = self.read(open(f'templates/persons/lords/{name}/battle/T{t_}/{weapon_}/Index.txt').readlines(), weapon_)
                         enemy_attack_img = []
-                        image = pygame.image.load(f'templates/persons/lords/{name[1:]}/battle/T{t_}/{weapon_}/attack.png').convert_alpha()
+                        image = pygame.image.load(f'templates/persons/lords/{name}/battle/T{t_}/{weapon_}/attack.png').convert_alpha()
                         for j in index:
                             ar_ = []
                             for i in j:
@@ -267,19 +270,17 @@ class Fight_images:
                         # person
                         person_attack_img = [[pygame.transform.flip(img, True, False) for img in array] for array in enemy_attack_img]
 
-                        self.images[name][weapon_]['person'] = person_attack_img
-                        self.images[name][weapon_]['enemy'] = enemy_attack_img
+                        self.images[person][weapon_]['person'] = person_attack_img
+                        self.images[person][weapon_]['enemy'] = enemy_attack_img
                 else:
                     try:
-                        t_ = int(name[:1])
-                        w_ = characters[name[1:]]['can_use' if t_ == 1 else 't2_can_use']
-                        class_ = characters[name[1:]]['class_' if t_ == 1 else 'up_to']
-                        self.images[name] = {i: [] for i in w_}
+                        w_ = characters[name]['can_use' if class_ == characters[name]['class'] else 't2_can_use']
+                        self.images[person] = {i: [] for i in w_}
                         for weapon_ in w_:
-                            self.images[name][weapon_] = {'person': [], 'enemy': []}
-                            index = self.read(open(f'templates/persons/other/{class_}/{name[1:]}/battle/{weapon_}/Index.txt').readlines(), weapon_)
+                            self.images[person][weapon_] = {'person': [], 'enemy': []}
+                            index = self.read(open(f'templates/persons/other/{class_}/{name}/battle/{weapon_}/Index.txt').readlines(), weapon_)
                             enemy_attack_img = []
-                            image = pygame.image.load(f'templates/persons/other/{class_}/{name[1:]}/battle/{weapon_}/attack.png').convert_alpha()
+                            image = pygame.image.load(f'templates/persons/other/{class_}/{name}/battle/{weapon_}/attack.png').convert_alpha()
                             for j in index:
                                 ar_ = []
                                 for i in j:
@@ -289,16 +290,14 @@ class Fight_images:
                             # person
                             person_attack_img = [[pygame.transform.flip(img, True, False) for img in array] for array in enemy_attack_img]
 
-                            self.images[name][weapon_]['person'] = person_attack_img
-                            self.images[name][weapon_]['enemy'] = enemy_attack_img
+                            self.images[person][weapon_]['person'] = person_attack_img
+                            self.images[person][weapon_]['enemy'] = enemy_attack_img
                     except:
-                        t_ = int(name[:1])
-                        w_ = characters[name[1:]]['can_use' if t_ == 1 else 't2_can_use']
-                        class_ = characters[name[1:]]['class' if t_ == 1 else 'up_to']
-                        g_ = characters[name[1:]]['gender']
-                        self.images[name] = {i: [] for i in w_}
+                        w_ = characters[name]['can_use' if class_ == characters[name]['class'] else 't2_can_use']
+                        g_ = characters[name]['gender']
+                        self.images[person] = {i: [] for i in w_}
                         for weapon_ in w_:
-                            self.images[name][weapon_] = {'person': [], 'enemy': []}
+                            self.images[person][weapon_] = {'person': [], 'enemy': []}
                             index = self.read(
                                 open(f'templates/persons/other/{class_}/{g_}/battle/{weapon_}/Index.txt').readlines(),
                                 weapon_)
@@ -316,8 +315,8 @@ class Fight_images:
                             person_attack_img = [[pygame.transform.flip(img, True, False) for img in array] for array in
                                                  enemy_attack_img]
 
-                            self.images[name][weapon_]['person'] = person_attack_img
-                            self.images[name][weapon_]['enemy'] = enemy_attack_img
+                            self.images[person][weapon_]['person'] = person_attack_img
+                            self.images[person][weapon_]['enemy'] = enemy_attack_img
 
 
 class Fight:
@@ -457,7 +456,7 @@ class Fight:
         #             enemy_weapon_class = 'distance_lance'
 
         # files
-        self.person_attack_img = self.fight_img.images[str(person.lvl // 10 + 1) + person.name][person_weapon_class]['person']
+        self.person_attack_img = self.fight_img.images[person.name + '_' + person.class_][person_weapon_class]['person']
         if person.name in lords:
             t_ = self.person.lvl // 10 + 1
             self.person_index = self.fight_img.read(open(f'templates/persons/lords/{self.person.name}/battle/T{t_}/'
@@ -465,13 +464,19 @@ class Fight:
             self.person_script, self.person_times = self.fight_img.read(open(f'templates/persons/lords/{self.person.name}/battle/T{t_}/'
                                                                         f'{self.person.weapon.class_}/Script.txt'), '', True)
         else:
-            self.person_index = self.fight_img.read(open(f'templates/persons/other/{self.person.class_}/{person.gender}/battle/'
-                                                         f'{self.person.weapon.class_}/Index.txt'), person.weapon.class_)
-            self.person_script, self.person_times = self.fight_img.read(open(f'templates/persons/other/{self.person.class_}/{person.gender}/battle/'
-                                                                        f'{self.person.weapon.class_}/Script.txt'), '', True)
+            try:
+                self.person_index = self.fight_img.read(open(f'templates/persons/other/{self.person.class_}/{person.name}/battle/'
+                                                             f'{self.person.weapon.class_}/Index.txt'), person.weapon.class_)
+                self.person_script, self.person_times = self.fight_img.read(open(f'templates/persons/other/{self.person.class_}/{person.name}/battle/'
+                                                                                 f'{self.person.weapon.class_}/Script.txt'), '', True)
+            except:
+                self.person_index = self.fight_img.read(open(f'templates/persons/other/{self.person.class_}/{person.gender}/battle/'
+                                                             f'{self.person.weapon.class_}/Index.txt'), person.weapon.class_)
+                self.person_script, self.person_times = self.fight_img.read(open(f'templates/persons/other/{self.person.class_}/{person.gender}/battle/'
+                                                                            f'{self.person.weapon.class_}/Script.txt'), '', True)
         self.person_stay_img = self.person_attack_img[0]
 
-        self.enemy_attack_img = self.fight_img.images[str(enemy.lvl // 10 + 1) + enemy.name][enemy_weapon_class]['enemy']
+        self.enemy_attack_img = self.fight_img.images[enemy.name + '_' + enemy.class_][enemy_weapon_class]['enemy']
         if enemy.name in lords:
             t_ = self.enemy.lvl // 10 + 1
             self.enemy_index = self.fight_img.read(open(f'templates/persons/lords/{self.enemy.name}/battle/T{t_}/'
@@ -479,10 +484,16 @@ class Fight:
             self.enemy_script, self.enemy_times = self.fight_img.read(open(f'templates/persons/lords/{self.enemy.name}/battle/T{t_}/'
                                                                       f'{self.enemy.weapon.class_}/Script.txt'), '', True)
         else:
-            self.enemy_index = self.fight_img.read(open(f'templates/persons/other/{self.enemy.class_}/{enemy.gender}/battle/'
-                                                        f'{self.enemy.weapon.class_}/Index.txt'), enemy.weapon.class_)
-            self.enemy_script, self.enemy_times = self.fight_img.read(open(f'templates/persons/other/{self.enemy.class_}/{enemy.gender}/battle/'
-                                                                      f'{self.enemy.weapon.class_}/Script.txt'), '', True)
+            try:
+                self.enemy_index = self.fight_img.read(open(f'templates/persons/other/{self.enemy.class_}/{enemy.name}/battle/'
+                                                            f'{self.enemy.weapon.class_}/Index.txt'), enemy.weapon.class_)
+                self.enemy_script, self.enemy_times = self.fight_img.read(open(f'templates/persons/other/{self.enemy.class_}/{enemy.name}/battle/'
+                                                                          f'{self.enemy.weapon.class_}/Script.txt'), '', True)
+            except:
+                self.enemy_index = self.fight_img.read(open(f'templates/persons/other/{self.enemy.class_}/{enemy.gender}/battle/'
+                                                            f'{self.enemy.weapon.class_}/Index.txt'), enemy.weapon.class_)
+                self.enemy_script, self.enemy_times = self.fight_img.read(open(f'templates/persons/other/{self.enemy.class_}/{enemy.gender}/battle/'
+                                                                               f'{self.enemy.weapon.class_}/Script.txt'), '', True)
         self.enemy_stay_img = self.enemy_attack_img[0]
 
         self.person_dmg_time = self.person_times['critical' if self.moves[0] else 'attack']

@@ -395,7 +395,7 @@ class Main:
                                 for i in self.menu.choice_persons}
                             self.sms = f'<my_pers |'
                             for i in self.menu.choice_persons:
-                                self.sms += self.menu.all_names_persons[i] + '_' + \
+                                self.sms += self.menu.all_names_persons[i] + '/' + \
                                             self.menu.result_person_stats[self.menu.all_names_persons[i]]['class'] + ','
                             self.sms += '>'
                         else:
@@ -983,7 +983,7 @@ class Main:
 
                 data_ = self.sock.recv(1024).decode()
                 if data_[:5] == '<wait' and data_[:6] != '<wait>':
-                    self.fight_img.upload_images([self.menu.all_names_persons[i] + '_' +
+                    self.fight_img.upload_images([self.menu.all_names_persons[i] + '/' +
                                                   self.menu.result_person_stats[self.menu.all_names_persons[i]]['class']
                                                   for i in self.menu.choice_persons])
                     data_ = self.find_persons_images(data_)

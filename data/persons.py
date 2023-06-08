@@ -428,5 +428,6 @@ characters = {'roy': {'lvl': 1,
                            'lck': 50,
                            'def': 10,
                            'res': 35,
-                       }}
+                       }},
+
               }

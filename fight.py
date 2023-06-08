@@ -228,7 +228,7 @@ class Fight_images:
 
     def upload_images(self, names):
         for person in names:
-            h_ = person.split('_')
+            h_ = person.split('/')
             name = h_[0]
             class_ = h_[1]
             if name not in self.images:
@@ -456,7 +456,7 @@ class Fight:
         #             enemy_weapon_class = 'distance_lance'
 
         # files
-        self.person_attack_img = self.fight_img.images[person.name + '_' + person.class_][person_weapon_class]['person']
+        self.person_attack_img = self.fight_img.images[person.name + '/' + person.class_][person_weapon_class]['person']
         if person.name in lords:
             t_ = self.person.lvl // 10 + 1
             self.person_index = self.fight_img.read(open(f'templates/persons/lords/{self.person.name}/battle/T{t_}/'
@@ -476,7 +476,7 @@ class Fight:
                                                                             f'{self.person.weapon.class_}/Script.txt'), '', True)
         self.person_stay_img = self.person_attack_img[0]
 
-        self.enemy_attack_img = self.fight_img.images[enemy.name + '_' + enemy.class_][enemy_weapon_class]['enemy']
+        self.enemy_attack_img = self.fight_img.images[enemy.name + '/' + enemy.class_][enemy_weapon_class]['enemy']
         if enemy.name in lords:
             t_ = self.enemy.lvl // 10 + 1
             self.enemy_index = self.fight_img.read(open(f'templates/persons/lords/{self.enemy.name}/battle/T{t_}/'

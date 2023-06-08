@@ -341,9 +341,9 @@ class Fight:
             self.enemy_dmg = 0
         self.person_hit = person.hit + (15 if triangle(person.weapon.name, enemy.weapon.name) else -15) - enemy.avoid
         self.enemy_hit = enemy.hit + (15 if triangle(enemy.weapon.name, person.weapon.name) else -15) - person.avoid
-        self.moves = [True if randint(0, 100) <= person.crt else False,
+        self.moves = [False,
                       True if randint(0, 100) <= (100 - self.person_hit) else False,
-                      True if randint(0, 100) <= enemy.crt else False,
+                      False,
                       True if randint(0, 100) <= (100 - self.enemy_hit) else False]
         # self.moves = [False, False, False, False]
 

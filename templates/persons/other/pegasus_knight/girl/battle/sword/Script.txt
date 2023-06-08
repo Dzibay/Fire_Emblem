@@ -1,0 +1,176 @@
+pose;Attack
+f;6;Sword_000
+f;4;Sword_001
+f;4;Sword_002
+f;4;Sword_003
+sound;Weapon Pull
+f;1;Sword_003
+enemy_flash_white;8
+f;1;Sword_003
+screen_flash_white;4
+f;1;Sword_003
+f;12;Sword_004;Sword_004_under
+hit_spark
+start_hit
+wait_for_hit;Sword_004;Sword_004_under
+f;4;Sword_004;Sword_004_under
+f;3;Sword_005;Sword_005_under
+f;2;Sword_006
+sound;Weapon Push
+f;1;Sword_006
+f;3;Sword_007
+f;5;Sword_008
+f;5;Sword_009
+sound;Heavy Wing Flap
+f;1;Sword_009
+f;5;Sword_010
+f;5;Sword_011
+f;5;Sword_012
+f;5;Sword_013
+sound;Heavy Wing Flap
+f;1;Sword_013
+f;5;Sword_014
+f;5;Sword_015
+f;5;Sword_016
+f;5;Sword_017
+f;4;Sword_018
+sound;Long Wing Flap
+f;1;Sword_018
+f;3;Sword_019
+f;3;Sword_020
+f;3;Sword_021
+f;3;Sword_022
+f;3;Sword_023
+f;5;Sword_024
+sound;Heavy Wing Flap
+f;1;Sword_024
+f;3;Sword_000
+
+pose;Critical
+f;6;Sword_000
+f;1;Sword_025
+f;1;Sword_026
+sound;Heavy Spear Spin
+f;1;Sword_026
+f;1;Sword_027
+f;2;Sword_028
+f;2;Sword_029
+f;1;Sword_026
+sound;Heavy Spear Spin
+f;1;Sword_026
+f;1;Sword_027
+f;2;Sword_028
+f;2;Sword_029
+f;1;Sword_026
+sound;Heavy Spear Spin
+f;1;Sword_026
+f;1;Sword_027
+f;2;Sword_028
+f;2;Sword_029
+f;1;Sword_026
+sound;Heavy Spear Spin
+f;1;Sword_026
+f;1;Sword_027
+f;2;Sword_028
+f;2;Sword_029
+f;1;Sword_030
+f;5;Sword_000
+f;4;Sword_001
+f;4;Sword_002
+f;4;Sword_003
+sound;Weapon Pull
+f;1;Sword_003
+enemy_flash_white;8
+f;1;Sword_003
+foreground_blend;2;248,248,248
+platform_shake
+f;1;Sword_003
+start_hit
+f;2;Sword_004;Sword_004_under
+crit_spark
+wait_for_hit;Sword_004;Sword_004_under
+f;4;Sword_004;Sword_004_under
+f;3;Sword_005;Sword_005_under
+f;2;Sword_006
+sound;Weapon Push
+f;1;Sword_006
+f;3;Sword_007
+f;5;Sword_008
+f;5;Sword_009
+sound;Heavy Wing Flap
+f;1;Sword_009
+f;5;Sword_010
+f;5;Sword_011
+f;5;Sword_012
+f;5;Sword_013
+sound;Heavy Wing Flap
+f;1;Sword_013
+f;5;Sword_014
+f;5;Sword_015
+f;5;Sword_016
+f;5;Sword_017
+f;4;Sword_018
+sound;Long Wing Flap
+f;1;Sword_018
+f;3;Sword_019
+f;3;Sword_020
+f;3;Sword_021
+f;3;Sword_022
+f;3;Sword_023
+f;5;Sword_024
+sound;Heavy Wing Flap
+f;1;Sword_024
+f;3;Sword_000
+
+pose;Dodge
+f;2;Sword_033
+f;30;Sword_034
+f;3;Sword_033
+
+pose;Stand
+f;6;Sword_000
+
+pose;Miss
+f;6;Sword_000
+f;4;Sword_001
+f;4;Sword_002
+f;4;Sword_003
+sound;Weapon Pull
+f;1;Sword_003
+f;3;Sword_035
+f;3;Sword_036
+f;11;Sword_037
+miss
+f;30;Sword_037
+f;3;Sword_038
+f;2;Sword_006
+sound;Weapon Push
+f;1;Sword_006
+f;3;Sword_007
+f;5;Sword_008
+f;5;Sword_009
+sound;Heavy Wing Flap
+f;1;Sword_009
+f;5;Sword_010
+f;5;Sword_011
+f;5;Sword_012
+f;5;Sword_013
+sound;Heavy Wing Flap
+f;1;Sword_013
+f;5;Sword_014
+f;5;Sword_015
+f;5;Sword_016
+f;5;Sword_017
+f;4;Sword_018
+sound;Long Wing Flap
+f;1;Sword_018
+f;3;Sword_019
+f;3;Sword_020
+f;3;Sword_021
+f;3;Sword_022
+f;3;Sword_023
+f;3;Sword_024
+sound;Heavy Wing Flap
+f;1;Sword_024
+f;6;Sword_000
+

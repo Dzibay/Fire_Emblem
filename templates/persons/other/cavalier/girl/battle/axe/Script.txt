@@ -3,62 +3,14 @@ f;6;Axe_000
 sound;Horse Step 1
 f;1;Axe_000
 f;20;Axe_001
-f;4;Axe_002
-enemy_flash_white;8
-f;1;Axe_002
-screen_flash_white;4
-f;1;Axe_002
-sound;Axe Pull
-f;1;Axe_002
-f;3;Axe_003;Axe_003_under
-hit_spark
-start_hit
-wait_for_hit;Axe_003;Axe_003_under
-f;4;Axe_003;Axe_003_under
-sound;Axe Push
+f;3;Axe_002
 f;1;Axe_003;Axe_003_under
-f;2;Axe_004
-f;2;Axe_005
-f;5;Axe_006
-sound;Horse Step 2
-f;1;Axe_006
-f;3;Axe_007
-f;13;Axe_008
-f;3;Axe_009
-f;3;Axe_010
-f;1;Axe_011
-f;1;Axe_012
-f;20;Axe_013
-sound;Horse Step 3
-f;1;Axe_013
-f;7;Axe_014
-f;3;Axe_015
-f;7;Axe_016
-sound;Horse Step 3
-f;4;Axe_016
-f;4;Axe_000
-
-pose;Critical
-f;6;Axe_017
-f;3;Axe_018
-f;12;Axe_019
-f;2;Axe_020
-sound;Heavy Spear Spin
-f;1;Axe_020
-f;2;Axe_021
-f;2;Axe_022
-f;20;Axe_019
-sound;Horse Step 1
-f;1;Axe_019
-f;20;Axe_001
-f;4;Axe_002
 enemy_flash_white;8
-f;1;Axe_002
+f;1;Axe_003;Axe_003_under
 screen_flash_white;4
-f;1;Axe_002
+f;1;Axe_003;Axe_003_under
 sound;Weapon Push
-f;1;Axe_002
-f;3;Axe_003;Axe_003_under
+f;4;Axe_003;Axe_003_under
 hit_spark
 start_hit
 wait_for_hit;Axe_003;Axe_003_under
@@ -83,31 +35,52 @@ f;7;Axe_014
 f;3;Axe_015
 f;7;Axe_016
 sound;Horse Step 3
-f;4;Axe_016
+f;1;Axe_016
+f;3;Axe_017
 f;4;Axe_000
 
-pose;Dodge
-f;1;Axe_000
-f;1;Axe_030
-f;29;Axe_031
-f;2;Axe_030
-
-pose;Stand
-f;4;Axe_000
-
-pose;Miss
+pose;Critical
 f;6;Axe_000
+f;1;Axe_018
+f;2;Axe_019
+f;10;Axe_020
+sound;Weapon Pull
+f;1;Axe_020
+f;3;Axe_021
+f;3;Axe_022
+f;3;Axe_023
+sound;Weapon Pull
+f;1;Axe_023
+f;3;Axe_024
+f;3;Axe_025
+f;3;Axe_026
+sound;Weapon Pull
+f;1;Axe_026
+f;3;Axe_027
+f;3;Axe_028
+f;4;Axe_029
+f;10;Axe_030
+sound;Weapon Push
+f;1;Axe_030
+f;3;Axe_031
+f;3;Axe_000
 sound;Horse Step 1
 f;1;Axe_000
 f;20;Axe_001
-f;4;Axe_002
+f;3;Axe_002
+f;1;Axe_003;Axe_003_under
+enemy_flash_white;8
+f;1;Axe_003;Axe_003_under
+foreground_blend;2;248,248,248
 sound;Weapon Push
-f;1;Axe_002
-f;2;Axe_032
-miss
-f;30;Axe_032
-sound;Axe Push
-f;1;Axe_032
+f;1;Axe_003;Axe_003_under
+start_hit
+f;2;Axe_003;Axe_003_under
+crit_spark
+wait_for_hit;Axe_003;Axe_003_under
+f;4;Axe_003;Axe_003_under
+sound;Weapon Pull
+f;1;Axe_003;Axe_003_under
 f;2;Axe_004
 f;2;Axe_005
 f;5;Axe_006
@@ -126,6 +99,51 @@ f;7;Axe_014
 f;3;Axe_015
 f;7;Axe_016
 sound;Horse Step 3
-f;4;Axe_016
+f;1;Axe_016
+f;3;Axe_017
+f;4;Axe_000
+
+pose;Dodge
+f;1;Axe_000
+f;3;Axe_032
+f;27;Axe_033
+f;4;Axe_032
+
+pose;Stand
+f;4;Axe_000
+
+pose;Miss
+f;6;Axe_000
+sound;Horse Step 1
+f;1;Axe_000
+f;20;Axe_001
+f;3;Axe_002
+f;1;Axe_034
+sound;Weapon Push
+f;3;Axe_034
+miss
+f;30;Axe_034
+sound;Weapon Pull
+f;1;Axe_034
+f;2;Axe_004
+f;2;Axe_005
+f;5;Axe_006
+sound;Horse Step 2
+f;1;Axe_006
+f;3;Axe_007
+f;13;Axe_008
+f;3;Axe_009
+f;3;Axe_010
+f;1;Axe_011
+f;1;Axe_012
+f;20;Axe_013
+sound;Horse Step 3
+f;1;Axe_013
+f;7;Axe_014
+f;3;Axe_015
+f;7;Axe_016
+sound;Horse Step 3
+f;1;Axe_016
+f;3;Axe_017
 f;4;Axe_000
 

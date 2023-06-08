@@ -1,11 +1,3 @@
-pose;Dodge
-of;1;Bow_000
-of;3;Bow_024
-of;1;Bow_025
-of;26;Bow_025
-of;3;Bow_024
-f;1;Bow_024
-
 pose;Attack
 f;6;Bow_000
 f;2;Bow_001
@@ -75,6 +67,12 @@ f;4;Bow_015
 end_loop
 f;6;Bow_015
 f;5;Bow_016
+
+pose;Dodge
+f;1;Bow_000
+f;3;Bow_024
+f;27;Bow_025
+f;4;Bow_024
 
 pose;Stand
 f;4;Bow_000

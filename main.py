@@ -874,10 +874,13 @@ class Main:
                     # recv sms
                     try:
                         data_ = self.sock.recv(1024).decode()
-                        if data_[:5] == '<True' and self.turn_phase == 'move':
-                            self.your_turn = True
-                        elif data_[:6] == '<False':
-                            self.your_turn = False
+                        if self.turn_phase == 'move':
+                            if data_[:5] == '<True':
+                                self.your_turn = True
+                                print('change lvl to True')
+                            elif data_[:6] == '<False':
+                                self.your_turn = False
+                                print('change lvl to True')
                         if self.your_turn != self.last_sms_to_move:
                             self.turn_phase = 'move'
                             self.choice_person = None

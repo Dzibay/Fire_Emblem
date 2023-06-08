@@ -513,10 +513,8 @@ class Fight:
         self.enemy_dmg_tick = self.start_enemy_attack + self.enemy_dmg_time
 
         if self.person.weapon.class_ == 'magic':
-            self.end = self.start_enemy_attack + self.enemy_magic_effect_time + 50
+            self.end = self.start_enemy_attack + max(self.enemy_magic_effect_time, self.enemy_attack_time) + 50
         else:
-            self.end = self.start_enemy_attack + self.enemy_attack_time + 50
-        if self.moves[2]:
             self.end = self.start_enemy_attack + self.enemy_attack_time + 50
 
         self.cadr = 0
@@ -738,10 +736,13 @@ class Fight:
                 screen.blit(self.miss(), (250, 300))
 
         # end
+        print(self.person_count_attack, self.enemy_count_attack)
         if self.tick == 10 + self.person_attack_time:
             self.person_count_attack -= 1
+            print('person - 1')
         elif self.tick == self.start_enemy_attack + self.enemy_attack_time:
             self.enemy_count_attack -= 1
+            print('enemy - 1')
 
         if self.enemy.hp <= 0 and (self.tick >= self.start_enemy_attack):
             return None
@@ -772,6 +773,11 @@ class Fight:
 
                 self.person_dmg_tick = 50 + self.person_dmg_time
                 self.enemy_dmg_tick = self.start_enemy_attack + self.enemy_dmg_time
+
+                if self.person.weapon.class_ == 'magic':
+                    self.end = self.start_enemy_attack + max(self.enemy_magic_effect_time, self.enemy_attack_time) + 50
+                else:
+                    self.end = self.start_enemy_attack + self.enemy_attack_time + 50
         else:
             if self.tick > self.end:
                 if self.person_count_attack == 0 and self.enemy_count_attack == 0:
@@ -797,8 +803,16 @@ class Fight:
 
                     self.person_dmg_tick = 50 + self.person_dmg_time
                     self.enemy_dmg_tick = self.start_enemy_attack + self.enemy_dmg_time
+
+                    if self.person.weapon.class_ == 'magic':
+                        self.end = self.start_enemy_attack + max(self.enemy_magic_effect_time,
+                                                                 self.enemy_attack_time) + 50
+                    else:
+                        self.end = self.start_enemy_attack + self.enemy_attack_time + 50
+
                 elif self.enemy_count_attack > 0:
                     self.tick = self.start_enemy_attack
+                    print('1')
                     self.cadr = 0
                     self.script_navigator = 0
                     self.cadr_tick = 0
@@ -818,6 +832,12 @@ class Fight:
 
                     self.person_dmg_tick = 50 + self.person_dmg_time
                     self.enemy_dmg_tick = self.start_enemy_attack + self.enemy_dmg_time
+
+                    if self.person.weapon.class_ == 'magic':
+                        self.end = self.start_enemy_attack + max(self.enemy_magic_effect_time,
+                                                                 self.enemy_attack_time) + 50
+                    else:
+                        self.end = self.start_enemy_attack + self.enemy_attack_time + 50
         return cords_
 
     def render_not_my_fight(self, screen, magic_data):

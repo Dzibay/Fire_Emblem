@@ -877,10 +877,8 @@ class Main:
                         if self.turn_phase == 'move':
                             if data_[:5] == '<True':
                                 self.your_turn = True
-                                print('change lvl to True')
                             elif data_[:6] == '<False':
                                 self.your_turn = False
-                                print('change lvl to True')
                         if self.your_turn != self.last_sms_to_move:
                             self.turn_phase = 'move'
                             self.choice_person = None
@@ -1000,8 +998,8 @@ class Main:
                 if not self.start_game:
                     self.menu.render(self.sms[:8] != '<my_pers')
 
-            # for person in self.player.persons + self.opponent.persons:
-            #     print(person.name)
+            for person in self.player.persons + self.opponent.persons:
+                print(person.name)
             #     print('hp ', person.hp)
             #     print('str ', person.str)
             #     print('mag ', person.mag)
@@ -1011,11 +1009,11 @@ class Main:
             #     print('def ', person.def_)
             #     print('res ', person.res)
             #     print('dmg ', person.dmg)
-            #     print('attack_speed ', person.attack_speed)
+                print('attack_speed ', person.attack_speed)
             #     print('hit ', person.hit)
             #     print('avoid ', person.avoid)
             #     print('class ', person.class_)
-            #     print('---------------------')
+                print('---------------------')
 
             pygame.display.update()
 

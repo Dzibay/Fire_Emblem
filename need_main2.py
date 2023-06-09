@@ -7,7 +7,7 @@ from dextr import *
 from fight import Fight, Fight_images, triangle
 from menu import Menu
 from data.weapon import weapon, weapon_img, weapon_arrow, weapon_can_be_used
-from save_team.upload_team import save_team, upload_team
+from save_team.upload_team import save_team, upload_team, can_save
 from levels.lvl_terra import movement_penalties
 
 
@@ -255,7 +255,9 @@ class Main:
         result = []
         for i in res:
             cords = get_cords(self.graph, pos, i)
-            length = sum([movement_penalties[lvl_generate[cord]] for cord in cords[:-1]])
+            length = sum([movement_penalties[lvl_generate[cord]]
+                          if not self.player.persons[self.choice_person].flying else 1
+                          for cord in cords[:-1]])
             if (i not in self.cant) and (i not in not_append) and (length in l):
                 result.append(i)
         return result
@@ -422,7 +424,7 @@ class Main:
                                 # save team
                                 if in_box(self.big_mouse_pos, self.menu.save_team_btn):
                                     if self.menu.save_upload_text != '':
-                                        if len(self.menu.choice_persons) > 0:
+                                        if len(self.menu.choice_persons) > 0 and can_save(self.menu.save_upload_text):
                                             choice_persons = [self.menu.person_choice_cords.index(j) for j in
                                                               self.menu.choice_persons]
                                             data = {self.menu.all_names_persons[i]: (self.menu.result_person_stats[

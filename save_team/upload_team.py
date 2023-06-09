@@ -22,6 +22,15 @@ def upload_team(name):
     return result
 
 
+def can_save(name):
+    file = open('save_team/saved_teams.txt', 'r').readlines()
+    res = True
+    for line in file:
+        if line[:-1] == name:
+            res = False
+    return res
+
+
 def save_team(name, datas):
     file = open('save_team/saved_teams.txt', 'a')
     result = []
@@ -38,7 +47,6 @@ def save_team(name, datas):
         line = ''
 
     print('complited')
-    file.write(f'\n')
     file.write(f'\n')
     file.write(f'{name}\n')
     for i in result:

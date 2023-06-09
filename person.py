@@ -276,7 +276,7 @@ class Person:
         return (self.pos[0] * TILE, self.pos[1] * TILE)
 
     def move(self, cords):
-        if self.pos != self.want_move:
+        if self.pos != self.want_move and len(cords) > 0:
             self.state = ''
             cords.reverse()
             cord = cords[0]

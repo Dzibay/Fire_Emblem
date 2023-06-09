@@ -1,6 +1,6 @@
 import pygame
 import socket
-from person import Person, characters
+from person import Person, characters, lvl_generate
 from player import Player
 from settings import *
 from dextr import *
@@ -8,6 +8,7 @@ from fight import Fight, Fight_images, triangle
 from menu import Menu
 from data.weapon import weapon, weapon_img, weapon_arrow, weapon_can_be_used
 from save_team.upload_team import save_team, upload_team
+from levels.lvl_terra import movement_penalties
 
 
 def mapping(pos):
@@ -254,7 +255,8 @@ class Main:
         result = []
         for i in res:
             cords = get_cords(self.graph, pos, i)
-            if (i not in self.cant) and (i not in not_append) and (len(cords) - 1 in l):
+            length = sum([movement_penalties[lvl_generate[cord]] for cord in cords[:-1]])
+            if (i not in self.cant) and (i not in not_append) and (length in l):
                 result.append(i)
         return result
 

@@ -2,6 +2,7 @@ import pygame
 from settings import *
 from data.persons import characters
 from weapon import Weapon
+from levels.lvl_terra import lvl_generate, def_buff, avoid_buff
 
 
 lords = ['roy', 'lyn', 'marth', 'ike', 'eirika', 'eliwood', 'hector', 'ephraim']
@@ -19,6 +20,8 @@ class Person:
         self.name = name
         self.state = 'stay'
         self.pos = (self.x // TILE, self.y // TILE)
+        self.terra_pos = lvl_generate[self.pos]
+        self.last_terra_pos = self.terra_pos
         self.want_move = self.pos
         self.move_to = ''
         self.damage_for_me = 0
@@ -291,10 +294,20 @@ class Person:
                 self.move_to = 'left'
             else:
                 self.pos = cord
+                self.terra_pos = lvl_generate[self.pos]
                 cords.reverse()
                 cords.remove(cord)
                 cords.reverse()
             cords.reverse()
+        else:
+            if self.last_terra_pos != self.terra_pos:
+                self.def_ -= def_buff[self.last_terra_pos]
+                self.avoid -= avoid_buff[self.last_terra_pos]
+
+                self.def_ += def_buff[self.terra_pos]
+                self.avoid += avoid_buff[self.terra_pos]
+
+                self.last_terra_pos = self.terra_pos
         return cords
 
     def choice_image(self, tick, choice):

@@ -328,11 +328,6 @@ class Fight:
         self.enemy = enemy
         self.tick = 0
 
-        # fonts
-        self.f1 = pygame.font.Font(None, 30)
-        self.f2 = pygame.font.Font(None, 50)
-        self.f3 = pygame.font.Font(None, 70)
-
         self.person_dmg = calculate_damage(person, enemy)
         self.enemy_dmg = calculate_damage(enemy, person)
         if self.person_dmg < 0:
@@ -341,6 +336,7 @@ class Fight:
             self.enemy_dmg = 0
         self.person_hit = person.hit + (15 if triangle(person.weapon.name, enemy.weapon.name) else -15) - enemy.avoid
         self.enemy_hit = enemy.hit + (15 if triangle(enemy.weapon.name, person.weapon.name) else -15) - person.avoid
+
         self.moves = [False,
                       True if randint(0, 100) <= (100 - self.person_hit) else False,
                       False,
@@ -520,6 +516,11 @@ class Fight:
         self.cadr = 0
         self.cadr_tick = 0
         self.script_navigator = 0
+
+        # fonts
+        self.f1 = pygame.font.Font(None, 30)
+        self.f2 = pygame.font.Font(None, 50)
+        self.f3 = pygame.font.Font(None, 70)
 
     def attack(self, script, person=True):
         self.cadr_tick += 1

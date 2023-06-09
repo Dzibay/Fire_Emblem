@@ -21,7 +21,10 @@ class Menu:
         self.lvl_up_btn = (1240, 622, 30, 30)
         self.up_class_btns = [(1250, 700, 300, 50),
                               (1250, 760, 300, 50)]
+        self.run = True
+        self.placing_persons_window = False
         self.tick = 0
+        self.sms = ''
         self.phase = 'edit_team'
         self.person_choice_cords = [(i, j, 100, 100) for j in range(300, 730, 120) for i in range(970, 1770, 120)]
         self.all_names_persons = ['roy', 'lyn', 'marth', 'ike', 'eirika', 'eliwood', 'hector', 'ephraim',
@@ -72,6 +75,12 @@ class Menu:
                                                    convert_alpha(), (WIDTH, HEIGHT)) for i in range(22)]}
         self.x_1 = 0
         self.x_2 = -1920
+
+        self.save_team_btn = (900, 130, 100, 50)
+        self.upload_team_btn = (730, 130, 150, 50)
+        self.save_upload_text = ''
+        self.save_upload_text_flag = False
+        self.save_upload_text_btn = (730, 80, 270, 40)
 
         # fonts
         self.f1 = pygame.font.Font(None, 30)
@@ -150,6 +159,24 @@ class Menu:
                                                                     self.person_choice_cords[i][1]))
                         except:
                             pass
+
+                    # save/upload team
+                    pygame.draw.rect(self.screen, BLUE, self.upload_team_btn)
+                    pygame.draw.rect(self.screen, GREEN, self.save_team_btn)
+                    text_upload = self.f2.render('Upload', True, WHITE)
+                    text_save = self.f2.render('Save', True, WHITE)
+                    self.screen.blit(text_upload, (self.upload_team_btn[0] + 15, self.upload_team_btn[1] + 10))
+                    self.screen.blit(text_save, (self.save_team_btn[0] + 10, self.save_team_btn[1] + 10))
+
+                    pygame.draw.rect(self.screen, WHITE, self.save_upload_text_btn)
+                    text = self.f2.render(self.save_upload_text, True, BLACK)
+                    self.screen.blit(text, (self.save_upload_text_btn[0] + 10, self.save_upload_text_btn[1] + 5))
+
+                    if self.save_upload_text_flag:
+                        if self.tick % 40 < 15:
+                            pygame.draw.rect(self.screen, BLACK,
+                                             (self.save_upload_text_btn[0] + 10 + len(self.save_upload_text) * 21,
+                                              self.save_upload_text_btn[1] + 2, 2, 36))
                 elif self.phase == 'ally_growth':
                     for img in self.bg['ally_growth']:
                         self.screen.blit(img, (0, 0))
@@ -186,6 +213,7 @@ class Menu:
 
             for img in self.bg['base'][19:]:
                 self.screen.blit(img, (0, 0))
+
         else:
             i_ = self.tick % 160 // 20
             if i_ == 1:

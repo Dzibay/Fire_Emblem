@@ -1,0 +1,26 @@
+name lvl hp str mag speed def res lck skl con move class weapons
+
+new
+roy 1 18 5 0 7 5 0 7 5 6 5 lord iron_sword
+lyn 1 16 4 0 9 2 0 5 7 5 5 lord iron_sword
+marth 1 18 5 0 7 7 0 7 3 9 4 lord iron_sword
+
+
+new2
+amelia 1 16 4 0 4 2 3 6 3 6 4 recruit iron_lance
+kent 1 20 6 0 7 5 1 2 6 9 7 cavalier iron_lance
+lina 1 16 0 4 4 2 7 4 5 4 5 mage fire
+
+
+dsdsg
+hector 1 19 7 0 9 8 0 3 4 13 5 lord iron_axe
+marisa 5 23 7 0 13 4 3 9 12 5 5 myrmidon iron_sword
+florina 1 17 5 0 9 4 4 7 7 4 7 pegasus_knight iron_lance
+
+
+my_team
+marth 1 18 5 0 7 7 0 7 3 9 4 lord iron_sword
+amelia 1 16 4 0 4 2 3 6 3 6 4 recruit iron_lance
+sophia 1 15 0 6 4 1 8 3 2 3 5 mage flux
+barthe 9 25 10 0 5 14 1 2 6 16 4 knight iron_lance
+ephraim 1 20 6 0 5 6 1 5 6 8 5 lord iron_lance

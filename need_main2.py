@@ -656,8 +656,8 @@ class Main:
                     try:
                         # opponent persons img
                         if self.data[i][3] == 'stay':
-                            if self.tick % 120 < 40:
-                                i_ = (self.tick % 40 // 10)
+                            if self.tick % 60 <= 15:
+                                i_ = (self.tick % 15 // 5)
                             else:
                                 i_ = 0
                             self.opponent.persons[i].move_to = ''
@@ -798,8 +798,9 @@ class Main:
                     person_name = self.f2.render(p_.name, True, WHITE)
                     self.screen.blit(person_name, (1005, 140))
                     self.screen.blit(weapon_img[p_.weapon.name], (875, 105))
-                    self.screen.blit(weapon_arrow['up' if triangle(p_.weapon.name, enemy.weapon.name) else 'down']
-                                     [self.tick % 30 // 10 if self.tick % 60 < 30 else 0], (920, 130))
+                    if triangle(p_.weapon.name, enemy.weapon.name) is not None:
+                        self.screen.blit(weapon_arrow['up' if triangle(p_.weapon.name, enemy.weapon.name) else 'down']
+                                         [self.tick % 30 // 10 if self.tick % 60 < 30 else 0], (920, 130))
                     person_hp = f.render(str(p_.hp), True, WHITE)
                     person_mt = f.render(str(p_.weapon.mt), True, WHITE)
                     person_hit = f.render(str(p_.hit), True, WHITE)
@@ -813,8 +814,9 @@ class Main:
                     enemy_name = self.f2.render(enemy.name, True, WHITE)
                     self.screen.blit(enemy_name, (940, 440))
                     self.screen.blit(weapon_img[enemy.weapon.name], (1090, 400))
-                    self.screen.blit(weapon_arrow['up' if triangle(enemy.weapon.name, p_.weapon.name) else 'down']
-                                     [self.tick % 30 // 10 if self.tick % 60 < 30 else 0], (1135, 440))
+                    if triangle(enemy.weapon.name, p_.weapon.name) is not None:
+                        self.screen.blit(weapon_arrow['up' if triangle(enemy.weapon.name, p_.weapon.name) else 'down']
+                                         [self.tick % 30 // 10 if self.tick % 60 < 30 else 0], (1135, 440))
                     enemy_hp = f.render(str(enemy.hp), True, WHITE)
                     enemy_mt = f.render(str(enemy.weapon.mt), True, WHITE)
                     enemy_hit = f.render(str(enemy.hit), True, WHITE)

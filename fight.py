@@ -121,7 +121,7 @@ def triangle(weapon_1, weapon_2):
         return True
     else:
         if weapon_1 == weapon_2:
-            return False
+            return None
         if weapon[weapon_1]['class'] == 'magic' and weapon[weapon_2]['class'] == 'magic':
             weapon_1 = weapon[weapon_1]['subclass']
             weapon_2 = weapon[weapon_2]['subclass']
@@ -158,18 +158,20 @@ def triangle(weapon_1, weapon_2):
                     return True
                 elif weapon_2 == 'axe':
                     return False
-
-            elif weapon_1 == 'bow':
-                return False
-            elif weapon_2 == 'bow' and weapon_1 != 'magic':
-                return True
+    return None
 
 
 def calculate_damage(person, enemy):
     if person.weapon in weapon_have_triangle_bonus:
         bonus = 2
     else:
-        bonus = 1 if triangle(person.weapon.name, enemy.weapon.name) else -1
+        if triangle(person.weapon.name, enemy.weapon.name) is None:
+            bonus = 0
+        elif triangle(person.weapon.name, enemy.weapon.name):
+            bonus = 1
+        else:
+            bonus = -1
+
         if person.weapon.class_ != 'magic' or enemy.weapon.class_ != 'magic':
             if person.weapon.class_ == enemy.weapon.class_:
                 bonus = 0
@@ -334,8 +336,17 @@ class Fight:
             self.person_dmg = 0
         if self.enemy_dmg < 0:
             self.enemy_dmg = 0
-        self.person_hit = person.hit + (15 if triangle(person.weapon.name, enemy.weapon.name) else -15) - enemy.avoid
-        self.enemy_hit = enemy.hit + (15 if triangle(enemy.weapon.name, person.weapon.name) else -15) - person.avoid
+
+        self.person_hit = person.hit - enemy.avoid
+        self.enemy_hit = enemy.hit - person.avoid
+        if triangle(person.weapon.name, enemy.weapon.name) is None:
+            pass
+        elif triangle(person.weapon.name, enemy.weapon.name):
+            self.person_hit += 15
+            self.enemy_hit -= 15
+        else:
+            self.person_hit -= 15
+            self.enemy_hit += 15
 
         self.moves = [False,
                       True if randint(0, 100) <= (100 - self.person_hit) else False,

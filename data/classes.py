@@ -125,5 +125,25 @@ classes_bonus = {'great_lord': {'hp': 4,
                           'def': 1,
                           'res': 2,
                           'con': 1,
-                          'move': 1}
+                          'move': 1},
+
+                 'hero': {'hp': 4,
+                          'str': 0,
+                          'skl': 2,
+                          'speed': 2,
+                          'lck': 0,
+                          'def': 2,
+                          'res': 2,
+                          'con': 1,
+                          'move': 1},
+
+                 'nomadic_trooper': {'hp': 3,
+                                     'str': 2,
+                                     'skl': 1,
+                                     'speed': 1,
+                                     'lck': 0,
+                                     'def': 3,
+                                     'res': 3,
+                                     'con': 1,
+                                     'move': 1}
                  }

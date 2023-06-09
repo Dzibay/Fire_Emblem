@@ -321,4 +321,4 @@ class Person:
                 p_ = 'active' if choice else 'stand'
             else:
                 p_ = 'passive'
-            self.img = self.map_images[self.weapon.class_]['person'][p_][tick % 30 // 10 if tick % 120 < 40 else 0]
+            self.img = self.map_images[self.weapon.class_]['person'][p_][tick % 15 // 5 if tick % 60 <= 15 else 0]

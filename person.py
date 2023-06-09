@@ -24,6 +24,7 @@ class Person:
         self.damage_for_me = 0
         self.active = True
         self.gender = characters[self.name]['gender']
+        self.flying = True if self.name == 'florina' else False
 
         # stats
         self.lvl = stats['lvl']

@@ -89,7 +89,7 @@ class Main:
         self.settings_unit_rect = (250, 130, 300, 300)
 
         # move
-        self.graph, self.cant = generate_graph('levels/lvl1.txt')
+        self.graph, self.cant = generate_graph('levels/lvl1.txt', False)
         self.can_move_to = []
         self.cords = []
         self.person_positions = []
@@ -305,6 +305,7 @@ class Main:
                                         if self.turn_phase == 'move':
                                             if in_box(self.big_mouse_pos, self.move_btn) and \
                                                     self.turn_phase == 'move':
+                                                self.graph, self.cant = generate_graph('levels/lvl1.txt', True if self.player.persons[self.choice_person].flying else False)
                                                 self.person_want_move = True
                                                 self.person_positions = [person.pos
                                                                          for person in
@@ -322,6 +323,7 @@ class Main:
                                             if in_box(self.big_mouse_pos, self.unit_btn):
                                                 self.settings_unit = True
                                             elif in_box(self.big_mouse_pos, self.attack_btn):
+                                                self.graph, self.cant = generate_graph('levels/lvl1.txt', True if max(self.player.persons[self.choice_person].weapon.range) > 1 else False)
                                                 self.person_want_attack = True
                                                 self.can_attack_to = self.get_can_to(p_.pos,
                                                                                      p_.weapon.range,

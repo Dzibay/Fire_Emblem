@@ -7,6 +7,7 @@ from dextr import *
 from fight import Fight, Fight_images, triangle
 from menu import Menu
 from data.weapon import weapon, weapon_img, weapon_arrow, weapon_can_be_used
+from save_team.upload_team import save_team, upload_team
 
 
 def mapping(pos):
@@ -20,6 +21,20 @@ def in_box(pos, rect):
                 if pos[1] < rect[1] + rect[3]:
                     return True
     return False
+
+
+def list_of_weapon_can_be_used_by_person(person_name, person_class, t2=False):
+    res = []
+    person_can_use = characters[person_name]['can_use' if not t2 else 't2_can_use']
+
+    for weapon_ in weapon:
+        if weapon[weapon_]['class'] in person_can_use:
+            if weapon_ in weapon_can_be_used:
+                if (person_name in weapon_can_be_used[weapon_]) or (person_class in weapon_can_be_used[weapon_]):
+                    res.append(weapon_)
+            else:
+                res.append(weapon_)
+    return res
 
 
 class Main:
@@ -74,7 +89,7 @@ class Main:
         self.settings_unit_rect = (250, 130, 300, 300)
 
         # move
-        self.graph, self.cant = generate_graph('levels/lvl1.txt')
+        self.graph, self.cant = generate_graph('levels/lvl1.txt', False)
         self.can_move_to = []
         self.cords = []
         self.person_positions = []
@@ -163,9 +178,6 @@ class Main:
         self.f2 = pygame.font.Font(None, 50)
         self.f3 = pygame.font.Font(None, 70)
 
-        self.font = [pygame.transform.scale(pygame.image.load('templates/fonts/text.png').
-                                            subsurface(x * 5, 0, 5, 7), (30, 30)) for x in range(26)]
-
     def write(self, s, pos):
         pass
 
@@ -246,20 +258,6 @@ class Main:
                 result.append(i)
         return result
 
-    @staticmethod
-    def list_of_weapon_can_be_used_by_person(person_name, person_class, t2=False):
-        res = []
-        person_can_use = characters[person_name]['can_use' if not t2 else 't2_can_use']
-
-        for weapon_ in weapon:
-            if weapon[weapon_]['class'] in person_can_use:
-                if weapon_ in weapon_can_be_used:
-                    if (person_name in weapon_can_be_used[weapon_]) or (person_class in weapon_can_be_used[weapon_]):
-                        res.append(weapon_)
-                else:
-                    res.append(weapon_)
-        return res
-
     def events(self, flag):
         if flag == 'main':
             for event in pygame.event.get():
@@ -307,6 +305,7 @@ class Main:
                                         if self.turn_phase == 'move':
                                             if in_box(self.big_mouse_pos, self.move_btn) and \
                                                     self.turn_phase == 'move':
+                                                self.graph, self.cant = generate_graph('levels/lvl1.txt', True if self.player.persons[self.choice_person].flying else False)
                                                 self.person_want_move = True
                                                 self.person_positions = [person.pos
                                                                          for person in
@@ -324,6 +323,7 @@ class Main:
                                             if in_box(self.big_mouse_pos, self.unit_btn):
                                                 self.settings_unit = True
                                             elif in_box(self.big_mouse_pos, self.attack_btn):
+                                                self.graph, self.cant = generate_graph('levels/lvl1.txt', True if max(self.player.persons[self.choice_person].weapon.range) > 1 else False)
                                                 self.person_want_attack = True
                                                 self.can_attack_to = self.get_can_to(p_.pos,
                                                                                      p_.weapon.range,
@@ -398,6 +398,7 @@ class Main:
                                 self.sms += self.menu.all_names_persons[i] + '/' + \
                                             self.menu.result_person_stats[self.menu.all_names_persons[i]]['class'] + ','
                             self.sms += '>'
+
                         else:
                             # menu phase
                             if in_box(self.big_mouse_pos, self.menu.edit_team_btn):
@@ -410,16 +411,52 @@ class Main:
                             if in_box(self.big_mouse_pos, self.menu.equipment_btn):
                                 self.menu.phase = 'equipment'
 
-                            # add/remove person
                             if self.menu.phase == 'edit_team':
-                                for i in self.menu.person_choice_cords:
-                                    if in_box(self.big_mouse_pos, i):
-                                        if i in self.menu.choice_persons:
-                                            self.menu.choice_persons.remove(i)
-                                        else:
-                                            if len(self.menu.choice_persons) < 5:
-                                                self.menu.choice_persons.append(i)
-                            if self.menu.phase == 'ally_growth':
+                                if in_box(self.big_mouse_pos, self.menu.save_upload_text_btn):
+                                    self.menu.save_upload_text_flag = True
+                                else:
+                                    self.menu.save_upload_text_flag = False
+
+                                # save team
+                                if in_box(self.big_mouse_pos, self.menu.save_team_btn):
+                                    if self.menu.save_upload_text != '':
+                                        if len(self.menu.choice_persons) > 0:
+                                            choice_persons = [self.menu.person_choice_cords.index(j) for j in
+                                                              self.menu.choice_persons]
+                                            data = {self.menu.all_names_persons[i]: (self.menu.result_person_stats[
+                                                self.menu.all_names_persons[i]], self.menu.choice_persons_weapon[
+                                                self.menu.all_names_persons[i]]) for i in choice_persons}
+                                            save_team(self.menu.save_upload_text, data)
+                                            self.menu.save_upload_text = ''
+
+                                # upload team
+                                elif in_box(self.big_mouse_pos, self.menu.upload_team_btn):
+                                    if self.menu.save_upload_text != '':
+                                        data = upload_team(self.menu.save_upload_text)
+                                        if len(data) > 0:
+                                            self.menu.choice_persons = []
+                                            for person in data:
+                                                self.menu.choice_persons.append(self.menu.person_choice_cords[
+                                                                                    self.menu.all_names_persons.index(person[0])])
+                                                i = 1
+                                                for stat in self.menu.result_person_stats[person[0]]:
+                                                    self.menu.result_person_stats[person[0]][stat] = person[i]
+                                                    i += 1
+
+                                                self.menu.choice_persons_weapon[person[0]] = []
+                                                for weapon_ in person[i:]:
+                                                    self.menu.choice_persons_weapon[person[0]].append(weapon_)
+                                            self.menu.save_upload_text = ''
+                                else:
+                                    # add/remove person
+                                    for i in self.menu.person_choice_cords:
+                                        if in_box(self.big_mouse_pos, i):
+                                            if i in self.menu.choice_persons:
+                                                self.menu.choice_persons.remove(i)
+                                            else:
+                                                if len(self.menu.choice_persons) < 5:
+                                                    self.menu.choice_persons.append(i)
+                            elif self.menu.phase == 'ally_growth':
                                 if in_box(self.big_mouse_pos, self.menu.lvl_up_btn):
                                     if not self.menu.up_classes[self.menu.ally_growth_person]:
                                         if self.menu.result_person_stats[self.menu.ally_growth_person]['lvl'] < 20:
@@ -440,7 +477,7 @@ class Main:
                             if in_box(self.big_mouse_pos, self.menu.person_choice_cords[i]):
                                 self.menu.person_settings = i
                                 class_ = characters[self.menu.all_names_persons[i]]['class']
-                                self.menu.list_of_weapon = self.list_of_weapon_can_be_used_by_person(
+                                self.menu.list_of_weapon = list_of_weapon_can_be_used_by_person(
                                     self.menu.all_names_persons[i], class_, self.menu.result_person_stats[
                                                                                 self.menu.all_names_persons[
                                                                                     self.menu.person_settings]][
@@ -450,9 +487,18 @@ class Main:
                         if event.key == pygame.K_UP:
                             if self.menu.list_of_weapon_see > 0:
                                 self.menu.list_of_weapon_see -= 1
+                        elif event.key == pygame.K_BACKSPACE:
+                            if self.menu.save_upload_text_flag:
+                                if len(self.menu.save_upload_text) > 0:
+                                    self.menu.save_upload_text = self.menu.save_upload_text[:-1]
+                        else:
+                            if self.menu.save_upload_text_flag:
+                                if len(self.menu.save_upload_text) < 10:
+                                    self.menu.save_upload_text += str.lower(event.unicode)
                         if event.key == pygame.K_DOWN:
                             if self.menu.list_of_weapon_see < len(self.menu.list_of_weapon) - 5:
                                 self.menu.list_of_weapon_see += 1
+
         else:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -998,8 +1044,8 @@ class Main:
                 if not self.start_game:
                     self.menu.render(self.sms[:8] != '<my_pers')
 
-            for person in self.player.persons + self.opponent.persons:
-                print(person.name)
+            # for person in self.player.persons + self.opponent.persons:
+            #     print(person.name)
             #     print('hp ', person.hp)
             #     print('str ', person.str)
             #     print('mag ', person.mag)
@@ -1009,11 +1055,11 @@ class Main:
             #     print('def ', person.def_)
             #     print('res ', person.res)
             #     print('dmg ', person.dmg)
-                print('attack_speed ', person.attack_speed)
+            #     print('attack_speed ', person.attack_speed)
             #     print('hit ', person.hit)
             #     print('avoid ', person.avoid)
             #     print('class ', person.class_)
-                print('---------------------')
+            #     print('---------------------')
 
             pygame.display.update()
 

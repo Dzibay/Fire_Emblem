@@ -30,7 +30,7 @@ def bfs(graph, start, goal):
 
 
 @lru_cache
-def generate_graph(file):
+def generate_graph(file, flying):
     not_zero = []
     lvl = open(file, 'r').readlines()
     lvl = [i.replace('\n', '') for i in lvl]
@@ -38,7 +38,8 @@ def generate_graph(file):
     cords = {(j, i): [] for i in range(len(matrix)) for j in range(len(matrix[0]))}
     for i in range(len(matrix)):
         for j in range(len(matrix[0])):
-            if matrix[i][j] != 0:
+            cant = [1] if flying else [1, 2]
+            if matrix[i][j] in cant:
                 cords[(j, i)] = None
                 not_zero.append((j, i))
     for cord in cords:

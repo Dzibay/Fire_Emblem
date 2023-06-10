@@ -794,6 +794,8 @@ class Main:
             for i in range(len(self.menu.choice_persons_weapon[p_.name])):
                 pygame.draw.rect(self.screen, WHITE, (260, 140 + i * 80, 280, 72))
                 self.screen.blit(weapon_img[self.menu.choice_persons_weapon[p_.name][i]], (255, 135 + i * 80))
+                text_w = self.f2.render(self.menu.choice_persons_weapon[p_.name][i], True, BLACK)
+                self.screen.blit(text_w, (325, 160 + i * 80))
 
         # info for attack
         if self.person_want_attack:
@@ -921,17 +923,6 @@ class Main:
                         self.attack_btn = (20, 220, 200, 70)
                         self.wait_btn = (20, 290, 200, 70)
 
-                    # send sms
-                    sms = f'<{self.your_turn}|'
-                    for person in self.player.persons:
-                        sms += f'{person.name} {person.x} {person.y} {person.state}{person.move_to} ' \
-                               f'{person.max_hp} {person.hp} {person.str} {person.mag} {person.skl} {person.lck} ' \
-                               f'{person.def_} {person.res} {person.con} {person.movement} {person.speed} ' \
-                               f'{person.hit} {person.dmg} {person.crt} {person.attack_speed} {person.avoid} ' \
-                               f'{person.weapon.name} {person.lvl} {person.class_},'
-                    sms += '>'
-                    self.sock.send(sms.encode())
-
                     # recv sms
                     try:
                         data_ = self.sock.recv(1024).decode()
@@ -1011,6 +1002,17 @@ class Main:
                                     self.opponent.persons[j].class_ = self.data[j][22]
                     except:
                         print('no')
+
+                    # send sms
+                    sms = f'<{self.your_turn}|'
+                    for person in self.player.persons:
+                        sms += f'{person.name} {person.x} {person.y} {person.state}{person.move_to} ' \
+                               f'{person.max_hp} {person.hp} {person.str} {person.mag} {person.skl} {person.lck} ' \
+                               f'{person.def_} {person.res} {person.con} {person.movement} {person.speed} ' \
+                               f'{person.hit} {person.dmg} {person.crt} {person.attack_speed} {person.avoid} ' \
+                               f'{person.weapon.name} {person.lvl} {person.class_},'
+                    sms += '>'
+                    self.sock.send(sms.encode())
 
                     # attack
                     for person in self.player.persons:

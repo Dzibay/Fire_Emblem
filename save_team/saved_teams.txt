@@ -13,3 +13,10 @@ barthe 20 40 13 0 11 21 5 3 11 18 5 general brave_axe axe_reaver lance_reaver
 heath 20 39 18 0 12 14 4 10 13 10 8 wyvern_lord brave_lance horse_slayer axe_reaver
 lina 20 28 3 18 16 5 17 14 10 5 6 sage elfire lightning ereshkigal
 marisa 20 36 11 0 22 7 7 17 23 7 6 sword_master wo_dao armor_slayer brave_sword
+
+1
+lyn 20 34 13 0 19 8 10 16 21 6 6 blade_lord sol_katti brave_axe armor_slayer
+barthe 20 39 17 0 9 23 4 5 11 18 5 general armor_slayer brave_axe horse_slayer
+wil 20 38 17 0 12 11 6 19 16 7 6 sniper long_bow rien_fleche short_bow
+florina 20 33 11 0 21 8 11 15 14 5 8 falco_knight short_spear heavy_spear brave_lance
+marisa 20 39 14 0 20 7 6 16 22 7 6 sword_master killing_edge armor_slayer brave_sword

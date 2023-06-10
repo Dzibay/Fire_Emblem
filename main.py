@@ -58,7 +58,7 @@ class Main:
 
         # socket
         self.server_ip = 'localhost'
-        self.server_ip = '82.146.45.210'
+        # self.server_ip = '82.146.45.210'
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
         self.sock.connect((self.server_ip, 10000))
@@ -794,6 +794,8 @@ class Main:
             for i in range(len(self.menu.choice_persons_weapon[p_.name])):
                 pygame.draw.rect(self.screen, WHITE, (260, 140 + i * 80, 280, 72))
                 self.screen.blit(weapon_img[self.menu.choice_persons_weapon[p_.name][i]], (255, 135 + i * 80))
+                text_w = self.f2.render(self.menu.choice_persons_weapon[p_.name][i], True, BLACK)
+                self.screen.blit(text_w, (325, 160 + i * 80))
 
         # info for attack
         if self.person_want_attack:

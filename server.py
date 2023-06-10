@@ -3,7 +3,7 @@ import pygame
 from random import randint
 
 server_ip = '82.146.45.210'
-server_ip = 'localhost'
+# server_ip = 'localhost'
 
 main_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 main_socket.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
@@ -119,11 +119,12 @@ while run:
                     for player_2 in players:
                         if player_2 != player:
                             player_2.can_move = not a
-                            print('change')
+                            print(players.index(player), 'change', player.can_move, player_2.can_move)
                 player.sms = data[1][:-1]
         except:
             pass
 
+    print('-------')
     for player in players:
         second_player = None
         for player_2 in players:
@@ -151,6 +152,7 @@ while run:
                             sms += player_2.sms
                     sms += '>'
             player.conn.send(sms.encode())
+            print(sms)
             player.errors = 0
         except:
             player.errors += 1

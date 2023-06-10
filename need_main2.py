@@ -1,6 +1,6 @@
 import pygame
 import socket
-from person import Person, characters, lvl_generate
+from person import Person, characters
 from player import Player
 from settings import *
 from dextr import *
@@ -8,7 +8,6 @@ from fight import Fight, Fight_images, triangle
 from menu import Menu
 from data.weapon import weapon, weapon_img, weapon_arrow, weapon_can_be_used
 from save_team.upload_team import save_team, upload_team, can_save
-from levels.lvl_terra import movement_penalties
 
 
 def mapping(pos):
@@ -250,16 +249,15 @@ class Main:
         if not_append is None:
             not_append = []
         res = [(x, y)
-               for x in range(pos[0] - l[len(l) - 1], pos[0] + l[len(l) - 1] + 1) if x >= 0
-               for y in range(pos[1] - l[len(l) - 1], pos[1] + l[len(l) - 1] + 1) if y >= 0]
+               for x in range(pos[0] - max(l) - 1, pos[0] + max(l) + 2) if x >= 0
+               for y in range(pos[1] - max(l) - 1, pos[1] + max(l) + 2) if y >= 0]
+
         result = []
         for i in res:
-            cords = get_cords(self.graph, pos, i)
-            length = sum([movement_penalties[lvl_generate[cord]]
-                          if not self.player.persons[self.choice_person].flying else 1
-                          for cord in cords[:-1]])
-            if (i not in self.cant) and (i not in not_append) and (length in l):
-                result.append(i)
+            cords = get_cords(self.graph, pos, i, self.player.persons[self.choice_person].movement)
+            if len(cords) > 0:
+                if (i not in self.cant) and (i not in not_append) and len(cords) - (2 if max(l) > 2 else 1) in l + [0]:
+                    result.append(i)
         return result
 
     def events(self, flag):
@@ -586,7 +584,7 @@ class Main:
 
                 # pointer
                 if mouse_pos in self.can_move_to:
-                    self.cords = get_cords(self.graph, p_.pos, mouse_pos)
+                    self.cords = get_cords(self.graph, p_.pos, mouse_pos, p_.movement)
                     for i in range(len(self.cords) - 1):
                         img = None
                         if i == 0:

@@ -40,12 +40,12 @@ class Person:
         self.res = stats['res']
         self.con = stats['con']
         self.speed = stats['speed']
+        self.movement = stats['move']
         self.class_ = stats['class']
 
         self.flying = True if self.class_ in types['flying'] else False
 
         self.max_hp = self.hp
-        self.movement = characters[self.name]['move']
         self.weapon = Weapon(choice_weapon if choice_weapon is not None else characters[self.name]['weapon'])
 
         self.bonus_characters_from_weapon(self.weapon.name, False)

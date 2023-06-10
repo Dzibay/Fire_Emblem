@@ -1,7 +1,7 @@
 # display
 WIDTH = 1920
 HEIGHT = 1040
-FPS = 30
+FPS = 50
 
 # colors
 WHITE = (255, 255, 255)

@@ -1,5 +1,4 @@
 from collections import deque
-from functools import lru_cache
 
 
 g = {'0': 'plain', '1': 'wall', '2': 'water', '3': 'forest', '4': 'mountain'}
@@ -11,7 +10,7 @@ movement_penalties = {'plain': 1,
                       'mountain': 5}
 
 maps = ['0000003000003333',
-        '0000100300000333',
+        '0400100300000333',
         '0000000000000033',
         '0110000000000003',
         '0000010000000000',
@@ -35,34 +34,10 @@ pay = {}
 for y in range(len(maps)):
     for x in range(len(maps[y])):
         pay[(x, y)] = movement_penalties[g[maps[y][x]]]
+        # pay[(x, y)] = 1
+print(pay)
 
 
-def bfs(graph, start, goal):
-    queque = deque([start])
-    visited = {start: None}
-
-    while queque:
-        cur_node = queque.popleft()
-        if cur_node == goal:
-            break
-
-        next_nodes = graph[cur_node]
-        for next_node in next_nodes:
-            if next_node not in visited:
-                queque.append(next_node)
-                visited[next_node] = cur_node
-    try:
-        cur = goal
-        a = [cur]
-        while cur != start:
-            cur = visited[cur]
-            a.append(cur)
-    except:
-        a = []
-    return a
-
-
-@lru_cache
 def generate_graph(file, flying):
     not_zero = []
     lvl = open(file, 'r').readlines()
@@ -91,9 +66,32 @@ def generate_graph(file, flying):
     return cords, not_zero
 
 
-def get_cords(graph_, start, goal, length):
-    print('aaaaaaaaa')
-    graph = graph_.copy()
+def bfs(graph, start, goal):
+    queque = deque([start])
+    visited = {start: None}
+
+    while queque:
+        cur_node = queque.popleft()
+        if cur_node == goal:
+            break
+
+        next_nodes = graph[cur_node]
+        for next_node in next_nodes:
+            if next_node not in visited:
+                queque.append(next_node)
+                visited[next_node] = cur_node
+    try:
+        cur = goal
+        a = [cur]
+        while cur != start:
+            cur = visited[cur]
+            a.append(cur)
+    except:
+        a = []
+    return a
+
+
+def get_cords(graph, start, goal, length):
     result = []
     while True:
         cords = bfs(graph, start, goal)
@@ -106,6 +104,7 @@ def get_cords(graph_, start, goal, length):
             graph[cords[1]] = []
         except:
             break
+    print(result)
     min_ = 1000
     res = []
     for i in result:
@@ -115,3 +114,8 @@ def get_cords(graph_, start, goal, length):
                 res = i[0]
     return res + [start] if min_ <= length else []
 
+
+graph_, _ = generate_graph('../levels/lvl1.txt', False)
+print(graph_.copy())
+print('----')
+print(get_cords(graph_, (1, 0), (1, 1), 5))

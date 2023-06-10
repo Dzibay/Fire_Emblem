@@ -14,7 +14,7 @@ main_socket.listen(5)
 pygame.init()
 clock = pygame.time.Clock()
 
-FPS = 30
+FPS = 50
 TILE = 80
 tick = 0
 is_fight = False

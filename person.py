@@ -2,7 +2,7 @@ import pygame
 from settings import *
 from data.persons import characters
 from weapon import Weapon
-from levels.lvl_terra import lvl_generate, def_buff, avoid_buff
+from dextr import lvl_generate, def_buff, avoid_buff
 from data.classes import types
 
 

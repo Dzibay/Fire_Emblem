@@ -64,10 +64,12 @@ class Main:
         self.sock.connect((self.server_ip, 10000))
 
         # bg
-        self.big_bg = pygame.image.load('templates/map/playtest_map.png')
-        self.big_bg = pygame.transform.scale(self.big_bg, (TILE * 16, TILE * 20))
         self.cam_pos = [0, 0]
-        self.bg = self.big_bg.subsurface(self.cam_pos[0], self.cam_pos[1], TILE * 16, 1040)
+        self.map_size = (36, 36)
+        self.big_bg = pygame.image.load('templates/map/new_map.png')
+        self.big_bg = pygame.transform.scale(self.big_bg, (TILE * self.map_size[0], TILE * self.map_size[1]))
+        self.bg = self.big_bg.subsurface(self.cam_pos[0], self.cam_pos[1], WIDTH, HEIGHT)
+
         self.your_turn_img = pygame.image.load('templates/map/your_turn.png')
         self.opponents_turn_img = pygame.image.load('templates/map/opponents_turn.png')
 
@@ -89,7 +91,7 @@ class Main:
         self.settings_unit_rect = (250, 130, 300, 300)
 
         # move
-        self.graph, self.cant = generate_graph('levels/lvl1.txt', False)
+        self.graph, self.cant = generate_graph(False)
         self.can_move_to = []
         self.cords = []
         self.person_positions = []
@@ -272,16 +274,16 @@ class Main:
                         if self.cam_pos[1] > 0:
                             self.cam_pos[1] -= 1
                     elif event.key == pygame.K_s:
-                        if self.cam_pos[1] + 13 < 20:
+                        if self.cam_pos[1] + HEIGHT // TILE < self.map_size[1]:
                             self.cam_pos[1] += 1
                     elif event.key == pygame.K_d:
-                        if self.cam_pos[0] + 16 < 16:
+                        if self.cam_pos[0] + WIDTH // TILE < self.map_size[0]:
                             self.cam_pos[0] += 1
                     elif event.key == pygame.K_a:
                         if self.cam_pos[0] > 0:
                             self.cam_pos[0] -= 1
                     self.bg = self.big_bg.subsurface(self.cam_pos[0] * TILE,
-                                                     self.cam_pos[1] * TILE, TILE * 16, 1040)
+                                                     self.cam_pos[1] * TILE, WIDTH, HEIGHT)
 
                 if event.type == pygame.MOUSEBUTTONUP and event.button == 1:
                     if self.settings_unit:
@@ -309,8 +311,7 @@ class Main:
                                         if self.turn_phase == 'move':
                                             if in_box(self.big_mouse_pos, self.move_btn) and \
                                                     self.turn_phase == 'move':
-                                                self.graph, self.cant = generate_graph('levels/lvl1.txt',
-                                                                                       True if self.player.persons[
+                                                self.graph, self.cant = generate_graph(True if self.player.persons[
                                                                                            self.choice_person].flying else False)
                                                 self.person_want_move = True
                                                 self.person_positions = [person.pos
@@ -329,8 +330,7 @@ class Main:
                                             if in_box(self.big_mouse_pos, self.unit_btn):
                                                 self.settings_unit = True
                                             elif in_box(self.big_mouse_pos, self.attack_btn):
-                                                self.graph, self.cant = generate_graph('levels/lvl1.txt', True
-                                                                                       if (max(self.player.persons[self.choice_person].weapon.range) > 1)
+                                                self.graph, self.cant = generate_graph(True if (max(self.player.persons[self.choice_person].weapon.range) > 1)
                                                                                        or self.player.persons[self.choice_person].flying else False)
                                                 self.person_want_attack = True
                                                 self.can_attack_to = self.get_can_to(p_.pos,
@@ -529,16 +529,16 @@ class Main:
                             if self.cam_pos[1] > 0:
                                 self.cam_pos[1] -= 1
                         elif event.key == pygame.K_s:
-                            if self.cam_pos[1] + 13 < 20:
+                            if self.cam_pos[1] + HEIGHT // TILE < self.map_size[1]:
                                 self.cam_pos[1] += 1
                         elif event.key == pygame.K_d:
-                            if self.cam_pos[0] + 16 < 16:
+                            if self.cam_pos[0] + WIDTH // TILE < self.map_size[0]:
                                 self.cam_pos[0] += 1
                         elif event.key == pygame.K_a:
                             if self.cam_pos[0] > 0:
                                 self.cam_pos[0] -= 1
                         self.bg = self.big_bg.subsurface(self.cam_pos[0] * TILE,
-                                                         self.cam_pos[1] * TILE, TILE * 16, 1040)
+                                                         self.cam_pos[1] * TILE, WIDTH, HEIGHT)
                 elif event.type == pygame.MOUSEBUTTONUP and event.button == 1:
                     if self.placing_persons_window:
                         for i in range(len(self.menu.choice_persons)):
@@ -685,9 +685,9 @@ class Main:
 
                 # person blit
                 if (player.persons[i].pos[0] >= self.cam_pos[0]) and \
-                        (player.persons[i].pos[0] <= self.cam_pos[0] + 16) and \
+                        (player.persons[i].pos[0] <= self.cam_pos[0] + self.map_size[0]) and \
                         (player.persons[i].pos[1] >= self.cam_pos[1]) and \
-                        (player.persons[i].pos[1] <= self.cam_pos[1] + 13):
+                        (player.persons[i].pos[1] <= self.cam_pos[1] + self.map_size[1]):
                     offset = (135, 140) if player.persons[i].move_to == '' else (100, 150)
                     self.screen.blit(player.persons[i].img,
                                      (player.persons[i].x - self.cam_pos[0] * TILE - offset[0],
@@ -925,18 +925,29 @@ class Main:
                         self.attack_btn = (20, 220, 200, 70)
                         self.wait_btn = (20, 290, 200, 70)
 
+                    # send sms
+                    self.sms = f'<{self.your_turn}|'
+                    for person in self.player.persons:
+                        self.sms += f'{person.name} {person.x} {person.y} {person.state}{person.move_to} ' \
+                                    f'{person.max_hp} {person.hp} {person.str} {person.mag} {person.skl} {person.lck} ' \
+                                    f'{person.def_} {person.res} {person.con} {person.movement} {person.speed} ' \
+                                    f'{person.hit} {person.dmg} {person.crt} {person.attack_speed} {person.avoid} ' \
+                                    f'{person.weapon.name} {person.lvl} {person.class_},'
+                    self.sms += '>'
+                    self.sock.send(self.sms.encode())
+
+                    print(self.sms)
+
                     # recv sms
                     try:
                         data_ = self.sock.recv(1024).decode()
                         if self.turn_phase == 'move':
                             if data_[:5] == '<True' and not self.your_turn:
                                 self.your_turn = True
-                                print('True')
-                                print(self.sms)
+                                print('change to True')
                             elif data_[:6] == '<False' and self.your_turn:
                                 self.your_turn = False
-                                print('False')
-                                print(self.sms)
+                                print('change to False')
                         if self.your_turn != self.last_sms_to_move:
                             self.turn_phase = 'move'
                             self.choice_person = None
@@ -1008,17 +1019,6 @@ class Main:
                                     self.opponent.persons[j].class_ = self.data[j][22]
                     except:
                         print('no')
-
-                    # send sms
-                    self.sms = f'<{self.your_turn}|'
-                    for person in self.player.persons:
-                        self.sms += f'{person.name} {person.x} {person.y} {person.state}{person.move_to} ' \
-                               f'{person.max_hp} {person.hp} {person.str} {person.mag} {person.skl} {person.lck} ' \
-                               f'{person.def_} {person.res} {person.con} {person.movement} {person.speed} ' \
-                               f'{person.hit} {person.dmg} {person.crt} {person.attack_speed} {person.avoid} ' \
-                               f'{person.weapon.name} {person.lvl} {person.class_},'
-                    self.sms += '>'
-                    self.sock.send(self.sms.encode())
 
                     # attack
                     for person in self.player.persons:

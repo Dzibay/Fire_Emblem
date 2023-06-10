@@ -1,40 +1,36 @@
 from collections import deque
 from functools import lru_cache
-
-
 g = {'0': 'plain', '1': 'wall', '2': 'water', '3': 'forest', '4': 'mountain'}
+
+def_buff = {'plain': 0,
+            'wall': 0,
+            'water': 0,
+            'forest': 1,
+            'mountain': 2}
+
+avoid_buff = {'plain': 0,
+              'wall': 0,
+              'water': 0,
+              'forest': 20,
+              'mountain': 30}
 
 movement_penalties = {'plain': 1,
                       'wall': 1,
                       'water': 1,
                       'forest': 2,
-                      'mountain': 5}
+                      'mountain': 3}
 
-maps = ['0000003000003333',
-        '0000100300000333',
-        '0000000000000033',
-        '0110000000000003',
-        '0000010000000000',
-        '0301100000000040',
-        '0030000000000040',
-        '3000011001100004',
-        '2022210000100004',
-        '0000212020100000',
-        '0000010022122200',
-        '4000010000100202',
-        '4300011011100003',
-        '4000000000000300',
-        '4000000000011030',
-        '0000000000100000',
-        '3000000000000110',
-        '3300000000000000',
-        '3330000003010000',
-        '3333000030000000']
+lvl = ['0' * 36 for i in range(36)]
 
 pay = {}
-for y in range(len(maps)):
-    for x in range(len(maps[y])):
-        pay[(x, y)] = movement_penalties[g[maps[y][x]]]
+for y in range(len(lvl)):
+    for x in range(len(lvl[y])):
+        pay[(x, y)] = movement_penalties[g[lvl[y][x]]]
+
+lvl_generate = {}
+for y in range(len(lvl)):
+    for x in range(len(lvl[y])):
+        lvl_generate[(x, y)] = g[lvl[y][x]]
 
 
 def bfs(graph, start, goal):
@@ -63,11 +59,13 @@ def bfs(graph, start, goal):
 
 
 @lru_cache
-def generate_graph(file, flying):
+def generate_graph(flying):
     not_zero = []
-    lvl = open(file, 'r').readlines()
-    lvl = [i.replace('\n', '') for i in lvl]
     matrix = [[int(i) for i in j] for j in lvl]
+    for y_ in range(len(matrix)):
+        for x_ in range(len(matrix[y_])):
+            if matrix[y_][x_] in [3, 4]:
+                matrix[y_][x_] = 0
     cords = {(j, i): [] for i in range(len(matrix)) for j in range(len(matrix[0]))}
     for i in range(len(matrix)):
         for j in range(len(matrix[0])):
@@ -80,11 +78,11 @@ def generate_graph(file, flying):
             cords_ = []
             if cord[0] != 0 and cords[(cord[0] - 1, cord[1])] is not None:
                 cords_.append((cord[0] - 1, cord[1]))
-            if cord[0] != 15 and cords[(cord[0] + 1, cord[1])] is not None:
+            if cord[0] != 35 and cords[(cord[0] + 1, cord[1])] is not None:
                 cords_.append((cord[0] + 1, cord[1]))
             if cord[1] != 0 and cords[(cord[0], cord[1] - 1)] is not None:
                 cords_.append((cord[0], cord[1] - 1))
-            if cord[1] != 19 and cords[(cord[0], cord[1] + 1)] is not None:
+            if cord[1] != 35 and cords[(cord[0], cord[1] + 1)] is not None:
                 cords_.append((cord[0], cord[1] + 1))
             cords[cord] = cords_
 
@@ -119,4 +117,3 @@ def get_cords(graph_, start, goal, length, flying=False):
                     res = i[0]
         res += [start]
     return res if min_ <= length else []
-

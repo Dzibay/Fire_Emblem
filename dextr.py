@@ -92,7 +92,6 @@ def generate_graph(file, flying):
 
 
 def get_cords(graph_, start, goal, length, flying=False):
-    print('aaaaaaaaa')
     graph = graph_.copy()
     result = []
 

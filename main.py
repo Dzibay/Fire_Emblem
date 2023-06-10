@@ -58,7 +58,7 @@ class Main:
 
         # socket
         self.server_ip = 'localhost'
-        # self.server_ip = '82.146.45.210'
+        self.server_ip = '82.146.45.210'
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
         self.sock.connect((self.server_ip, 10000))
@@ -921,17 +921,6 @@ class Main:
                         self.attack_btn = (20, 220, 200, 70)
                         self.wait_btn = (20, 290, 200, 70)
 
-                    # send sms
-                    sms = f'<{self.your_turn}|'
-                    for person in self.player.persons:
-                        sms += f'{person.name} {person.x} {person.y} {person.state}{person.move_to} ' \
-                               f'{person.max_hp} {person.hp} {person.str} {person.mag} {person.skl} {person.lck} ' \
-                               f'{person.def_} {person.res} {person.con} {person.movement} {person.speed} ' \
-                               f'{person.hit} {person.dmg} {person.crt} {person.attack_speed} {person.avoid} ' \
-                               f'{person.weapon.name} {person.lvl} {person.class_},'
-                    sms += '>'
-                    self.sock.send(sms.encode())
-
                     # recv sms
                     try:
                         data_ = self.sock.recv(1024).decode()
@@ -1011,6 +1000,17 @@ class Main:
                                     self.opponent.persons[j].class_ = self.data[j][22]
                     except:
                         print('no')
+
+                    # send sms
+                    sms = f'<{self.your_turn}|'
+                    for person in self.player.persons:
+                        sms += f'{person.name} {person.x} {person.y} {person.state}{person.move_to} ' \
+                               f'{person.max_hp} {person.hp} {person.str} {person.mag} {person.skl} {person.lck} ' \
+                               f'{person.def_} {person.res} {person.con} {person.movement} {person.speed} ' \
+                               f'{person.hit} {person.dmg} {person.crt} {person.attack_speed} {person.avoid} ' \
+                               f'{person.weapon.name} {person.lvl} {person.class_},'
+                    sms += '>'
+                    self.sock.send(sms.encode())
 
                     # attack
                     for person in self.player.persons:

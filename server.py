@@ -52,7 +52,6 @@ def find(s):
             res = [i.split(' ') for i in res if i != '']
             result = [[i[0], int(i[1]), int(i[2]), i[3], int(i[4]), int(i[5]), int(i[6]), int(i[7]), i[8], int(i[9])]
                       for i in res]
-            print('res', result)
             return can_move, result
     return ''
 

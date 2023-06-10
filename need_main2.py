@@ -338,6 +338,7 @@ class Main:
                                                                                      [p_.pos])
                                                 self.turn_menu = False
                                             elif in_box(self.big_mouse_pos, self.wait_btn):
+                                                print('1')
                                                 self.your_turn = False
                                                 self.turn_menu = False
                                                 self.player.persons[self.choice_person].active = False
@@ -356,6 +357,7 @@ class Main:
                                                     self.fight = Fight(self.player.persons[self.choice_person], enemy,
                                                                        self.fight_img)
                                                     self.your_turn = False
+                                                    print('2')
                                                     self.turn_phase = 'move'
                                                     self.player.persons[self.choice_person].active = False
                                                     self.choice_person = None
@@ -857,12 +859,12 @@ class Main:
                         self.fight_flag = False
                     else:
                         # send sms
-                        sms = f'<fight {self.fight.magic_img_id} {cords_[0]} {cords_[1]}|' \
+                        self.sms = f'<fight {self.fight.magic_img_id} {cords_[0]} {cords_[1]}|' \
                               f'{self.opponent.persons.index(self.fight.enemy)} {self.fight.person_img_id} ' \
                               f'{int(self.fight.moves[0])} {int(self.fight.person_y)} {self.fight.person.hp},' \
                               f'{self.player.persons.index(self.fight.person)} {self.fight.enemy_img_id} ' \
                               f'{int(self.fight.moves[2])} {int(self.fight.enemy_y)} {self.fight.enemy.hp}>'
-                        self.sock.send(sms.encode())
+                        self.sock.send(self.sms.encode())
 
                         # recv sms
                         try:
@@ -927,10 +929,14 @@ class Main:
                     try:
                         data_ = self.sock.recv(1024).decode()
                         if self.turn_phase == 'move':
-                            if data_[:5] == '<True':
+                            if data_[:5] == '<True' and not self.your_turn:
                                 self.your_turn = True
-                            elif data_[:6] == '<False':
+                                print('True')
+                                print(self.sms)
+                            elif data_[:6] == '<False' and self.your_turn:
                                 self.your_turn = False
+                                print('False')
+                                print(self.sms)
                         if self.your_turn != self.last_sms_to_move:
                             self.turn_phase = 'move'
                             self.choice_person = None
@@ -1004,15 +1010,15 @@ class Main:
                         print('no')
 
                     # send sms
-                    sms = f'<{self.your_turn}|'
+                    self.sms = f'<{self.your_turn}|'
                     for person in self.player.persons:
-                        sms += f'{person.name} {person.x} {person.y} {person.state}{person.move_to} ' \
+                        self.sms += f'{person.name} {person.x} {person.y} {person.state}{person.move_to} ' \
                                f'{person.max_hp} {person.hp} {person.str} {person.mag} {person.skl} {person.lck} ' \
                                f'{person.def_} {person.res} {person.con} {person.movement} {person.speed} ' \
                                f'{person.hit} {person.dmg} {person.crt} {person.attack_speed} {person.avoid} ' \
                                f'{person.weapon.name} {person.lvl} {person.class_},'
-                    sms += '>'
-                    self.sock.send(sms.encode())
+                    self.sms += '>'
+                    self.sock.send(self.sms.encode())
 
                     # attack
                     for person in self.player.persons:

@@ -110,6 +110,7 @@ while run:
                     a = None
                 else:
                     a = False
+
                 if a is None:
                     player.last_sms_move = player.can_move
                 elif player.last_sms_move != a and player.can_move:
@@ -118,10 +119,10 @@ while run:
                     for player_2 in players:
                         if player_2 != player:
                             player_2.can_move = not a
+                            print('change')
                 player.sms = data[1][:-1]
-                print(player.sms)
         except:
-            print('cant')
+            pass
 
     for player in players:
         second_player = None

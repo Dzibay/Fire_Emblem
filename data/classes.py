@@ -145,5 +145,15 @@ classes_bonus = {'great_lord': {'hp': 4,
                                      'def': 3,
                                      'res': 3,
                                      'con': 1,
-                                     'move': 1}
+                                     'move': 1},
+
+                 'wyvern_lord': {'hp': 4,
+                                 'str': 0,
+                                 'skl': 2,
+                                 'speed': 2,
+                                 'lck': 0,
+                                 'def': 0,
+                                 'res': 2,
+                                 'con': 1,
+                                 'move': 1}
                  }

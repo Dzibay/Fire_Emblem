@@ -3,6 +3,7 @@ from settings import *
 from data.persons import characters
 from weapon import Weapon
 from levels.lvl_terra import lvl_generate, def_buff, avoid_buff
+from data.classes import types
 
 
 lords = ['roy', 'lyn', 'marth', 'ike', 'eirika', 'eliwood', 'hector', 'ephraim']
@@ -27,7 +28,6 @@ class Person:
         self.damage_for_me = 0
         self.active = True
         self.gender = characters[self.name]['gender']
-        self.flying = True if self.name == 'florina' else False
 
         # stats
         self.lvl = stats['lvl']
@@ -41,6 +41,8 @@ class Person:
         self.con = stats['con']
         self.speed = stats['speed']
         self.class_ = stats['class']
+
+        self.flying = True if self.class_ in types['flying'] else False
 
         self.max_hp = self.hp
         self.movement = characters[self.name]['move']

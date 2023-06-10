@@ -309,7 +309,9 @@ class Main:
                                         if self.turn_phase == 'move':
                                             if in_box(self.big_mouse_pos, self.move_btn) and \
                                                     self.turn_phase == 'move':
-                                                self.graph, self.cant = generate_graph('levels/lvl1.txt', True if self.player.persons[self.choice_person].flying else False)
+                                                self.graph, self.cant = generate_graph('levels/lvl1.txt',
+                                                                                       True if self.player.persons[
+                                                                                           self.choice_person].flying else False)
                                                 self.person_want_move = True
                                                 self.person_positions = [person.pos
                                                                          for person in
@@ -327,7 +329,9 @@ class Main:
                                             if in_box(self.big_mouse_pos, self.unit_btn):
                                                 self.settings_unit = True
                                             elif in_box(self.big_mouse_pos, self.attack_btn):
-                                                self.graph, self.cant = generate_graph('levels/lvl1.txt', True if max(self.player.persons[self.choice_person].weapon.range) > 1 else False)
+                                                self.graph, self.cant = generate_graph('levels/lvl1.txt', True
+                                                                                       if (max(self.player.persons[self.choice_person].weapon.range) > 1)
+                                                                                       or self.player.persons[self.choice_person].flying else False)
                                                 self.person_want_attack = True
                                                 self.can_attack_to = self.get_can_to(p_.pos,
                                                                                      p_.weapon.range,
@@ -428,8 +432,12 @@ class Main:
                                             choice_persons = [self.menu.person_choice_cords.index(j) for j in
                                                               self.menu.choice_persons]
                                             data = {self.menu.all_names_persons[i]: (self.menu.result_person_stats[
-                                                self.menu.all_names_persons[i]], self.menu.choice_persons_weapon[
-                                                self.menu.all_names_persons[i]]) for i in choice_persons}
+                                                                                         self.menu.all_names_persons[
+                                                                                             i]],
+                                                                                     self.menu.choice_persons_weapon[
+                                                                                         self.menu.all_names_persons[
+                                                                                             i]]) for i in
+                                                    choice_persons}
                                             save_team(self.menu.save_upload_text, data)
                                             self.menu.save_upload_text = ''
 
@@ -441,7 +449,8 @@ class Main:
                                             self.menu.choice_persons = []
                                             for person in data:
                                                 self.menu.choice_persons.append(self.menu.person_choice_cords[
-                                                                                    self.menu.all_names_persons.index(person[0])])
+                                                                                    self.menu.all_names_persons.index(
+                                                                                        person[0])])
                                                 i = 1
                                                 for stat in self.menu.result_person_stats[person[0]]:
                                                     self.menu.result_person_stats[person[0]][stat] = person[i]

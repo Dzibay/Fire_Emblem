@@ -91,27 +91,33 @@ def generate_graph(file, flying):
     return cords, not_zero
 
 
-def get_cords(graph_, start, goal, length):
+def get_cords(graph_, start, goal, length, flying=False):
     print('aaaaaaaaa')
     graph = graph_.copy()
     result = []
-    while True:
-        cords = bfs(graph, start, goal)
-        try:
-            pay_ = 0
-            cords = [i for i in cords if i != start]
-            for cord in cords:
-                pay_ += pay[cord]
-            result.append((cords, pay_))
-            graph[cords[1]] = []
-        except:
-            break
-    min_ = 1000
-    res = []
-    for i in result:
-        if i[1] != 0:
-            if i[1] < min_:
-                min_ = i[1]
-                res = i[0]
-    return res + [start] if min_ <= length else []
+
+    if flying:
+        res = bfs(graph, start, goal)
+        min_ = len(res) - 1
+    else:
+        while True:
+            cords = bfs(graph, start, goal)
+            try:
+                pay_ = 0
+                cords = [i for i in cords if i != start]
+                for cord in cords:
+                    pay_ += pay[cord]
+                result.append((cords, pay_))
+                graph[cords[1]] = []
+            except:
+                break
+        min_ = 1000
+        res = []
+        for i in result:
+            if i[1] != 0:
+                if i[1] < min_:
+                    min_ = i[1]
+                    res = i[0]
+        res += [start]
+    return res if min_ <= length else []
 

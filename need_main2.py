@@ -254,7 +254,9 @@ class Main:
 
         result = []
         for i in res:
-            cords = get_cords(self.graph, pos, i, self.player.persons[self.choice_person].movement)
+            cords = get_cords(self.graph, pos, i,
+                              self.player.persons[self.choice_person].movement,
+                              self.player.persons[self.choice_person].flying)
             if len(cords) > 0:
                 if (i not in self.cant) and (i not in not_append) and len(cords) - (2 if max(l) > 2 else 1) in l + [0]:
                     result.append(i)
@@ -584,7 +586,7 @@ class Main:
 
                 # pointer
                 if mouse_pos in self.can_move_to:
-                    self.cords = get_cords(self.graph, p_.pos, mouse_pos, p_.movement)
+                    self.cords = get_cords(self.graph, p_.pos, mouse_pos, p_.movement, p_.flying)
                     for i in range(len(self.cords) - 1):
                         img = None
                         if i == 0:

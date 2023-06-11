@@ -4,8 +4,10 @@ from person import Person, characters
 from player import Player
 from settings import *
 from dextr import *
-from fight import Fight, Fight_images, triangle
+from fight import Fight
+from fight_images import Fight_images
 from menu import Menu
+from damage.triangle import triangle
 from data.weapon import weapon, weapon_img, weapon_arrow, weapon_can_be_used
 from save_team.upload_team import save_team, upload_team, can_save
 

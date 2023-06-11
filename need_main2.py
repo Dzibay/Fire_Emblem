@@ -8,6 +8,7 @@ from fight import Fight, Fight_images, triangle
 from menu import Menu
 from data.weapon import weapon, weapon_img, weapon_arrow, weapon_can_be_used
 from save_team.upload_team import save_team, upload_team, can_save
+from map.generate_map import lvl_generate
 
 
 def mapping(pos):
@@ -66,7 +67,7 @@ class Main:
         # bg
         self.cam_pos = [0, 0]
         self.map_size = (36, 36)
-        self.big_bg = pygame.image.load('templates/map/new_map.png')
+        self.big_bg = pygame.image.load('map/new_map.png')
         self.big_bg = pygame.transform.scale(self.big_bg, (TILE * self.map_size[0], TILE * self.map_size[1]))
         self.bg = self.big_bg.subsurface(self.cam_pos[0], self.cam_pos[1], WIDTH, HEIGHT)
 

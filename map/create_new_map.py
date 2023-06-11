@@ -8,14 +8,18 @@ def create_new_map(graph):
     for i in graph:
         if i[1] != line:
             line += 1
+        try:
+            if graph[i] is not None:
+                res[line] += str(graph[i])
+            else:
+                res[line] += '.'
+        except:
+            break
 
-        if graph[i] is not None:
-            res[line] += str(graph[i])
-        else:
-            res[line] += '.'
-
-    for i in res:
-        print(i)
+    file = open('generated_map.txt', 'w')
+    for line in res:
+        print(line)
+        file.write(f'{line}\n')
 
 
 def mapping(pos, cam):

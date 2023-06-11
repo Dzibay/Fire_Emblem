@@ -67,7 +67,7 @@ class Main:
         # bg
         self.cam_pos = [0, 0]
         self.map_size = (36, 36)
-        self.big_bg = pygame.image.load('templates/map/new_map.png')
+        self.big_bg = pygame.image.load('map/new_map.png')
         self.big_bg = pygame.transform.scale(self.big_bg, (TILE * self.map_size[0], TILE * self.map_size[1]))
         self.bg = self.big_bg.subsurface(self.cam_pos[0], self.cam_pos[1], WIDTH, HEIGHT)
 

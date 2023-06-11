@@ -72,6 +72,8 @@ class Person:
                         trans_color = image.get_at((0, 0))
                         image.set_colorkey(trans_color)
                         self.map_images[weapon_][person]['stand'].append(image)
+                    self.map_images[weapon_][person]['stand'].append(self.map_images[weapon_][person]['stand'][1])
+                    self.map_images[weapon_][person]['stand'].append(self.map_images[weapon_][person]['stand'][0])
 
                     self.map_images[weapon_][person]['passive'] = []
                     for i in range(3):
@@ -80,6 +82,8 @@ class Person:
                         trans_color = image.get_at((0, 0))
                         image.set_colorkey(trans_color)
                         self.map_images[weapon_][person]['passive'].append(image)
+                    self.map_images[weapon_][person]['passive'].append(self.map_images[weapon_][person]['passive'][1])
+                    self.map_images[weapon_][person]['passive'].append(self.map_images[weapon_][person]['passive'][0])
 
                     self.map_images[weapon_][person]['active'] = []
                     for i in range(3):
@@ -88,6 +92,8 @@ class Person:
                         trans_color = image.get_at((0, 0))
                         image.set_colorkey(trans_color)
                         self.map_images[weapon_][person]['active'].append(image)
+                    self.map_images[weapon_][person]['active'].append(self.map_images[weapon_][person]['active'][1])
+                    self.map_images[weapon_][person]['active'].append(self.map_images[weapon_][person]['active'][0])
 
                     self.map_images[weapon_][person]['down'] = []
                     for i in range(4):
@@ -132,6 +138,8 @@ class Person:
                         trans_color = image.get_at((0, 0))
                         image.set_colorkey(trans_color)
                         self.map_images[weapon_][person]['stand'].append(image)
+                    self.map_images[weapon_][person]['stand'].append(self.map_images[weapon_][person]['stand'][1])
+                    self.map_images[weapon_][person]['stand'].append(self.map_images[weapon_][person]['stand'][0])
 
                     self.map_images[weapon_][person]['passive'] = []
                     for i in range(3):
@@ -141,6 +149,8 @@ class Person:
                         trans_color = image.get_at((0, 0))
                         image.set_colorkey(trans_color)
                         self.map_images[weapon_][person]['passive'].append(image)
+                    self.map_images[weapon_][person]['passive'].append(self.map_images[weapon_][person]['passive'][1])
+                    self.map_images[weapon_][person]['passive'].append(self.map_images[weapon_][person]['passive'][0])
 
                     self.map_images[weapon_][person]['active'] = []
                     for i in range(3):
@@ -150,6 +160,8 @@ class Person:
                         trans_color = image.get_at((0, 0))
                         image.set_colorkey(trans_color)
                         self.map_images[weapon_][person]['active'].append(image)
+                    self.map_images[weapon_][person]['active'].append(self.map_images[weapon_][person]['active'][1])
+                    self.map_images[weapon_][person]['active'].append(self.map_images[weapon_][person]['active'][0])
 
                     self.map_images[weapon_][person]['down'] = []
                     for i in range(4):
@@ -263,4 +275,4 @@ class Person:
                 p_ = 'active' if choice else 'stand'
             else:
                 p_ = 'passive'
-            self.img = self.map_images[self.weapon.class_]['person'][p_][tick % 15 // 5 if tick % 60 <= 15 else 0]
+            self.img = self.map_images[self.weapon.class_]['person'][p_][tick % 25 // 5 if tick % 50 <= 25 else 0]

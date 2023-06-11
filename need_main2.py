@@ -655,30 +655,14 @@ class Main:
                 self.screen.blit(self.highlight['red'][self.tick % 80 // 5],
                                  ((i[0] - self.cam_pos[0]) * TILE, (i[1] - self.cam_pos[1]) * TILE))
 
-        # persons
-        for person in self.player.persons:
-            # person move
-            if person.pos != person.want_move and len(self.cords) > 0:
-                self.cords = person.move(self.cords, person.last_terra_pos != person.terra_pos)
-                person.choice_image(self.tick, False)
-
-            # person img
-            choice_ = False
-            try:
-                if person == self.player.persons[self.choice_person]:
-                    choice_ = True
-            except:
-                pass
-            person.choice_image(self.tick, choice_)
-
         for person in self.sort_persons():
             if person in self.opponent.persons:
                 try:
                     # opponent persons img
                     i = self.opponent.persons.index(person)
                     if self.data[i][3] == 'stay':
-                        if self.tick % 60 <= 15:
-                            i_ = (self.tick % 15 // 5)
+                        if self.tick % 50 <= 25:
+                            i_ = (self.tick % 25 // 5)
                         else:
                             i_ = 0
                         person.move_to = ''
@@ -688,6 +672,20 @@ class Main:
                         person.img = person.map_images[person.weapon.class_]['enemy'][self.data[i][3]][self.tick % 40 // 10]
                 except:
                     print('cant print')
+            else:
+                # person move
+                if person.pos != person.want_move and len(self.cords) > 0:
+                    self.cords = person.move(self.cords, person.last_terra_pos != person.terra_pos)
+                    person.choice_image(self.tick, False)
+
+                # person img
+                choice_ = False
+                try:
+                    if person == self.player.persons[self.choice_person]:
+                        choice_ = True
+                except:
+                    pass
+                person.choice_image(self.tick, choice_)
 
             # person blit
             if (person.pos[0] >= self.cam_pos[0]) and \

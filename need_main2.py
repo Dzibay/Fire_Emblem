@@ -281,6 +281,7 @@ class Main:
                 if event.type == pygame.QUIT:
                     self.run = False
                 if event.type == pygame.KEYUP:
+                    self.need_render = True
                     if event.key == pygame.K_w:
                         if self.cam_pos[1] > 0:
                             self.cam_pos[1] -= 1
@@ -323,7 +324,7 @@ class Main:
                                             if in_box(self.big_mouse_pos, self.move_btn) and \
                                                     self.turn_phase == 'move':
                                                 self.graph, self.cant = generate_graph(True if self.player.persons[
-                                                    self.choice_person].flying else False)
+                                                                                           self.choice_person].flying else False)
                                                 self.person_want_move = True
                                                 self.person_positions = [person.pos
                                                                          for person in
@@ -341,10 +342,8 @@ class Main:
                                             if in_box(self.big_mouse_pos, self.unit_btn):
                                                 self.settings_unit = True
                                             elif in_box(self.big_mouse_pos, self.attack_btn):
-                                                self.graph, self.cant = generate_graph(True if (max(
-                                                    self.player.persons[self.choice_person].weapon.range) > 1)
-                                                                                               or self.player.persons[
-                                                                                                   self.choice_person].flying else False)
+                                                self.graph, self.cant = generate_graph(True if (max(self.player.persons[self.choice_person].weapon.range) > 1)
+                                                                                       or self.player.persons[self.choice_person].flying else False)
                                                 self.person_want_attack = True
                                                 self.can_attack_to = self.get_can_to(p_.pos,
                                                                                      p_.weapon.range,
@@ -692,8 +691,7 @@ class Main:
                         person.img = person.map_images[person.weapon.class_]['enemy']['stand'][i_]
                     else:
                         person.move_to = self.data[i][3]
-                        person.img = person.map_images[person.weapon.class_]['enemy'][self.data[i][3]][
-                            self.tick % 40 // 10]
+                        person.img = person.map_images[person.weapon.class_]['enemy'][self.data[i][3]][self.tick % 40 // 10]
                 except:
                     print('cant print')
 
@@ -873,10 +871,10 @@ class Main:
                     else:
                         # send sms
                         self.sms = f'<fight {self.fight.magic_img_id} {cords_[0]} {cords_[1]}|' \
-                                   f'{self.opponent.persons.index(self.fight.enemy)} {self.fight.person_img_id} ' \
-                                   f'{int(self.fight.moves[0])} {int(self.fight.person_y)} {self.fight.person.hp},' \
-                                   f'{self.player.persons.index(self.fight.person)} {self.fight.enemy_img_id} ' \
-                                   f'{int(self.fight.moves[2])} {int(self.fight.enemy_y)} {self.fight.enemy.hp}>'
+                              f'{self.opponent.persons.index(self.fight.enemy)} {self.fight.person_img_id} ' \
+                              f'{int(self.fight.moves[0])} {int(self.fight.person_y)} {self.fight.person.hp},' \
+                              f'{self.player.persons.index(self.fight.person)} {self.fight.enemy_img_id} ' \
+                              f'{int(self.fight.moves[2])} {int(self.fight.enemy_y)} {self.fight.enemy.hp}>'
                         self.sock.send(self.sms.encode())
 
                         # recv sms
@@ -910,6 +908,7 @@ class Main:
                             self.data = self.find_sms(self.data)
                     except:
                         pass
+
                     try:
                         self.fight.render_not_my_fight(self.screen, self.magic_data)
                     except:
@@ -1029,7 +1028,7 @@ class Main:
                                     self.opponent.persons[j].lvl = int(self.data[j][21])
                                     self.opponent.persons[j].class_ = self.data[j][22]
                     except:
-                        print('no')
+                        print('cant recv data')
 
                     # persons
                     for person in self.player.persons:

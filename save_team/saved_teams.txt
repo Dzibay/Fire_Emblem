@@ -20,3 +20,7 @@ barthe 20 39 17 0 9 23 4 5 11 18 5 general armor_slayer brave_axe horse_slayer
 wil 20 38 17 0 12 11 6 19 16 7 6 sniper long_bow rien_fleche short_bow
 florina 20 33 11 0 21 8 11 15 14 5 8 falco_knight short_spear heavy_spear brave_lance
 marisa 20 39 14 0 20 7 6 16 22 7 6 sword_master killing_edge armor_slayer brave_sword
+
+test
+barthe 20 40 17 0 9 24 4 4 8 18 5 general iron_lance
+lyn 20 33 19 0 21 10 8 18 20 6 6 blade_lord armor_slayer

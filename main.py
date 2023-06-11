@@ -281,6 +281,7 @@ class Main:
                 if event.type == pygame.QUIT:
                     self.run = False
                 if event.type == pygame.KEYUP:
+                    self.need_render = True
                     if event.key == pygame.K_w:
                         if self.cam_pos[1] > 0:
                             self.cam_pos[1] -= 1
@@ -907,6 +908,7 @@ class Main:
                             self.data = self.find_sms(self.data)
                     except:
                         pass
+
                     try:
                         self.fight.render_not_my_fight(self.screen, self.magic_data)
                     except:
@@ -1026,7 +1028,7 @@ class Main:
                                     self.opponent.persons[j].lvl = int(self.data[j][21])
                                     self.opponent.persons[j].class_ = self.data[j][22]
                     except:
-                        print('no')
+                        print('cant recv data')
 
                     # persons
                     for person in self.player.persons:

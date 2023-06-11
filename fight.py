@@ -208,7 +208,7 @@ class Fight_images:
                         if not dmg_end:
                             dmg_time += int(i[2:3])
                         res.append(i[:-1].split(';'))
-                    elif i[:9] == 'start_hit':
+                    elif i[:12] == 'wait_for_hit':
                         dmg_end = True
                     elif i[:4] == 'pose' and len(res) > 1:
                         break
@@ -503,6 +503,9 @@ class Fight:
                                                                                f'{self.enemy.weapon.class_}/Script.txt'), '', True)
         self.enemy_stay_img = self.enemy_attack_img[0]
 
+        self.img = self.person_stay_img
+        self.img_ = self.enemy_stay_img
+
         self.person_dmg_time = self.person_times['critical' if self.moves[0] else 'attack']
         self.enemy_dmg_time = self.enemy_times['critical' if self.moves[2] else 'attack']
 
@@ -641,22 +644,27 @@ class Fight:
     def render_fight(self, screen):
         self.tick += 1
 
+        # deal damage
+        for person in [self.person] + [self.enemy]:
+            if person.damage_for_me > 0:
+                person.hp -= 1
+                person.damage_for_me -= 1
+
         if self.tick <= 50:
-            img = self.person_stay_img
-            img_ = self.enemy_stay_img
+            pass
         else:
             # person
             if self.tick <= 50 + self.person_attack_time:
-                img = self.attack(self.person_script['critical' if self.moves[0] else 'attack'])
+                self.img = self.attack(self.person_script['critical' if self.moves[0] else 'attack'])
             else:
-                img = self.person_stay_img
+                self.img = self.person_stay_img
 
             # enemy
             if (self.tick >= self.start_enemy_attack) and \
                     (self.tick <= self.start_enemy_attack + self.enemy_attack_time):
-                img_ = self.attack(self.enemy_script['critical' if self.moves[2] else 'attack'], False)
+                self.img_ = self.attack(self.enemy_script['critical' if self.moves[2] else 'attack'], False)
             else:
-                img_ = self.enemy_stay_img
+                self.img_ = self.enemy_stay_img
 
             # damage
             if not self.moves[1]:
@@ -668,12 +676,6 @@ class Fight:
                 if self.tick == self.enemy_dmg_tick + 5:
                     k_ = 3 if self.moves[2] else 1
                     self.person.damage_for_me = self.enemy_dmg * k_
-
-            # deal damage
-            for person in [self.person] + [self.enemy]:
-                if person.damage_for_me > 0:
-                    person.hp -= 1
-                    person.damage_for_me -= 1
 
         # magic effect
         magic_img = None
@@ -708,25 +710,25 @@ class Fight:
         x_, y_ = self.render_base_for_fight(screen)
 
         # persons
-        for i in range(len(img)):
+        for i in range(len(self.img)):
             if self.tick < self.start_enemy_attack:
                 c_ = (1550 - self.person_index[self.cadr][i][2] * 5 - self.person_index[self.cadr][i][4] * 5 -
                       (200 if self.distance_fight else 0), self.person_index[self.cadr][i][5] * 5 + 250)
             else:
                 c_ = (1550 - self.person_index[0][i][2] * 5 - self.person_index[0][i][4] * 5 -
                       (200 if self.distance_fight else 0), self.person_index[0][i][5] * 5 + 250)
-            screen.blit(img[i], c_)
+            screen.blit(self.img[i], c_)
 
-        for i in range(len(img_)):
+        for i in range(len(self.img_)):
             if self.tick > self.start_enemy_attack:
                 c_ = (self.enemy_index[self.cadr][i][4] * 5 + (580 if self.distance_fight else 380),
                       self.enemy_index[self.cadr][i][5] * 5 + 250)
             else:
                 c_ = (self.enemy_index[0][i][4] * 5 + (580 if self.distance_fight else 380),
                       self.enemy_index[0][i][5] * 5 + 250)
-            screen.blit(img_[i], c_)
-        self.person_img_id = self.person_attack_img.index(img)
-        self.enemy_img_id = self.enemy_attack_img.index(img_)
+            screen.blit(self.img_[i], c_)
+        self.person_img_id = self.person_attack_img.index(self.img)
+        self.enemy_img_id = self.enemy_attack_img.index(self.img_)
 
         # magic
         if magic_img is not None:
@@ -748,13 +750,10 @@ class Fight:
                 screen.blit(self.miss(), (250, 300))
 
         # end
-        print(self.person_count_attack, self.enemy_count_attack)
         if self.tick == 10 + self.person_attack_time:
             self.person_count_attack -= 1
-            print('person - 1')
         elif self.tick == self.start_enemy_attack + self.enemy_attack_time:
             self.enemy_count_attack -= 1
-            print('enemy - 1')
 
         if self.enemy.hp <= 0 and (self.tick >= self.start_enemy_attack):
             return None

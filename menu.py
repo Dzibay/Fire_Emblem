@@ -1,7 +1,8 @@
+import pygame
+from numba import jit
+from settings import *
 from data.persons import characters
 from data.weapon import weapon_img, weapon
-from settings import *
-import pygame
 from random import randint
 from data.classes import classes_bonus
 
@@ -57,7 +58,7 @@ class Menu:
                                         'con': (1160, 928),
                                         'class': (1300, 700)}
 
-        f_ = [pygame.image.load(f'templates/persons/mugshots/{i}.png') for i in self.all_names_persons]
+        f_ = [pygame.image.load(f'templates/persons/mugshots/{i}.png').convert_alpha() for i in self.all_names_persons]
         self.person_faces = [pygame.transform.scale(i, (100, 100)) for i in f_]
         self.mini_person_faces = [pygame.transform.scale(i, (70, 70)) for i in f_]
         self.choice_persons = []
@@ -68,11 +69,9 @@ class Menu:
         self.second_sky = pygame.transform.flip(self.bg_sky, True, False)
         self.bg = {
             'base': [pygame.transform.scale(pygame.image.load(f'templates/menu/base/{i}.png').
-                                            convert_alpha(), (WIDTH, HEIGHT)) for i in range(25)],
-            'edit_team': [pygame.transform.scale(pygame.image.load(f'templates/menu/edit_team/{i}.png').
-                                                 convert_alpha(), (WIDTH, HEIGHT)) for i in range(1)],
-            'ally_growth': [pygame.transform.scale(pygame.image.load(f'templates/menu/ally_growth/{i}.png').
-                                                   convert_alpha(), (WIDTH, HEIGHT)) for i in range(22)]}
+                                            convert_alpha(), (WIDTH, HEIGHT)) for i in ['first', 'second']],
+            'edit_team': pygame.transform.scale(pygame.image.load(f'templates/menu/edit_team/0.png').convert_alpha(), (WIDTH, HEIGHT)),
+            'ally_growth': pygame.transform.scale(pygame.image.load(f'templates/menu/ally_growth/all.png').convert_alpha(), (WIDTH, HEIGHT))}
         self.x_1 = 0
         self.x_2 = -1920
 
@@ -115,16 +114,15 @@ class Menu:
 
     def render(self, person_settings):
         self.tick += 1
-        self.x_1 += 1 if self.tick % 2 == 0 else 0
-        self.x_2 += 1 if self.tick % 2 == 0 else 0
+        self.x_1 += 1 if self.tick % 3 == 0 else 0
+        self.x_2 += 1 if self.tick % 3 == 0 else 0
         if self.x_1 == 1920:
             self.x_1 = -1920
         if self.x_2 == 1920:
             self.x_2 = -1920
         self.screen.blit(self.bg_sky, (self.x_1, 0))
         self.screen.blit(self.second_sky, (self.x_2, 0))
-        for img in self.bg['base'][:19]:
-            self.screen.blit(img, (0, 0))
+        self.screen.blit(self.bg['base'][0], (0, 0))
 
         if person_settings:
             # person settings
@@ -149,8 +147,7 @@ class Menu:
                     self.screen.blit(name_weapon, (700, 220 + i * 75))
             else:
                 if self.phase == 'edit_team':
-                    for img in self.bg['edit_team']:
-                        self.screen.blit(img, (0, 0))
+                    self.screen.blit(self.bg['edit_team'], (0, 0))
                     for i in range(len(self.person_choice_cords)):
                         c_ = BLUE if self.person_choice_cords[i] in self.choice_persons else WHITE
                         pygame.draw.rect(self.screen, c_, self.person_choice_cords[i])
@@ -178,8 +175,7 @@ class Menu:
                                              (self.save_upload_text_btn[0] + 10 + len(self.save_upload_text) * 21,
                                               self.save_upload_text_btn[1] + 2, 2, 36))
                 elif self.phase == 'ally_growth':
-                    for img in self.bg['ally_growth']:
-                        self.screen.blit(img, (0, 0))
+                    self.screen.blit(self.bg['ally_growth'], (0, 0))
                     for stat in self.result_person_stats[self.ally_growth_person]:
                         if stat != 'move':
                             if stat != 'class':
@@ -211,8 +207,7 @@ class Menu:
                 self.screen.blit(self.mini_person_faces[self.person_choice_cords.index(self.choice_persons[i])],
                                  (1165 + i * 90, 120))
 
-            for img in self.bg['base'][19:]:
-                self.screen.blit(img, (0, 0))
+            self.screen.blit(self.bg['base'][1], (0, 0))
 
         else:
             i_ = self.tick % 160 // 20
@@ -245,3 +240,4 @@ class Menu:
                 pygame.draw.rect(self.screen, WHITE, i)
             text = self.f1.render('Waiting the second player...', True, WHITE)
             self.screen.blit(text, (WIDTH // 2 - 140, HEIGHT // 2 + 70))
+

@@ -43,17 +43,27 @@ def test():
     choice = 'attack'
     screen = pygame.display.set_mode((1000, 800))
     clock = pygame.time.Clock()
-    index = read(open(f'templates/persons/other/{pers}/man/battle/{weapon}/Index.txt').readlines(), weapon)
-    script = read(open(f'templates/persons/other/{pers}/man/battle/{weapon}/Script.txt').readlines(), weapon, True)
-    imgs = [[pygame.transform.flip(pygame.transform.scale(pygame.image.load(f'templates/persons/other/{pers}/man/battle/{weapon}/attack.png').
+    index = read(open(f'../templates/persons/other/{pers}/man/battle/{weapon}/Index.txt').readlines(), weapon)
+    script = read(open(f'../templates/persons/other/{pers}/man/battle/{weapon}/Script.txt').readlines(), weapon, True)
+    imgs = [[pygame.transform.flip(pygame.transform.scale(pygame.image.load(f'../templates/persons/other/{pers}/man/battle/{weapon}/attack.png').
             subsurface((i[0], i[1], i[2], i[3])), (i[2] * 5, i[3] * 5)), True, False) for i in j] for j in index]
-    print(index)
-    print(script)
-    print(imgs)
+
+    death_opacity = [0, 20, 20, 20, 20, 44, 44, 44, 44, 64,
+                          64, 64, 64, 84, 84, 84, 108, 108, 108, 108,
+                          128, 128, 128, 128, 148, 148, 148, 148, 172, 172,
+                          172, 192, 192, 192, 192, 212, 212, 212, 212, 236,
+                          236, 236, 236, 255, 255, 255, 0, 0, 0, 0,
+                          0, 0, -1, 0, 0, 0, 0, 0, 0, 255,
+                          0, 0, 0, 0, 0, 0, 255, 0, 0, 0,
+                          0, 0, 0, 255, 0, 0, 0, 0, 0, 0,
+                          255, 0, 0, 0, 0, 0, 0]
+    print(len(death_opacity))
     cadr = 0
     cadr_tick = 0
     script_navigator = 0
     attack = False
+    dead = False
+    death_tick = 0
 
     run = True
     while run:
@@ -64,6 +74,8 @@ def test():
             elif event.type == pygame.KEYUP:
                 if event.key == pygame.K_SPACE:
                     attack = True
+                elif event.key == pygame.K_RETURN:
+                    dead = True
 
         screen.fill((0, 0, 0))
         if attack:
@@ -76,9 +88,16 @@ def test():
                     script_navigator = 0
 
             for i in range(len(imgs[cadr])):
-                print(cadr, (index[cadr][i][4] * 5, index[cadr][i][5] * 5))
                 screen.blit(imgs[cadr][i], (900 - index[cadr][i][2] * 5 - index[cadr][i][4] * 5, index[cadr][i][5] * 5))
             cadr_tick += 1
+        elif dead:
+            i_ = imgs[0][0]
+            i_.set_alpha(death_opacity[death_tick])
+            screen.blit(i_, (900 - index[0][0][2] * 5 - index[0][0][4] * 5, index[0][0][5] * 5))
+            if death_tick == len(death_opacity) - 1:
+                dead = False
+            else:
+                death_tick += 1
         else:
             screen.blit(imgs[0][0], (900 - index[0][0][2] * 5 - index[0][0][4] * 5, index[0][0][5] * 5))
 

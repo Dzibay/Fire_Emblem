@@ -24,3 +24,11 @@ marisa 20 39 14 0 20 7 6 16 22 7 6 sword_master killing_edge armor_slayer brave_
 test
 barthe 20 40 17 0 9 24 4 4 8 18 5 general iron_lance
 lyn 20 33 19 0 21 10 8 18 20 6 6 blade_lord armor_slayer
+
+dead
+wil 20 37 16 0 15 9 8 14 17 7 6 sniper rien_fleche
+florina 1 17 5 0 9 4 4 7 7 4 7 pegasus_knight iron_lance
+
+t
+lyn 20 29 15 0 21 7 10 19 21 6 6 blade_lord sol_katti
+roy 20 35 12 0 17 12 9 20 17 8 6 great_lord silver_sword

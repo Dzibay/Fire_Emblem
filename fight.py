@@ -531,6 +531,19 @@ class Fight:
         self.cadr_tick = 0
         self.script_navigator = 0
 
+        self.dead_tick = 0
+        self.death_opacity = [0, 20, 20, 20, 20, 44, 44, 44, 44, 64,
+                              64, 64, 64, 84, 84, 84, 108, 108, 108, 108,
+                              128, 128, 128, 128, 148, 148, 148, 148, 172, 172,
+                              172, 192, 192, 192, 192, 212, 212, 212, 212, 236,
+                              236, 236, 236, 255, 255, 255, 0, 0, 0, 0,
+                              0, 0, -1, 0, 0, 0, 0, 0, 0, 255,
+                              0, 0, 0, 0, 0, 0, 255, 0, 0, 0,
+                              0, 0, 0, 255, 0, 0, 0, 0, 0, 0,
+                              255, 0, 0, 0, 0, 0, 0]
+        self.person_dead = False
+        self.enemy_dead = False
+
         # fonts
         self.f1 = pygame.font.Font(None, 30)
         self.f2 = pygame.font.Font(None, 50)
@@ -654,14 +667,28 @@ class Fight:
             pass
         else:
             # person
-            if self.tick <= 50 + self.person_attack_time:
+            if self.person.hp <= 0:
+                if self.dead_tick < len(self.death_opacity) - 1:
+                    for i in self.img:
+                        i.set_alpha(self.death_opacity[self.dead_tick])
+                self.dead_tick += 1
+                if self.dead_tick == len(self.death_opacity) + 50:
+                    return None
+            elif self.tick <= 50 + self.person_attack_time and not self.enemy_dead:
                 self.img = self.attack(self.person_script['critical' if self.moves[0] else 'attack'])
             else:
                 self.img = self.person_stay_img
 
             # enemy
-            if (self.tick >= self.start_enemy_attack) and \
-                    (self.tick <= self.start_enemy_attack + self.enemy_attack_time):
+            if self.enemy.hp <= 0:
+                if self.dead_tick < len(self.death_opacity) - 1:
+                    for i in self.img_:
+                        i.set_alpha(self.death_opacity[self.dead_tick])
+                self.dead_tick += 1
+                if self.dead_tick == len(self.death_opacity) + 50:
+                    return None
+            elif (self.tick >= self.start_enemy_attack) and \
+                    (self.tick <= self.start_enemy_attack + self.enemy_attack_time) and not self.person_dead:
                 self.img_ = self.attack(self.enemy_script['critical' if self.moves[2] else 'attack'], False)
             else:
                 self.img_ = self.enemy_stay_img
@@ -755,10 +782,10 @@ class Fight:
         elif self.tick == self.start_enemy_attack + self.enemy_attack_time:
             self.enemy_count_attack -= 1
 
-        if self.enemy.hp <= 0 and (self.tick >= self.start_enemy_attack):
-            return None
-        if self.person.hp <= 0 and (self.tick >= self.start_enemy_attack + self.enemy_attack_time):
-            return None
+        # if self.enemy.hp <= 0 and (self.tick >= self.start_enemy_attack + ):
+        #     return None
+        # if self.person.hp <= 0 and (self.tick >= self.start_enemy_attack + self.enemy_attack_time + ):
+        #     return None
 
         if self.tick == self.start_enemy_attack:
             if self.enemy_count_attack == 0 and self.person_count_attack == 0:

@@ -14,7 +14,7 @@ main_socket.listen(5)
 pygame.init()
 clock = pygame.time.Clock()
 
-FPS = 50
+FPS = 30
 TILE = 80
 tick = 0
 is_fight = False
@@ -73,7 +73,11 @@ players = []
 run = True
 while run:
     tick += 1
-    clock.tick(FPS)
+    if any([player_.is_fight for player_ in players]):
+        print('fight')
+        clock.tick(50)
+    else:
+        clock.tick(FPS)
 
     if tick == 200:
         tick = 0

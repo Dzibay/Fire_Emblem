@@ -59,7 +59,7 @@ class Main:
 
         # socket
         self.server_ip = 'localhost'
-        self.server_ip = '82.146.45.210'
+        # self.server_ip = '82.146.45.210'
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
         self.sock.connect((self.server_ip, 10000))
@@ -111,9 +111,9 @@ class Main:
                        (73, 1, 16, 16), (91, 1, 16, 16), (109, 1, 16, 16), (127, 1, 16, 16),
                        (1, 19, 16, 16), (19, 19, 16, 16), (37, 19, 16, 16), (55, 19, 16, 16),
                        (73, 19, 16, 16), (91, 19, 16, 16), (109, 19, 16, 16), (127, 19, 16, 16)]
-        self.pointer = {names_point[i]: pygame.transform.scale(
-            pygame.image.load('templates/pointer/pointer.png').subsurface(cords_point[i]), (TILE, TILE))
-            for i in range(len(names_point))}
+        p_ = pygame.image.load('templates/pointer/pointer.png').convert_alpha()
+        self.pointer = {names_point[i]: pygame.transform.scale(p_.subsurface(cords_point[i]), (TILE, TILE))
+                        for i in range(len(names_point))}
 
         # data
         self.data = ''
@@ -126,7 +126,7 @@ class Main:
         self.fight_img = Fight_images()
 
         # persons
-        f_ = {i: pygame.image.load(f'templates/persons/mugshots/{i}.png') for i in self.menu.all_names_persons}
+        f_ = {i: pygame.image.load(f'templates/persons/mugshots/{i}.png').convert_alpha() for i in self.menu.all_names_persons}
         self.person_faces = {i: pygame.transform.scale(f_[i], (300, 300)) for i in f_}
         self.mini_person_faces = {i: pygame.transform.scale(f_[i], (100, 100)) for i in f_}
 
@@ -157,25 +157,18 @@ class Main:
         self.fight_info = pygame.transform.scale(pygame.image.load('templates/map/fight_info.png'), (300, 450))
 
         # map highlight
+        b_ = pygame.image.load('templates/highlights/blue.png').convert_alpha()
+        r_ = pygame.image.load('templates/highlights/red.png').convert_alpha()
         self.highlight = {
-            'blue': [pygame.transform.scale(pygame.image.load('templates/highlights/blue.png').
-                                            subsurface(i * 16, 1, 15, 15), (TILE, TILE)) for i in range(16)],
-            'red': [pygame.transform.scale(pygame.image.load('templates/highlights/red.png').
-                                           subsurface(i * 16, 1, 15, 15), (TILE, TILE)) for i in range(16)]}
+            'blue': [pygame.transform.scale(b_.subsurface(i * 16, 1, 15, 15), (TILE, TILE)) for i in range(16)],
+            'red': [pygame.transform.scale(r_.subsurface(i * 16, 1, 15, 15), (TILE, TILE)) for i in range(16)]}
 
         # cursor
-        self.cursor = {'norm': [pygame.transform.scale(pygame.image.load('templates/map/cursor.png').
-                                                       subsurface((x * 32, 0, 32, 32)), (TILE, TILE))
-                                for x in range(4)],
-                       'enemy': [pygame.transform.scale(pygame.image.load('templates/map/cursor.png').
-                                                        subsurface((x * 32, 32, 32, 32)), (TILE, TILE))
-                                 for x in range(4)],
-                       'none': [pygame.transform.scale(pygame.image.load('templates/map/cursor.png').
-                                                       subsurface((x * 32, 64, 32, 32)), (TILE, TILE))
-                                for x in range(4)],
-                       'heal': [pygame.transform.scale(pygame.image.load('templates/map/cursor.png').
-                                                       subsurface((x * 32, 96, 32, 32)), (TILE, TILE))
-                                for x in range(4)]}
+        c_ = pygame.image.load('templates/map/cursor.png').convert_alpha()
+        self.cursor = {'norm': [pygame.transform.scale(c_.subsurface((x * 32, 0, 32, 32)), (TILE, TILE)) for x in range(4)],
+                       'enemy': [pygame.transform.scale(c_.subsurface((x * 32, 32, 32, 32)), (TILE, TILE)) for x in range(4)],
+                       'none': [pygame.transform.scale(c_.subsurface((x * 32, 64, 32, 32)), (TILE, TILE)) for x in range(4)],
+                       'heal': [pygame.transform.scale(c_.subsurface((x * 32, 96, 32, 32)), (TILE, TILE)) for x in range(4)]}
 
         # fonts
         self.f1 = pygame.font.Font(None, 30)
@@ -851,8 +844,12 @@ class Main:
 
     def main_loop(self):
         while self.run:
+            if not self.fight_flag and not self.not_my_fight and self.start_game:
+                self.clock.tick(30)
+            else:
+                self.clock.tick(FPS)
+
             self.tick += 1
-            self.clock.tick(FPS)
             self.big_mouse_pos = pygame.mouse.get_pos()
             self.mouse_pos = mapping(pygame.mouse.get_pos())
 
@@ -1029,27 +1026,27 @@ class Main:
                     except:
                         print('cant recv data')
 
-                    # persons
-                    for person in self.player.persons:
-                        # person move
-                        if person.pos != person.want_move and len(self.cords) > 0:
-                            self.need_render = True
-
-                        # person img
-                        if self.tick % 60 <= 20 and self.tick % 5 == 0:
-                            self.need_render = True
-
-                    if self.mouse_pos != self.last_mouse_pos:
-                        self.last_mouse_pos = self.mouse_pos
-                        self.need_render = True
-
-                    if self.person_want_move or self.person_want_attack:
-                        if self.tick % 80 // 5 == 0:
-                            self.need_render = True
-
-                    if self.turn_menu:
-                        if self.tick % 36 < 12 and self.tick % 2 == 0:
-                            self.need_render = True
+                    # # persons
+                    # for person in self.player.persons:
+                    #     # person move
+                    #     if person.pos != person.want_move and len(self.cords) > 0:
+                    #         self.need_render = True
+                    #
+                    #     # person img
+                    #     if self.tick % 60 <= 20 and self.tick % 5 == 0:
+                    #         self.need_render = True
+                    #
+                    # if self.mouse_pos != self.last_mouse_pos:
+                    #     self.last_mouse_pos = self.mouse_pos
+                    #     self.need_render = True
+                    #
+                    # if self.person_want_move or self.person_want_attack:
+                    #     if self.tick % 80 // 5 == 0:
+                    #         self.need_render = True
+                    #
+                    # if self.turn_menu:
+                    #     if self.tick % 36 < 12 and self.tick % 2 == 0:
+                    #         self.need_render = True
 
                     # attack
                     for person in self.player.persons:
@@ -1077,9 +1074,8 @@ class Main:
                             person.active = True
 
                     if not self.not_my_fight:
-                        if self.need_render:
-                            self.render()
-                            self.need_render = False
+                        self.render()
+                        self.need_render = False
 
             else:
                 self.events('menu')
@@ -1100,22 +1096,22 @@ class Main:
                 if not self.start_game:
                     self.menu.render(self.sms[:8] != '<my_pers')
 
-            # for person in self.player.persons + self.opponent.persons:
-            #     print(person.name)
-            #     print('hp ', person.hp)
-            #     print('str ', person.str)
-            #     print('mag ', person.mag)
-            #     print('skl ', person.skl)
-            #     print('speed ', person.speed)
-            #     print('lck ', person.lck)
-            #     print('def ', person.def_)
-            #     print('res ', person.res)
-            #     print('dmg ', person.dmg)
-            #     print('attack_speed ', person.attack_speed)
-            #     print('hit ', person.hit)
-            #     print('avoid ', person.avoid)
-            #     print('class ', person.class_)
-            #     print('---------------------')
+            for person in self.player.persons + self.opponent.persons:
+                print(person.name)
+                print('hp ', person.hp)
+                print('str ', person.str)
+                print('mag ', person.mag)
+                print('skl ', person.skl)
+                print('speed ', person.speed)
+                print('lck ', person.lck)
+                print('def ', person.def_)
+                print('res ', person.res)
+                print('dmg ', person.dmg)
+                print('attack_speed ', person.attack_speed)
+                print('hit ', person.hit)
+                print('avoid ', person.avoid)
+                print('class ', person.class_)
+                print('---------------------')
 
             pygame.display.update()
 

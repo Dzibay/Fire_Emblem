@@ -8,6 +8,7 @@ from fight import Fight, Fight_images, triangle
 from menu import Menu
 from data.weapon import weapon, weapon_img, weapon_arrow, weapon_can_be_used
 from save_team.upload_team import save_team, upload_team, can_save
+from map.generate_map import lvl_generate
 
 
 def mapping(pos):
@@ -58,7 +59,7 @@ class Main:
 
         # socket
         self.server_ip = 'localhost'
-        self.server_ip = '82.146.45.210'
+        # self.server_ip = '82.146.45.210'
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
         self.sock.connect((self.server_ip, 10000))

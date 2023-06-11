@@ -59,7 +59,7 @@ class Main:
 
         # socket
         self.server_ip = 'localhost'
-        # self.server_ip = '82.146.45.210'
+        self.server_ip = '82.146.45.210'
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
         self.sock.connect((self.server_ip, 10000))
@@ -326,9 +326,8 @@ class Main:
                                                 self.graph, self.cant = generate_graph(True if self.player.persons[
                                                                                            self.choice_person].flying else False)
                                                 self.person_want_move = True
-                                                self.person_positions = [person.pos
-                                                                         for person in
-                                                                         self.opponent.persons]
+                                                self.person_positions = [person.pos for person in
+                                                                         self.opponent.persons + self.player.persons]
                                                 self.can_move_to = self.get_can_to(p_.pos,
                                                                                    [i for i in range(
                                                                                        p_.movement)],

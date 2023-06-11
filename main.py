@@ -167,10 +167,10 @@ class Main:
 
         # cursor
         c_ = pygame.image.load('templates/map/cursor.png').convert_alpha()
-        self.cursor = {'norm': [pygame.transform.scale(c_.subsurface((x * 32, 0, 32, 32)), (TILE, TILE)) for x in range(4)],
-                       'enemy': [pygame.transform.scale(c_.subsurface((x * 32, 32, 32, 32)), (TILE, TILE)) for x in range(4)],
-                       'none': [pygame.transform.scale(c_.subsurface((x * 32, 64, 32, 32)), (TILE, TILE)) for x in range(4)],
-                       'heal': [pygame.transform.scale(c_.subsurface((x * 32, 96, 32, 32)), (TILE, TILE)) for x in range(4)]}
+        self.cursor = {'norm': [pygame.transform.scale(c_.subsurface((x * 32, 0, 32, 32)), (120, 120)) for x in range(4)],
+                       'enemy': [pygame.transform.scale(c_.subsurface((x * 32, 32, 32, 32)), (120, 120)) for x in range(4)],
+                       'none': [pygame.transform.scale(c_.subsurface((x * 32, 64, 32, 32)), (120, 120)) for x in range(4)],
+                       'heal': [pygame.transform.scale(c_.subsurface((x * 32, 96, 32, 32)), (120, 120)) for x in range(4)]}
 
         # fonts
         self.f1 = pygame.font.Font(None, 30)
@@ -269,6 +269,54 @@ class Main:
                 if (i not in self.cant) and (i not in not_append) and len(cords) - (2 if max(l) > 2 else 1) in l + [0]:
                     result.append(i)
         return result
+
+    def get_pointer_img(self, i):
+        img = None
+        if i == 0:
+            if self.cords[i][0] < self.cords[i + 1][0]:
+                img = 'end_l'
+            elif self.cords[i][0] > self.cords[i + 1][0]:
+                img = 'end_r'
+            elif self.cords[i][1] < self.cords[i + 1][1]:
+                img = 'end_u'
+            elif self.cords[i][1] > self.cords[i + 1][1]:
+                img = 'end_d'
+        else:
+            if (self.cords[i - 1][0] < self.cords[i][0] and self.cords[i][1] < self.cords[i + 1][1]) or \
+                    (self.cords[i + 1][0] < self.cords[i][0] and self.cords[i][1] < self.cords[i - 1][
+                        1]):
+                img = 'r-d'
+            elif (self.cords[i - 1][0] < self.cords[i][0] and self.cords[i][1] > self.cords[i + 1][
+                1]) or \
+                    (self.cords[i + 1][0] < self.cords[i][0] and self.cords[i][1] > self.cords[i - 1][
+                        1]):
+                img = 'r-u'
+            elif (self.cords[i - 1][0] > self.cords[i][0] and self.cords[i][1] < self.cords[i + 1][
+                1]) or \
+                    (self.cords[i + 1][0] > self.cords[i][0] and self.cords[i][1] < self.cords[i - 1][
+                        1]):
+                img = 'u-r'
+            elif (self.cords[i - 1][0] > self.cords[i][0] and self.cords[i][1] > self.cords[i + 1][
+                1]) or \
+                    (self.cords[i + 1][0] > self.cords[i][0] and self.cords[i][1] > self.cords[i - 1][
+                        1]):
+                img = 'd-r'
+            else:
+                if i == len(self.cords) - 2:
+                    if self.cords[i][0] < self.cords[i + 1][0]:
+                        img = 'start_l'
+                    elif self.cords[i][0] > self.cords[i + 1][0]:
+                        img = 'start_r'
+                    elif self.cords[i][1] < self.cords[i + 1][1]:
+                        img = 'start_u'
+                    elif self.cords[i][1] > self.cords[i + 1][1]:
+                        img = 'start_d'
+        if img is None:
+            if self.cords[i - 1][0] < self.cords[i][0] or self.cords[i - 1][0] > self.cords[i][0]:
+                img = 'r'
+            else:
+                img = 'u'
+        return img
 
     def events(self, flag):
         if flag == 'main':
@@ -579,9 +627,6 @@ class Main:
         self.screen.fill(BLACK)
         self.screen.blit(self.bg, (0, 0))
 
-        # mouse
-        pygame.draw.rect(self.screen, BLACK, (self.mouse_pos[0] * TILE, self.mouse_pos[1] * TILE, TILE, TILE), 1)
-
         # person move
         if self.person_want_move:
             try:
@@ -598,54 +643,9 @@ class Main:
                 if mouse_pos in self.can_move_to:
                     self.cords = get_cords(self.graph, p_.pos, mouse_pos, p_.movement, p_.flying)
                     for i in range(len(self.cords) - 1):
-                        img = None
-                        if i == 0:
-                            if self.cords[i][0] < self.cords[i + 1][0]:
-                                img = 'end_l'
-                            elif self.cords[i][0] > self.cords[i + 1][0]:
-                                img = 'end_r'
-                            elif self.cords[i][1] < self.cords[i + 1][1]:
-                                img = 'end_u'
-                            elif self.cords[i][1] > self.cords[i + 1][1]:
-                                img = 'end_d'
-                        else:
-                            if (self.cords[i - 1][0] < self.cords[i][0] and self.cords[i][1] < self.cords[i + 1][1]) or \
-                                    (self.cords[i + 1][0] < self.cords[i][0] and self.cords[i][1] < self.cords[i - 1][
-                                        1]):
-                                img = 'r-d'
-                            elif (self.cords[i - 1][0] < self.cords[i][0] and self.cords[i][1] > self.cords[i + 1][
-                                1]) or \
-                                    (self.cords[i + 1][0] < self.cords[i][0] and self.cords[i][1] > self.cords[i - 1][
-                                        1]):
-                                img = 'r-u'
-                            elif (self.cords[i - 1][0] > self.cords[i][0] and self.cords[i][1] < self.cords[i + 1][
-                                1]) or \
-                                    (self.cords[i + 1][0] > self.cords[i][0] and self.cords[i][1] < self.cords[i - 1][
-                                        1]):
-                                img = 'u-r'
-                            elif (self.cords[i - 1][0] > self.cords[i][0] and self.cords[i][1] > self.cords[i + 1][
-                                1]) or \
-                                    (self.cords[i + 1][0] > self.cords[i][0] and self.cords[i][1] > self.cords[i - 1][
-                                        1]):
-                                img = 'd-r'
-                            else:
-                                if i == len(self.cords) - 2:
-                                    if self.cords[i][0] < self.cords[i + 1][0]:
-                                        img = 'start_l'
-                                    elif self.cords[i][0] > self.cords[i + 1][0]:
-                                        img = 'start_r'
-                                    elif self.cords[i][1] < self.cords[i + 1][1]:
-                                        img = 'start_u'
-                                    elif self.cords[i][1] > self.cords[i + 1][1]:
-                                        img = 'start_d'
-                        if img is None:
-                            if self.cords[i - 1][0] < self.cords[i][0] or self.cords[i - 1][0] > self.cords[i][0]:
-                                img = 'r'
-                            else:
-                                img = 'u'
-                        if img is not None:
-                            self.screen.blit(self.pointer[img], ((self.cords[i][0] - self.cam_pos[0]) * TILE,
-                                                                 (self.cords[i][1] - self.cam_pos[1]) * TILE))
+                        img = self.get_pointer_img(i)
+                        self.screen.blit(self.pointer[img], ((self.cords[i][0] - self.cam_pos[0]) * TILE,
+                                                             (self.cords[i][1] - self.cam_pos[1]) * TILE))
             except:
                 self.choice_person = None
 
@@ -697,6 +697,10 @@ class Main:
                 offset = (135, 140) if person.move_to == '' else (100, 150)
                 self.screen.blit(person.img, (person.x - self.cam_pos[0] * TILE - offset[0],
                                               person.y - self.cam_pos[1] * TILE - offset[1]))
+
+        # mouse
+        self.screen.blit(self.cursor['enemy' if self.person_want_attack else 'norm'][self.tick % 40 // 10 if self.tick % 80 < 40 else 0],
+                         (self.mouse_pos[0] * TILE - 20, self.mouse_pos[1] * TILE - 15))
 
         if len(self.menu.choice_persons) == 0:
             # turn menu
@@ -1098,22 +1102,22 @@ class Main:
                 if not self.start_game:
                     self.menu.render(self.sms[:8] != '<my_pers')
 
-            for person in self.player.persons + self.opponent.persons:
-                print(person.name)
-                print('hp ', person.hp)
-                print('str ', person.str)
-                print('mag ', person.mag)
-                print('skl ', person.skl)
-                print('speed ', person.speed)
-                print('lck ', person.lck)
-                print('def ', person.def_)
-                print('res ', person.res)
-                print('dmg ', person.dmg)
-                print('attack_speed ', person.attack_speed)
-                print('hit ', person.hit)
-                print('avoid ', person.avoid)
-                print('class ', person.class_)
-                print('---------------------')
+            # for person in self.player.persons + self.opponent.persons:
+            #     print(person.name)
+            #     print('hp ', person.hp)
+            #     print('str ', person.str)
+            #     print('mag ', person.mag)
+            #     print('skl ', person.skl)
+            #     print('speed ', person.speed)
+            #     print('lck ', person.lck)
+            #     print('def ', person.def_)
+            #     print('res ', person.res)
+            #     print('dmg ', person.dmg)
+            #     print('attack_speed ', person.attack_speed)
+            #     print('hit ', person.hit)
+            #     print('avoid ', person.avoid)
+            #     print('class ', person.class_)
+            #     print('---------------------')
 
             pygame.display.update()
 

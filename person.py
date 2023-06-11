@@ -277,39 +277,38 @@ class Person:
     def get_big_pos(self):
         return (self.pos[0] * TILE, self.pos[1] * TILE)
 
-    def move(self, cords):
-        if self.pos != self.want_move and len(cords) > 0:
-            self.state = ''
-            cords.reverse()
-            cord = cords[0]
-            if self.y < cord[1] * TILE:
-                self.y += 8
-                self.move_to = 'down'
-            elif self.y > cord[1] * TILE:
-                self.y -= 8
-                self.move_to = 'up'
-            elif self.x < cord[0] * TILE:
-                self.x += 8
-                self.move_to = 'right'
-            elif self.x > cord[0] * TILE:
-                self.x -= 8
-                self.move_to = 'left'
-            else:
-                self.pos = cord
-                self.terra_pos = lvl_generate[self.pos]
-                cords.reverse()
-                cords.remove(cord)
-                cords.reverse()
-            cords.reverse()
+    def move(self, cords, terra=False):
+        self.state = ''
+        cords.reverse()
+        cord = cords[0]
+        if self.y < cord[1] * TILE:
+            self.y += 8
+            self.move_to = 'down'
+        elif self.y > cord[1] * TILE:
+            self.y -= 8
+            self.move_to = 'up'
+        elif self.x < cord[0] * TILE:
+            self.x += 8
+            self.move_to = 'right'
+        elif self.x > cord[0] * TILE:
+            self.x -= 8
+            self.move_to = 'left'
         else:
-            if self.last_terra_pos != self.terra_pos:
-                self.def_ -= def_buff[self.last_terra_pos]
-                self.avoid -= avoid_buff[self.last_terra_pos]
+            self.pos = cord
+            self.terra_pos = lvl_generate[self.pos]
+            cords.reverse()
+            cords.remove(cord)
+            cords.reverse()
+        cords.reverse()
 
-                self.def_ += def_buff[self.terra_pos]
-                self.avoid += avoid_buff[self.terra_pos]
+        if terra:
+            self.def_ -= def_buff[self.last_terra_pos]
+            self.avoid -= avoid_buff[self.last_terra_pos]
 
-                self.last_terra_pos = self.terra_pos
+            self.def_ += def_buff[self.terra_pos]
+            self.avoid += avoid_buff[self.terra_pos]
+
+            self.last_terra_pos = self.terra_pos
         return cords
 
     def choice_image(self, tick, choice):

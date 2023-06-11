@@ -32,6 +32,7 @@ class Player:
         self.person_names = []
         self.can_move = False
         self.last_sms_move = None
+        self.turn_tick = 0
         self.sms = ''
 
 
@@ -89,6 +90,8 @@ while run:
             pass
 
     for player in players:
+        if player.can_move:
+            player.turn_tick += 1
         try:
             data = player.conn.recv(1024).decode()
             if data[:6] == '<wait>':
@@ -104,27 +107,17 @@ while run:
             else:
                 player.is_fight = False
                 data = data.split('|')
-                if data[0] == '<True':
-                    a = True
-                elif data[0] == '<None':
-                    a = None
-                else:
-                    a = False
-
-                if a is None:
-                    player.last_sms_move = player.can_move
-                elif player.last_sms_move != a and player.can_move:
-                    player.can_move = a
-                    player.last_sms_move = a
+                if player.can_move and data[0] == '<False' and player.turn_tick > 100:
+                    player.turn_tick = 0
+                    player.can_move = False
                     for player_2 in players:
                         if player_2 != player:
-                            player_2.can_move = not a
+                            player_2.can_move = True
                             print(players.index(player), 'change', player.can_move, player_2.can_move)
                 player.sms = data[1][:-1]
         except:
             pass
 
-    print('-------')
     for player in players:
         second_player = None
         for player_2 in players:
@@ -152,7 +145,6 @@ while run:
                             sms += player_2.sms
                     sms += '>'
             player.conn.send(sms.encode())
-            print(sms)
             player.errors = 0
         except:
             player.errors += 1

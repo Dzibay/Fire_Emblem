@@ -927,7 +927,7 @@ class Main:
                         self.wait_btn = (20, 290, 200, 70)
 
                     # send sms
-                    self.sms = f'<{self.your_turn if self.your_turn else True}|'
+                    self.sms = f'<{self.your_turn}|'
                     for person in self.player.persons:
                         self.sms += f'{person.name} {person.x} {person.y} {person.state}{person.move_to} ' \
                                     f'{person.max_hp} {person.hp} {person.str} {person.mag} {person.skl} {person.lck} ' \
@@ -941,9 +941,13 @@ class Main:
                     try:
                         data_ = self.sock.recv(1024).decode()
                         if self.turn_phase == 'move':
-                            if data_[:5] == '<True' and not self.your_turn:
-                                self.your_turn = True
-                                print('change to True')
+                            if not self.your_turn:
+                                if data_[:5] == '<True':
+                                    self.your_turn = True
+                                    print('change to True')
+                                elif data_[:6] == '<False':
+                                    self.your_turn = False
+                                    print('change to False')
                         if self.your_turn != self.last_sms_to_move:
                             self.turn_phase = 'move'
                             self.choice_person = None

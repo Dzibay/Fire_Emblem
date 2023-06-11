@@ -59,7 +59,7 @@ class Main:
 
         # socket
         self.server_ip = 'localhost'
-        # self.server_ip = '82.146.45.210'
+        self.server_ip = '82.146.45.210'
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
         self.sock.connect((self.server_ip, 10000))
@@ -927,7 +927,7 @@ class Main:
                         self.wait_btn = (20, 290, 200, 70)
 
                     # send sms
-                    self.sms = f'<{self.your_turn}|'
+                    self.sms = f'<{self.your_turn if self.your_turn else True}|'
                     for person in self.player.persons:
                         self.sms += f'{person.name} {person.x} {person.y} {person.state}{person.move_to} ' \
                                     f'{person.max_hp} {person.hp} {person.str} {person.mag} {person.skl} {person.lck} ' \
@@ -944,9 +944,6 @@ class Main:
                             if data_[:5] == '<True' and not self.your_turn:
                                 self.your_turn = True
                                 print('change to True')
-                            elif data_[:6] == '<False' and self.your_turn:
-                                self.your_turn = False
-                                print('change to False')
                         if self.your_turn != self.last_sms_to_move:
                             self.turn_phase = 'move'
                             self.choice_person = None

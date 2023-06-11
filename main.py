@@ -39,7 +39,7 @@ def list_of_weapon_can_be_used_by_person(person_name, person_class, t2=False):
 
 class Main:
     def __init__(self):
-        self.turn_flag = None
+        self.turn_flag = ''
 
         self.fight = None
         self.start_game = False
@@ -60,7 +60,7 @@ class Main:
 
         # socket
         self.server_ip = 'localhost'
-        # self.server_ip = '82.146.45.210'
+        self.server_ip = '82.146.45.210'
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
         self.sock.connect((self.server_ip, 10000))
@@ -939,6 +939,8 @@ class Main:
                                     f'{person.weapon.name} {person.lvl} {person.class_},'
                     self.sms += '>'
                     self.sock.send(self.sms.encode())
+                    self.turn_flag = ''
+                    print(self.turn_flag)
 
                     # recv sms
                     try:

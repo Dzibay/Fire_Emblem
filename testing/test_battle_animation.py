@@ -10,13 +10,14 @@ def read(file, weapon, script=False):
             dmg_time = 0
             dmg_end = False
             for i in file:
+                print(len(i), i)
                 if i[:2] == 'f;':
                     if not dmg_end:
                         dmg_time += int(i[2:3])
                     res.append(i[:-1].split(';'))
                 elif i[:9] == 'start_hit':
                     dmg_end = True
-                elif i[:4] == 'pose' and len(res) > 1:
+                elif len(i) == 1 and len(res) > 1:
                     break
             result[attack] = [[int(i[2].split('_')[1]), int(i[1])] for i in res]
             dmg_times[attack] = dmg_time

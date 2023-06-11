@@ -11,7 +11,6 @@ from damage.damage import calculate_damage
 class Fight:
     def __init__(self, person, enemy, fight_images, not_my_fight=False):
         self.fight_img = fight_images
-        print(self.fight_img.images)
         self.img = None
         self.person = person
         self.enemy = enemy
@@ -35,7 +34,7 @@ class Fight:
             self.person_hit -= 15
             self.enemy_hit += 15
 
-        self.moves = [False,
+        self.moves = [True,
                       True if randint(0, 100) <= (100 - self.person_hit) else False,
                       False,
                       True if randint(0, 100) <= (100 - self.enemy_hit) else False]
@@ -188,6 +187,9 @@ class Fight:
                                                             f'{self.enemy.weapon.class_}/Index.txt'), enemy.weapon.class_)
                 self.enemy_script, self.enemy_times = self.fight_img.read(open(f'templates/persons/other/{self.enemy.class_}/{enemy.gender}/battle/'
                                                                                f'{self.enemy.weapon.class_}/Script.txt'), '', True)
+        print('imgs', len(self.person_attack_img))
+        print('index', len(self.person_index))
+        print('script', len(self.person_script['critical']))
         self.enemy_stay_img = self.enemy_attack_img[0]
 
         self.img = self.person_stay_img
@@ -388,32 +390,37 @@ class Fight:
                 person.hp -= 1
                 person.damage_for_me -= 1
 
+        if self.person.hp <= 0:
+            if self.dead_tick < len(self.death_opacity) - 1:
+                for i in self.img:
+                    i.set_alpha(self.death_opacity[self.dead_tick])
+            self.dead_tick += 1
+            if self.dead_tick == len(self.death_opacity):
+                self.person_dead = True
+            elif self.dead_tick == len(self.death_opacity) + 50:
+                return None
+            
+        if self.enemy.hp <= 0:
+            if self.dead_tick < len(self.death_opacity) - 1:
+                for i in self.img_:
+                    i.set_alpha(self.death_opacity[self.dead_tick])
+            self.dead_tick += 1
+            if self.dead_tick == len(self.death_opacity):
+                self.enemy_dead = True
+            elif self.dead_tick == len(self.death_opacity) + 50:
+                return None
+
         if self.tick <= 50:
             pass
         else:
             # person
-            if self.person.hp <= 0:
-                if self.dead_tick < len(self.death_opacity) - 1:
-                    for i in self.img:
-                        i.set_alpha(self.death_opacity[self.dead_tick])
-                self.dead_tick += 1
-                if self.dead_tick == len(self.death_opacity) + 50:
-                    return None
-            elif self.tick <= 50 + self.person_attack_time and not self.enemy_dead:
+            if self.tick <= 50 + self.person_attack_time and not any([self.enemy_dead, self.person_dead]):
                 self.img = self.attack(self.person_script['critical' if self.moves[0] else 'attack'])
             else:
                 self.img = self.person_stay_img
-
             # enemy
-            if self.enemy.hp <= 0:
-                if self.dead_tick < len(self.death_opacity) - 1:
-                    for i in self.img_:
-                        i.set_alpha(self.death_opacity[self.dead_tick])
-                self.dead_tick += 1
-                if self.dead_tick == len(self.death_opacity) + 50:
-                    return None
-            elif (self.tick >= self.start_enemy_attack) and \
-                    (self.tick <= self.start_enemy_attack + self.enemy_attack_time) and not self.person_dead:
+            if (self.tick >= self.start_enemy_attack) and \
+                    (self.tick <= self.start_enemy_attack + self.enemy_attack_time) and not any([self.enemy_dead, self.person_dead]):
                 self.img_ = self.attack(self.enemy_script['critical' if self.moves[2] else 'attack'], False)
             else:
                 self.img_ = self.enemy_stay_img
@@ -592,14 +599,15 @@ class Fight:
         # person
         for i in range(len(self.person_attack_img[self.person_img_id])):
             img = self.person_attack_img[self.person_img_id][i]
-            c_ = (1550 - self.person_index[self.person_img_id][i][2] * 5 - self.person_index[self.person_img_id][i][4]
-                  * 5 - (200 if self.distance_fight else 0), self.person_index[self.person_img_id][i][5] * 5 + 250)
+            c_ = (1550 - self.person_index[self.person_img_id][i][2] * 5 - self.person_index[self.person_img_id][i][4] * 5 -
+                  (200 if self.distance_fight else 0), self.person_index[self.person_img_id][i][5] * 5 + 250)
             screen.blit(img, c_)
+
         # enemy
         for i in range(len(self.enemy_attack_img[self.enemy_img_id])):
             img = self.enemy_attack_img[self.enemy_img_id][i]
-            c_ = c_ = (self.enemy_index[self.enemy_img_id][i][4] * 5 + (580 if self.distance_fight else 380),
-                       self.enemy_index[self.enemy_img_id][i][5] * 5 + 250)
+            c_ = (self.enemy_index[self.enemy_img_id][i][4] * 5 + (580 if self.distance_fight else 380),
+                  self.enemy_index[self.enemy_img_id][i][5] * 5 + 250)
             screen.blit(img, c_)
 
         # magic

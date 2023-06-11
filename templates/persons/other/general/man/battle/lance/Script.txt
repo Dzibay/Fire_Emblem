@@ -198,7 +198,7 @@ f;1;Lance_027
 f;8;Lance_028
 sound;ArmorShift
 f;1;Lance_028
-f;5;Lance_029;
+f;5;Lance_029
 
 Dodge
 f;1;Lance_000

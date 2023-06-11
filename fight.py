@@ -259,6 +259,44 @@ class Fight:
             self.miss_tick = 0
         return img
 
+    def draw_persons(self, screen, first_enemy):
+        if first_enemy:
+            for i in range(len(self.img)):
+                if self.tick < self.start_enemy_attack:
+                    c_ = (1550 - self.person_index[self.cadr][i][2] * 5 - self.person_index[self.cadr][i][4] * 5 -
+                          (200 if self.distance_fight else 0), self.person_index[self.cadr][i][5] * 5 + 250)
+                else:
+                    c_ = (1550 - self.person_index[0][i][2] * 5 - self.person_index[0][i][4] * 5 -
+                          (200 if self.distance_fight else 0), self.person_index[0][i][5] * 5 + 250)
+                screen.blit(self.img[i], c_)
+
+            for i in range(len(self.img_)):
+                if self.tick > self.start_enemy_attack:
+                    c_ = (self.enemy_index[self.cadr][i][4] * 5 + (580 if self.distance_fight else 380),
+                          self.enemy_index[self.cadr][i][5] * 5 + 250)
+                else:
+                    c_ = (self.enemy_index[0][i][4] * 5 + (580 if self.distance_fight else 380),
+                          self.enemy_index[0][i][5] * 5 + 250)
+                screen.blit(self.img_[i], c_)
+        else:
+            for i in range(len(self.img_)):
+                if self.tick > self.start_enemy_attack:
+                    c_ = (self.enemy_index[self.cadr][i][4] * 5 + (580 if self.distance_fight else 380),
+                          self.enemy_index[self.cadr][i][5] * 5 + 250)
+                else:
+                    c_ = (self.enemy_index[0][i][4] * 5 + (580 if self.distance_fight else 380),
+                          self.enemy_index[0][i][5] * 5 + 250)
+                screen.blit(self.img_[i], c_)
+
+            for i in range(len(self.img)):
+                if self.tick < self.start_enemy_attack:
+                    c_ = (1550 - self.person_index[self.cadr][i][2] * 5 - self.person_index[self.cadr][i][4] * 5 -
+                          (200 if self.distance_fight else 0), self.person_index[self.cadr][i][5] * 5 + 250)
+                else:
+                    c_ = (1550 - self.person_index[0][i][2] * 5 - self.person_index[0][i][4] * 5 -
+                          (200 if self.distance_fight else 0), self.person_index[0][i][5] * 5 + 250)
+                screen.blit(self.img[i], c_)
+
     def render_base_for_fight(self, screen):
         x_, y_ = 360, 240
 
@@ -424,23 +462,8 @@ class Fight:
         x_, y_ = self.render_base_for_fight(screen)
 
         # persons
-        for i in range(len(self.img)):
-            if self.tick < self.start_enemy_attack:
-                c_ = (1550 - self.person_index[self.cadr][i][2] * 5 - self.person_index[self.cadr][i][4] * 5 -
-                      (200 if self.distance_fight else 0), self.person_index[self.cadr][i][5] * 5 + 250)
-            else:
-                c_ = (1550 - self.person_index[0][i][2] * 5 - self.person_index[0][i][4] * 5 -
-                      (200 if self.distance_fight else 0), self.person_index[0][i][5] * 5 + 250)
-            screen.blit(self.img[i], c_)
+        self.draw_persons(screen, self.tick > self.start_enemy_attack)
 
-        for i in range(len(self.img_)):
-            if self.tick > self.start_enemy_attack:
-                c_ = (self.enemy_index[self.cadr][i][4] * 5 + (580 if self.distance_fight else 380),
-                      self.enemy_index[self.cadr][i][5] * 5 + 250)
-            else:
-                c_ = (self.enemy_index[0][i][4] * 5 + (580 if self.distance_fight else 380),
-                      self.enemy_index[0][i][5] * 5 + 250)
-            screen.blit(self.img_[i], c_)
         self.person_img_id = self.person_attack_img.index(self.img)
         self.enemy_img_id = self.enemy_attack_img.index(self.img_)
 
@@ -468,11 +491,6 @@ class Fight:
             self.person_count_attack -= 1
         elif self.tick == self.start_enemy_attack + self.enemy_attack_time:
             self.enemy_count_attack -= 1
-
-        # if self.enemy.hp <= 0 and (self.tick >= self.start_enemy_attack + ):
-        #     return None
-        # if self.person.hp <= 0 and (self.tick >= self.start_enemy_attack + self.enemy_attack_time + ):
-        #     return None
 
         if self.tick == self.start_enemy_attack:
             if self.enemy_count_attack == 0 and self.person_count_attack == 0:

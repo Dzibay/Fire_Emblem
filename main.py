@@ -39,8 +39,6 @@ def list_of_weapon_can_be_used_by_person(person_name, person_class, t2=False):
 
 class Main:
     def __init__(self):
-        self.turn_flag = ''
-
         self.fight = None
         self.start_game = False
         self.run = True
@@ -60,7 +58,7 @@ class Main:
 
         # socket
         self.server_ip = 'localhost'
-        self.server_ip = '82.146.45.210'
+        # self.server_ip = '82.146.45.210'
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
         self.sock.connect((self.server_ip, 10000))
@@ -342,7 +340,6 @@ class Main:
                                             elif in_box(self.big_mouse_pos, self.wait_btn):
                                                 print('1')
                                                 # self.your_turn = False
-                                                self.turn_flag = False
                                                 self.turn_menu = False
                                                 self.player.persons[self.choice_person].active = False
                                     else:
@@ -360,7 +357,6 @@ class Main:
                                                     self.fight = Fight(self.player.persons[self.choice_person], enemy,
                                                                        self.fight_img)
                                                     # self.your_turn = False
-                                                    self.turn_flag = False
                                                     print('2')
                                                     self.turn_phase = 'move'
                                                     self.player.persons[self.choice_person].active = False
@@ -930,7 +926,7 @@ class Main:
                         self.wait_btn = (20, 290, 200, 70)
 
                     # send sms
-                    self.sms = f'<{self.turn_flag}|'
+                    self.sms = f'<{self.your_turn}|'
                     for person in self.player.persons:
                         self.sms += f'{person.name} {person.x} {person.y} {person.state}{person.move_to} ' \
                                     f'{person.max_hp} {person.hp} {person.str} {person.mag} {person.skl} {person.lck} ' \
@@ -939,15 +935,12 @@ class Main:
                                     f'{person.weapon.name} {person.lvl} {person.class_},'
                     self.sms += '>'
                     self.sock.send(self.sms.encode())
-                    self.turn_flag = ''
-                    print(self.turn_flag)
 
                     # recv sms
                     try:
                         data_ = self.sock.recv(1024).decode()
                         if data_[:5] == '<True':
                             self.your_turn = True
-                            self.turn_flag = True
                             print('change to True')
                         elif data_[:6] == '<False':
                             self.your_turn = False

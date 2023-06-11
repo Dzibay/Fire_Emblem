@@ -3,7 +3,7 @@ import pygame
 from random import randint
 
 server_ip = '82.146.45.210'
-# server_ip = 'localhost'
+server_ip = 'localhost'
 
 main_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 main_socket.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)

@@ -8,7 +8,6 @@ from fight import Fight, Fight_images, triangle
 from menu import Menu
 from data.weapon import weapon, weapon_img, weapon_arrow, weapon_can_be_used
 from save_team.upload_team import save_team, upload_team, can_save
-from map.generate_map import lvl_generate
 
 
 def mapping(pos):
@@ -40,6 +39,8 @@ def list_of_weapon_can_be_used_by_person(person_name, person_class, t2=False):
 
 class Main:
     def __init__(self):
+        self.turn_flag = None
+
         self.fight = None
         self.start_game = False
         self.run = True
@@ -313,7 +314,7 @@ class Main:
                                             if in_box(self.big_mouse_pos, self.move_btn) and \
                                                     self.turn_phase == 'move':
                                                 self.graph, self.cant = generate_graph(True if self.player.persons[
-                                                                                           self.choice_person].flying else False)
+                                                    self.choice_person].flying else False)
                                                 self.person_want_move = True
                                                 self.person_positions = [person.pos
                                                                          for person in
@@ -331,8 +332,10 @@ class Main:
                                             if in_box(self.big_mouse_pos, self.unit_btn):
                                                 self.settings_unit = True
                                             elif in_box(self.big_mouse_pos, self.attack_btn):
-                                                self.graph, self.cant = generate_graph(True if (max(self.player.persons[self.choice_person].weapon.range) > 1)
-                                                                                       or self.player.persons[self.choice_person].flying else False)
+                                                self.graph, self.cant = generate_graph(True if (max(
+                                                    self.player.persons[self.choice_person].weapon.range) > 1)
+                                                                                               or self.player.persons[
+                                                                                                   self.choice_person].flying else False)
                                                 self.person_want_attack = True
                                                 self.can_attack_to = self.get_can_to(p_.pos,
                                                                                      p_.weapon.range,
@@ -340,7 +343,8 @@ class Main:
                                                 self.turn_menu = False
                                             elif in_box(self.big_mouse_pos, self.wait_btn):
                                                 print('1')
-                                                self.your_turn = False
+                                                # self.your_turn = False
+                                                self.turn_flag = False
                                                 self.turn_menu = False
                                                 self.player.persons[self.choice_person].active = False
                                     else:
@@ -357,7 +361,8 @@ class Main:
                                                     self.fight_flag = True
                                                     self.fight = Fight(self.player.persons[self.choice_person], enemy,
                                                                        self.fight_img)
-                                                    self.your_turn = False
+                                                    # self.your_turn = False
+                                                    self.turn_flag = False
                                                     print('2')
                                                     self.turn_phase = 'move'
                                                     self.player.persons[self.choice_person].active = False
@@ -861,10 +866,10 @@ class Main:
                     else:
                         # send sms
                         self.sms = f'<fight {self.fight.magic_img_id} {cords_[0]} {cords_[1]}|' \
-                              f'{self.opponent.persons.index(self.fight.enemy)} {self.fight.person_img_id} ' \
-                              f'{int(self.fight.moves[0])} {int(self.fight.person_y)} {self.fight.person.hp},' \
-                              f'{self.player.persons.index(self.fight.person)} {self.fight.enemy_img_id} ' \
-                              f'{int(self.fight.moves[2])} {int(self.fight.enemy_y)} {self.fight.enemy.hp}>'
+                                   f'{self.opponent.persons.index(self.fight.enemy)} {self.fight.person_img_id} ' \
+                                   f'{int(self.fight.moves[0])} {int(self.fight.person_y)} {self.fight.person.hp},' \
+                                   f'{self.player.persons.index(self.fight.person)} {self.fight.enemy_img_id} ' \
+                                   f'{int(self.fight.moves[2])} {int(self.fight.enemy_y)} {self.fight.enemy.hp}>'
                         self.sock.send(self.sms.encode())
 
                         # recv sms
@@ -927,7 +932,7 @@ class Main:
                         self.wait_btn = (20, 290, 200, 70)
 
                     # send sms
-                    self.sms = f'<{self.your_turn}|'
+                    self.sms = f'<{self.turn_flag}|'
                     for person in self.player.persons:
                         self.sms += f'{person.name} {person.x} {person.y} {person.state}{person.move_to} ' \
                                     f'{person.max_hp} {person.hp} {person.str} {person.mag} {person.skl} {person.lck} ' \
@@ -940,13 +945,14 @@ class Main:
                     # recv sms
                     try:
                         data_ = self.sock.recv(1024).decode()
-                        if self.turn_phase == 'move':
-                            if data_[:5] == '<True' and not self.your_turn:
-                                self.your_turn = True
-                                print('change to True')
-                            elif data_[:6] == '<False' and self.your_turn:
-                                self.your_turn = False
-                                print('change to False')
+                        if data_[:5] == '<True':
+                            self.your_turn = True
+                            self.turn_flag = True
+                            print('change to True')
+                        elif data_[:6] == '<False':
+                            self.your_turn = False
+                            print('change to False')
+
                         if self.your_turn != self.last_sms_to_move:
                             self.turn_phase = 'move'
                             self.choice_person = None

@@ -945,7 +945,8 @@ class Main:
                                 if data_[:5] == '<True':
                                     self.your_turn = True
                                     print('change to True')
-                                elif data_[:6] == '<False':
+                            else:
+                                if data_[:6] == '<False':
                                     self.your_turn = False
                                     print('change to False')
                         if self.your_turn != self.last_sms_to_move:

@@ -134,19 +134,25 @@ class Fight:
 
         # persons
         person_weapon_class = person.weapon.class_
+        self.person_cant_crt = False
         if self.distance_fight:
             if range_persons in person.weapon.range:
                 if person_weapon_class == 'axe' and 'distance_axe' in self.fight_img.images[person.name + '/' + person.class_]:
                     person_weapon_class = 'distance_axe'
                 elif person_weapon_class == 'lance' and 'distance_lance' in self.fight_img.images[person.name + '/' + person.class_]:
                     person_weapon_class = 'distance_lance'
+                    self.moves[0] = False
+                    self.person_cant_crt = True
         enemy_weapon_class = enemy.weapon.class_
+        self.enemy_cant_crt = False
         if self.distance_fight:
             if range_persons in enemy.weapon.range:
                 if enemy_weapon_class == 'axe' and 'distance_axe' in self.fight_img.images[enemy.name + '/' + enemy.class_]:
                     enemy_weapon_class = 'distance_axe'
                 elif enemy_weapon_class == 'lance' and 'distance_lance' in self.fight_img.images[enemy.name + '/' + enemy.class_]:
                     enemy_weapon_class = 'distance_lance'
+                    self.moves[2] = False
+                    self.enemy_cant_crt = True
 
         # files
         self.person_attack_img = self.fight_img.images[person.name + '/' + person.class_][person_weapon_class]['person']
@@ -511,9 +517,9 @@ class Fight:
                 self.cadr = 0
                 self.script_navigator = 0
                 self.cadr_tick = 0
-                self.moves = [True if randint(0, 100) <= self.person.crt else False,
+                self.moves = [True if randint(0, 100) <= self.person.crt and not self.person_cant_crt else False,
                               True if randint(0, 100) <= (100 - self.person_hit) else False,
-                              True if randint(0, 100) <= self.enemy.crt else False,
+                              True if randint(0, 100) <= self.enemy.crt and not self.enemy_cant_crt else False,
                               True if randint(0, 100) <= (100 - self.enemy_hit) else False]
 
                 # time
@@ -541,9 +547,9 @@ class Fight:
                     self.cadr = 0
                     self.script_navigator = 0
                     self.cadr_tick = 0
-                    self.moves = [True if randint(0, 100) <= self.person.crt else False,
+                    self.moves = [True if randint(0, 100) <= self.person.crt and not self.person_cant_crt else False,
                                   True if randint(0, 100) <= (100 - self.person_hit) else False,
-                                  True if randint(0, 100) <= self.enemy.crt else False,
+                                  True if randint(0, 100) <= self.enemy.crt and not self.enemy_cant_crt else False,
                                   True if randint(0, 100) <= (100 - self.enemy_hit) else False]
 
                     # time
@@ -569,9 +575,9 @@ class Fight:
                     self.cadr = 0
                     self.script_navigator = 0
                     self.cadr_tick = 0
-                    self.moves = [True if randint(0, 100) <= self.person.crt else False,
+                    self.moves = [True if randint(0, 100) <= self.person.crt and not self.person_cant_crt else False,
                                   True if randint(0, 100) <= (100 - self.person_hit) else False,
-                                  True if randint(0, 100) <= self.enemy.crt else False,
+                                  True if randint(0, 100) <= self.enemy.crt and not self.enemy_cant_crt else False,
                                   True if randint(0, 100) <= (100 - self.enemy_hit) else False]
 
                     # time

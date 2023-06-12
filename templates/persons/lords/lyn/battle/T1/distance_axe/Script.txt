@@ -1,0 +1,83 @@
+pose;Attack
+f;6;Handaxe_000
+sound;Axe Pull
+f;1;Handaxe_000
+f;3;Handaxe_001
+f;3;Handaxe_002
+f;8;Handaxe_003
+sound;Axe Push
+f;1;Handaxe_003
+spell;ThrowingAxe
+f;3;Handaxe_004
+f;3;Handaxe_005
+f;1;Handaxe_006
+start_loop
+f;1;Handaxe_006
+end_loop
+f;1;Handaxe_006
+sound;Axe Push
+f;1;Handaxe_006
+f;3;Handaxe_007
+f;3;Handaxe_008
+f;6;Handaxe_003
+start_loop
+f;1;Handaxe_003
+end_loop
+f;8;Handaxe_003
+f;4;Handaxe_002
+f;5;Handaxe_001
+
+pose;Critical
+f;6;Handaxe_000
+sound;Axe Pull
+f;1;Handaxe_000
+f;3;Handaxe_009
+f;8;Handaxe_010
+sound;Heavy Spear Spin
+f;1;Handaxe_010
+f;2;Handaxe_011
+f;2;Handaxe_012
+f;2;Handaxe_013
+f;2;Handaxe_014
+sound;Heavy Spear Spin
+f;1;Handaxe_014
+f;2;Handaxe_011
+f;2;Handaxe_012
+f;2;Handaxe_013
+f;2;Handaxe_014
+f;2;Handaxe_010
+sound;Axe Push
+f;1;Handaxe_010
+f;2;Handaxe_015
+f;8;Handaxe_003
+sound;Axe Push
+f;1;Handaxe_003
+spell;ThrowingAxe
+f;3;Handaxe_004
+f;3;Handaxe_005
+f;6;Handaxe_006
+start_loop
+f;1;Handaxe_006
+end_loop
+f;1;Handaxe_006
+sound;Axe Push
+f;1;Handaxe_006
+f;3;Handaxe_007
+f;3;Handaxe_008
+f;6;Handaxe_003
+start_loop
+f;1;Handaxe_003
+end_loop
+f;8;Handaxe_003
+f;4;Handaxe_002
+f;5;Handaxe_001
+
+pose;Dodge
+f;1;Handaxe_000
+f;3;Handaxe_016
+f;27;Handaxe_017
+f;4;Handaxe_016
+
+pose;Stand
+f;4;Handaxe_000
+

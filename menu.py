@@ -1,5 +1,4 @@
 import pygame
-from numba import jit
 from settings import *
 from data.persons import characters
 from data.weapon import weapon_img, weapon

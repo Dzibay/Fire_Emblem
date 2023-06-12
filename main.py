@@ -61,7 +61,7 @@ class Main:
 
         # socket
         self.server_ip = 'localhost'
-        self.server_ip = '82.146.45.210'
+        # self.server_ip = '82.146.45.210'
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
         self.sock.connect((self.server_ip, 10000))
@@ -120,7 +120,7 @@ class Main:
         # data
         self.data = ''
         self.sms = '<wait>'
-        self.magic_data = [-1, 0, 0]
+        self.effect_data = []
 
         # fight
         self.fight_flag = False
@@ -216,15 +216,15 @@ class Main:
         return False
 
     @staticmethod
-    def find_fight_magic(s):
+    def find_fight_effects(s):
         first = None
         for i in range(len(s)):
             if s[i] == '<':
                 first = i
             if s[i] == '|' and first is not None:
                 end = i
-                res = s[first + 1:end][6:].split(' ')
-                res = [int(i) for i in res]
+                res = s[first + 1:end][6:].split('/')
+                res = [[int(i) for i in j.split(' ')] for j in res]
                 return res
         return ''
 
@@ -870,7 +870,9 @@ class Main:
                         self.fight_flag = False
                     else:
                         # send sms
-                        self.sms = f'<fight {self.fight.magic_img_id} {cords_[0]} {cords_[1]}|' \
+                        self.sms = f'<fight {self.fight.magic_img_id} {cords_[0]} {cords_[1]}/' \
+                                   f'{self.fight.miss_data[0]} {self.fight.miss_data[1][0]} {self.fight.miss_data[1][1]}/' \
+                                   f'{self.fight.dead_tick}|' \
                               f'{self.opponent.persons.index(self.fight.enemy)} {self.fight.person_img_id} ' \
                               f'{int(self.fight.moves[0])} {int(self.fight.person_y)} {self.fight.person.hp},' \
                               f'{self.player.persons.index(self.fight.person)} {self.fight.enemy_img_id} ' \
@@ -893,7 +895,8 @@ class Main:
                     try:
                         self.data = self.sock.recv(1024).decode()
                         if self.is_fight(self.data):
-                            self.magic_data = self.find_fight_magic(self.data)
+                            self.effect_data = self.find_fight_effects(self.data)
+                            print(self.effect_data)
                             self.data = self.find_fight(self.data)
                             id_1, self.fight.person_img_id, self.fight.need_moves[
                                 0], self.fight.person_y, self.fight.person.hp = self.data[1]
@@ -910,7 +913,7 @@ class Main:
                         pass
 
                     try:
-                        self.fight.render_not_my_fight(self.screen, self.magic_data)
+                        self.fight.render_not_my_fight(self.screen, self.effect_data)
                     except:
                         pass
                 else:
@@ -953,10 +956,8 @@ class Main:
                         data_ = self.sock.recv(1024).decode()
                         if data_[:5] == '<True':
                             self.your_turn = True
-                            print('change to True')
                         elif data_[:6] == '<False':
                             self.your_turn = False
-                            print('change to False')
 
                         if self.your_turn != self.last_sms_to_move:
                             self.turn_phase = 'move'

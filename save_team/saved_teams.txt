@@ -35,3 +35,10 @@ eirika 20 34 14 0 20 11 9 19 17 7 7 knight_lord iron_sword
 eliwood 20 39 13 0 17 13 7 14 12 9 7 knight_lord iron_sword
 hector 20 40 19 0 17 21 11 9 14 15 6 great_lord hand_axe
 ephraim 20 38 20 0 14 13 10 17 21 10 6 great_lord javelin
+
+te
+wil 20 39 14 0 17 8 6 19 20 7 6 sniper rien_fleche
+
+test
+wil 20 39 14 0 17 8 6 19 20 7 6 sniper rien_fleche
+florina 1 17 5 0 9 4 4 7 7 4 7 pegasus_knight iron_lance

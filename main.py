@@ -378,7 +378,16 @@ class Main:
                             if self.choice_person is not None:
                                 # person choice none
                                 if mouse_pos == self.player.persons[self.choice_person].pos:
-                                    self.choice_person = None
+                                    if self.turn_phase == 'move':
+                                        if self.person_want_move:
+                                            self.person_want_move = False
+                                            self.turn_menu = True
+                                        else:
+                                            self.choice_person = None
+                                    elif self.turn_phase == 'attack':
+                                        if self.person_want_attack:
+                                            self.person_want_attack = False
+                                            self.turn_menu = True
                                 else:
                                     # turn menu
                                     if self.turn_menu:

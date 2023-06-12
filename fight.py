@@ -41,7 +41,12 @@ class Fight:
         # self.moves = [False, True, False, True]
 
         self.person_count_attack = 1
-        self.enemy_count_attack = 1
+        self.enemy_count_attack = 1 if not self.enemy.support else 0
+        if self.enemy_count_attack == 0:
+            self.without_enemy_attack = True
+        else:
+            self.without_enemy_attack = False
+
         self.distance_fight = False
         range_persons = abs(person.pos[0] - enemy.pos[0]) + abs(person.pos[1] - enemy.pos[1])
         if person.attack_speed - enemy.attack_speed >= 4:
@@ -318,9 +323,12 @@ class Fight:
         text_name = self.f3.render(self.person.name, True, WHITE)
         screen.blit(text_name, (50 + x_, 50 + y_))
 
-        hit = str(self.person_hit) if self.person_hit > 0 else f'0{self.person_hit}'
-        dmg = str(self.person_dmg) if self.person_dmg > 9 else f'0{self.person_dmg}'
-        crt = str(self.person.crt) if self.person.crt > 9 else f'0{self.person.crt}'
+        if self.person.support:
+            hit, dmg, crt = '', '', ''
+        else:
+            hit = str(self.person_hit) if self.person_hit > 0 else f'0{self.person_hit}'
+            dmg = str(self.person_dmg) if self.person_dmg > 9 else f'0{self.person_dmg}'
+            crt = str(self.person.crt) if self.person.crt > 9 else f'0{self.person.crt}'
         for i in range(len(hit)):
             if len(hit) < 3:
                 screen.blit(self.numbers[int(hit[i])], (120 + i * 40 + x_, 560 + y_))
@@ -335,9 +343,12 @@ class Fight:
         text_name = self.f3.render(self.enemy.name, True, WHITE)
         screen.blit(text_name, (1000 + x_, 50 + y_))
 
-        hit = str(self.enemy_hit) if self.enemy_hit > 0 else f'0{self.enemy_hit}'
-        dmg = str(self.enemy_dmg) if self.enemy_dmg > 9 else f'0{self.enemy_dmg}'
-        crt = str(self.enemy.crt) if self.enemy.crt > 9 else f'0{self.enemy.crt}'
+        if self.without_enemy_attack or self.person.support:
+            hit, dmg, crt = '', '', ''
+        else:
+            hit = str(self.enemy_hit) if self.enemy_hit > 0 else f'0{self.enemy_hit}'
+            dmg = str(self.enemy_dmg) if self.enemy_dmg > 9 else f'0{self.enemy_dmg}'
+            crt = str(self.enemy.crt) if self.enemy.crt > 9 else f'0{self.enemy.crt}'
         for i in range(len(hit)):
             if len(hit) < 3:
                 screen.blit(self.numbers[int(hit[i])], (1115 + i * 40 + x_, 560 + y_))
@@ -636,3 +647,88 @@ class Fight:
         id_, x__, y__ = miss_data[0], miss_data[1], miss_data[2]
         if id_ >= 0:
             screen.blit(self.miss_img[id_], (x__, y__))
+
+
+class Support(Fight):
+    def __init__(self, person, target, fight_images):
+        super().__init__(person, target, fight_images)
+        self.person = person
+        self.target = target
+
+        self.person_heal = 10 + self.person.mag
+        self.person_heal_tick = 50 + 25  # ~
+        self.end = self.person_heal_tick + self.person_heal * 2 + 50
+
+    def render_support(self, screen):
+        self.tick += 1
+
+        # healing
+        if self.target.heal_to_me > 0 and self.tick % 2 == 0:
+            if self.target.hp < self.target.max_hp:
+                self.target.hp += 1
+            self.target.heal_to_me -= 1
+
+        if self.tick <= 50:
+            pass
+        else:
+            # person
+            if self.tick <= 50 + self.person_attack_time:
+                self.img = self.attack(self.person_script['attack'])
+            else:
+                self.img = self.person_stay_img
+
+            # heal
+            if self.tick == self.person_heal_tick + 5:
+                self.enemy.heal_to_me = self.person_heal
+
+        # magic effect
+        # magic_img = None
+        # if self.person.weapon.name in self.fight_img.magic_effects:
+        #     if (self.tick > 55 + self.person_magic_delay) and \
+        #             (self.tick <= 55 + self.person_magic_delay + self.person_magic_effect_time):
+        #         self.magic_tick += 1
+        #         magic_img = self.person_magic_effect[
+        #             self.magic_tick % self.person_magic_effect_time // 2]
+        #         if self.tick == 55 + self.person_magic_delay + self.person_magic_effect_time:
+        #             self.magic_tick = 0
+        #             magic_img = None
+        #
+        # if self.enemy.weapon.name in self.fight_img.magic_effects:
+        #     if (self.tick > self.start_enemy_attack + self.enemy_magic_delay) and \
+        #             (self.tick <= self.start_enemy_attack + self.enemy_magic_delay +
+        #              self.enemy_magic_effect_time):
+        #         self.magic_tick += 1
+        #         magic_img = self.enemy_magic_effect[
+        #             self.magic_tick % self.enemy_magic_effect_time // 2]
+        #         if self.tick == self.start_enemy_attack + self.enemy_magic_delay + \
+        #                 self.enemy_magic_effect_time:
+        #             self.magic_tick = 0
+        #             magic_img = None
+        #
+        # if self.tick < self.start_enemy_attack:
+        #     cords_ = self.person_magic_cords_sms
+        # else:
+        #     cords_ = self.enemy_magic_cords_sms
+
+        # fight base
+        x_, y_ = self.render_base_for_fight(screen)
+
+        # persons
+        self.draw_persons(screen, False)
+
+        self.person_img_id = self.person_attack_img.index(self.img)
+        self.enemy_img_id = self.enemy_attack_img.index(self.img_)
+
+        # magic
+        # if magic_img is not None:
+        #     screen.blit(magic_img, (self.person_magic_cords[0] + x_, self.person_magic_cords[1] + y_)
+        #     if self.tick < self.start_enemy_attack
+        #     else (self.enemy_magic_cords[0] + x_, self.enemy_magic_cords[1] + y_))
+        #     self.magic_img_id = self.all_magic_effects.index(magic_img)
+        # else:
+        #     self.magic_img_id = -1
+
+        # end
+        if self.tick >= self.end:
+            return None
+        return x_, y_

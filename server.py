@@ -74,7 +74,6 @@ run = True
 while run:
     tick += 1
     if any([player_.is_fight for player_ in players]):
-        print('fight')
         clock.tick(50)
     else:
         clock.tick(FPS)
@@ -104,7 +103,7 @@ while run:
                 player.person_names = find_player_persons(data)
             elif data[:6] == '<ready':
                 player.ready = True
-            elif data[:6] == '<fight':
+            elif data[:6] == '<fight' or data[:8] == '<support':
                 player.is_fight = True
                 fight_sms = data
                 message = data.split(' ')

@@ -4,7 +4,7 @@ from person import Person, characters
 from player import Player
 from settings import *
 from dextr import *
-from fight import Fight
+from fight import Fight, Support
 from fight_images import Fight_images
 from menu import Menu
 from damage.triangle import triangle
@@ -42,6 +42,7 @@ def list_of_weapon_can_be_used_by_person(person_name, person_class, t2=False):
 class Main:
     def __init__(self):
         self.fight = None
+        self.support = None
         self.start_game = False
         self.run = True
         self.your_turn = False
@@ -49,7 +50,6 @@ class Main:
         self.tick = 0
         self.choice_person = None
         self.fight_flag = False
-        self.need_render = True
 
         # pygame
         pygame.init()
@@ -106,6 +106,10 @@ class Main:
         self.can_attack_to = []
         self.person_want_attack = False
 
+        # support
+        self.can_support_to = []
+        self.person_want_support = False
+
         # pointer
         names_point = ['start_r', 'start_d', 'u', 'r', 'u-r', 'r-d', 'end_r', 'end_d',
                        'start_u', 'start_l', 'r', 'u', 'd-r', 'r-u', 'end_u', 'end_l']
@@ -124,6 +128,7 @@ class Main:
 
         # fight
         self.fight_flag = False
+        self.support_flag = False
         self.not_my_fight = False
         self.fight_img = Fight_images()
 
@@ -161,9 +166,11 @@ class Main:
         # map highlight
         b_ = pygame.image.load('templates/highlights/blue.png').convert_alpha()
         r_ = pygame.image.load('templates/highlights/red.png').convert_alpha()
+        g_ = pygame.image.load('templates/highlights/green.png').convert_alpha()
         self.highlight = {
             'blue': [pygame.transform.scale(b_.subsurface(i * 16, 1, 15, 15), (TILE, TILE)) for i in range(16)],
-            'red': [pygame.transform.scale(r_.subsurface(i * 16, 1, 15, 15), (TILE, TILE)) for i in range(16)]}
+            'red': [pygame.transform.scale(r_.subsurface(i * 16, 1, 15, 15), (TILE, TILE)) for i in range(16)],
+            'green': [pygame.transform.scale(g_.subsurface(i * 16, 1, 15, 15), (TILE, TILE)) for i in range(16)]}
 
         # cursor
         c_ = pygame.image.load('templates/map/cursor.png').convert_alpha()
@@ -210,20 +217,35 @@ class Main:
                 first = i
             if s[i] == '>' and first is not None:
                 end = i
-                res = s[first:end][:6]
+                res = s[first:end]
                 if res[:6] == '<fight':
                     return True
         return False
 
     @staticmethod
-    def find_fight_effects(s):
+    def is_support(s):
+        print(s)
+        first = None
+        for i in range(len(s)):
+            if s[i] == '<':
+                first = i
+            if s[i] == '>' and first is not None:
+                end = i
+                res = s[first:end]
+                print(res[:8])
+                if res[:8] == '<support':
+                    return True
+        return False
+
+    @staticmethod
+    def find_fight_effects(s, num):
         first = None
         for i in range(len(s)):
             if s[i] == '<':
                 first = i
             if s[i] == '|' and first is not None:
                 end = i
-                res = s[first + 1:end][6:].split('/')
+                res = s[first + 1:end][num:].split('/')
                 res = [[int(i) for i in j.split(' ')] for j in res]
                 return res
         return ''
@@ -324,7 +346,6 @@ class Main:
                 if event.type == pygame.QUIT:
                     self.run = False
                 if event.type == pygame.KEYUP:
-                    self.need_render = True
                     if event.key == pygame.K_w:
                         if self.cam_pos[1] > 0:
                             self.cam_pos[1] -= 1
@@ -384,15 +405,20 @@ class Main:
                                             if in_box(self.big_mouse_pos, self.unit_btn):
                                                 self.settings_unit = True
                                             elif in_box(self.big_mouse_pos, self.attack_btn):
-                                                self.graph, self.cant = generate_graph(True if (max(self.player.persons[self.choice_person].weapon.range) > 1)
-                                                                                       or self.player.persons[self.choice_person].flying else False)
-                                                self.person_want_attack = True
-                                                self.can_attack_to = self.get_can_to(p_.pos,
-                                                                                     p_.weapon.range,
-                                                                                     [p_.pos])
-                                                self.turn_menu = False
+                                                if self.player.persons[self.choice_person].support:
+                                                    self.graph, self.cant = generate_graph(False)
+                                                    self.person_want_support = True
+                                                    self.can_support_to = self.get_can_to(p_.pos, p_.weapon.range, [p_.pos])
+                                                    self.turn_menu = False
+                                                else:
+                                                    self.graph, self.cant = generate_graph(True if (max(self.player.persons[self.choice_person].weapon.range) > 1)
+                                                                                           or self.player.persons[self.choice_person].flying else False)
+                                                    self.person_want_attack = True
+                                                    self.can_attack_to = self.get_can_to(p_.pos,
+                                                                                         p_.weapon.range,
+                                                                                         [p_.pos])
+                                                    self.turn_menu = False
                                             elif in_box(self.big_mouse_pos, self.wait_btn):
-                                                print('1')
                                                 self.your_turn = False
                                                 self.turn_menu = False
                                                 self.player.persons[self.choice_person].active = False
@@ -407,14 +433,33 @@ class Main:
                                         elif self.person_want_attack and mouse_pos in self.can_attack_to:
                                             for enemy in self.opponent.persons:
                                                 if mouse_pos == enemy.pos:
-                                                    self.fight_flag = True
-                                                    self.fight = Fight(self.player.persons[self.choice_person], enemy,
-                                                                       self.fight_img)
+                                                    if self.player.persons[self.choice_person].support:
+                                                        self.support_flag = True
+                                                        self.support = Support(self.player.persons[self.choice_person], enemy,
+                                                                               self.fight_img)
+                                                    else:
+                                                        self.fight_flag = True
+                                                        self.fight = Fight(self.player.persons[self.choice_person], enemy,
+                                                                           self.fight_img)
                                                     self.your_turn = False
-                                                    print('2')
                                                     self.turn_phase = 'move'
                                                     self.player.persons[self.choice_person].active = False
                                                     self.choice_person = None
+                                                    break
+
+                                        elif self.person_want_support and mouse_pos in self.can_support_to:
+                                            for target in self.player.persons:
+                                                if target != self.player.persons[self.choice_person]:
+                                                    if mouse_pos == target.pos:
+                                                        self.support_flag = True
+                                                        self.support = Support(self.player.persons[self.choice_person], target,
+                                                                               self.fight_img)
+
+                                                        self.your_turn = False
+                                                        self.turn_phase = 'move'
+                                                        self.player.persons[self.choice_person].active = False
+                                                        self.choice_person = None
+                                                        break
 
                             else:
                                 # choice person
@@ -573,7 +618,6 @@ class Main:
                 if event.type == pygame.QUIT:
                     self.run = False
                 elif event.type == pygame.KEYUP:
-                    self.need_render = True
                     if event.key == pygame.K_TAB:
                         if self.placing_persons_window:
                             self.placing_persons_window = False
@@ -595,7 +639,6 @@ class Main:
                         self.bg = self.big_bg.subsurface(self.cam_pos[0] * TILE,
                                                          self.cam_pos[1] * TILE, WIDTH, HEIGHT)
                 elif event.type == pygame.MOUSEBUTTONUP and event.button == 1:
-                    self.need_render = True
                     if self.placing_persons_window:
                         for i in range(len(self.menu.choice_persons)):
                             if in_box(self.big_mouse_pos,
@@ -655,6 +698,12 @@ class Main:
                 self.screen.blit(self.highlight['red'][self.tick % 80 // 5],
                                  ((i[0] - self.cam_pos[0]) * TILE, (i[1] - self.cam_pos[1]) * TILE))
 
+        # person_support
+        if self.person_want_support:
+            for i in self.can_support_to:
+                self.screen.blit(self.highlight['green'][self.tick % 80 // 5],
+                                 ((i[0] - self.cam_pos[0]) * TILE, (i[1] - self.cam_pos[1]) * TILE))
+
         for person in self.sort_persons():
             if person in self.opponent.persons:
                 try:
@@ -697,7 +746,10 @@ class Main:
                                               person.y - self.cam_pos[1] * TILE - offset[1]))
 
         # mouse
-        self.screen.blit(self.cursor['enemy' if self.person_want_attack else 'norm'][self.tick % 40 // 10 if self.tick % 80 < 40 else 0],
+        color_ = 'enemy' if self.person_want_attack else 'norm'
+        if self.person_want_support:
+            color_ = 'heal'
+        self.screen.blit(self.cursor[color_][self.tick % 20 // 10 if self.tick % 60 < 20 else 0],
                          (self.mouse_pos[0] * TILE - 20, self.mouse_pos[1] * TILE - 15))
 
         if len(self.menu.choice_persons) == 0:
@@ -730,7 +782,7 @@ class Main:
 
                 text_unit = self.f2.render('Unit', True, WHITE)
                 text_move = self.f2.render('Move', True, WHITE)
-                text_attack = self.f2.render('Attack', True, WHITE)
+                text_attack = self.f2.render('Attack' if not self.player.persons[self.choice_person].support else 'Heal', True, WHITE)
                 text_wait = self.f2.render('Wait', True, WHITE)
                 if self.unit_btn is not None:
                     self.screen.blit(text_unit, (self.unit_btn[0] + 50, self.unit_btn[1] + 19))
@@ -859,24 +911,39 @@ class Main:
 
             pygame.display.set_caption(str(self.clock.get_fps()))
             if self.start_game:
-                if self.fight_flag:
+                if self.fight_flag or self.support_flag:
                     # fight
                     for event in pygame.event.get():
                         if event.type == pygame.QUIT:
                             self.run = False
 
-                    cords_ = self.fight.render_fight(self.screen)
+                    if self.support_flag:
+                        cords_ = self.support.render_support(self.screen)
+                    else:
+                        cords_ = self.fight.render_fight(self.screen)
+
                     if cords_ is None:
                         self.fight_flag = False
+                        self.support_flag = False
                     else:
                         # send sms
-                        self.sms = f'<fight {self.fight.magic_img_id} {cords_[0]} {cords_[1]}/' \
-                                   f'{self.fight.miss_data[0]} {self.fight.miss_data[1][0]} {self.fight.miss_data[1][1]}/' \
-                                   f'{self.fight.dead_tick}|' \
-                              f'{self.opponent.persons.index(self.fight.enemy)} {self.fight.person_img_id} ' \
-                              f'{int(self.fight.moves[0])} {int(self.fight.person_y)} {self.fight.person.hp},' \
-                              f'{self.player.persons.index(self.fight.person)} {self.fight.enemy_img_id} ' \
-                              f'{int(self.fight.moves[2])} {int(self.fight.enemy_y)} {self.fight.enemy.hp}>'
+                        if self.fight_flag:
+                            self.sms = f'<fight {self.fight.magic_img_id} {cords_[0]} {cords_[1]}/' \
+                                       f'{self.fight.miss_data[0]} {self.fight.miss_data[1][0]} {self.fight.miss_data[1][1]}/' \
+                                       f'{self.fight.dead_tick}|' \
+                                  f'{self.opponent.persons.index(self.fight.enemy)} {self.fight.person_img_id} ' \
+                                  f'{int(self.fight.moves[0])} {int(self.fight.person_y)} {self.fight.person.hp},' \
+                                  f'{self.player.persons.index(self.fight.person)} {self.fight.enemy_img_id} ' \
+                                  f'{int(self.fight.moves[2])} {int(self.fight.enemy_y)} {self.fight.enemy.hp}>'
+                        else:
+                            self.sms = f'<support {self.support.magic_img_id} {cords_[0]} {cords_[1]}/' \
+                                       f'{self.support.miss_data[0]} {self.support.miss_data[1][0]} {self.support.miss_data[1][1]}/' \
+                                       f'{self.support.dead_tick}|' \
+                                       f'{self.player.persons.index(self.support.person)} {self.support.enemy_img_id} ' \
+                                       f'{int(self.support.moves[2])} {int(self.support.enemy_y)} {self.support.enemy.hp},' \
+                                       f'{self.player.persons.index(self.support.target)} {self.support.person_img_id} ' \
+                                       f'{int(self.support.moves[0])} {int(self.support.person_y)} {self.support.person.hp}>' \
+
                         self.sock.send(self.sms.encode())
 
                         # recv sms
@@ -887,6 +954,7 @@ class Main:
                             pass
 
                 elif self.not_my_fight:
+                    print('not_my_fight')
                     for event in pygame.event.get():
                         if event.type == pygame.QUIT:
                             self.run = False
@@ -894,9 +962,8 @@ class Main:
                     # recv sms
                     try:
                         self.data = self.sock.recv(1024).decode()
-                        if self.is_fight(self.data):
-                            self.effect_data = self.find_fight_effects(self.data)
-                            print(self.effect_data)
+                        if self.is_fight(self.data) or self.is_support(self.data):
+                            self.effect_data = self.find_fight_effects(self.data, 6 if self.is_fight(self.data) else 8)
                             self.data = self.find_fight(self.data)
                             id_1, self.fight.person_img_id, self.fight.need_moves[
                                 0], self.fight.person_y, self.fight.person.hp = self.data[1]
@@ -907,15 +974,13 @@ class Main:
                             if self.fight.person.hp <= 0:
                                 self.player.persons.remove(self.fight.person)
                         else:
+                            print('no 2')
                             self.not_my_fight = False
                             self.data = self.find_sms(self.data)
                     except:
                         pass
 
-                    try:
-                        self.fight.render_not_my_fight(self.screen, self.effect_data)
-                    except:
-                        pass
+                    self.fight.render_not_my_fight(self.screen, self.effect_data)
                 else:
 
                     if len(self.menu.choice_persons) == 0:
@@ -928,6 +993,7 @@ class Main:
                         self.turn_menu = False
                         self.person_want_move = False
                         self.person_want_attack = False
+                        self.person_want_support = False
 
                     if self.turn_phase == 'move':
                         self.unit_btn = None
@@ -976,8 +1042,16 @@ class Main:
                             id_2, a_, b_, c_, d_ = self.data[0]
                             self.fight = Fight(self.player.persons[id_2],
                                                self.opponent.persons[id_1], self.fight_img, True)
-
+                        elif self.is_support(data_):
+                            print('yeee')
+                            self.data = self.find_fight(data_)
+                            self.not_my_fight = True
+                            id_1, a_, b_, c_, d_ = self.data[1]
+                            id_2, a_, b_, c_, d_ = self.data[0]
+                            self.fight = Fight(self.opponent.persons[id_2],
+                                               self.opponent.persons[id_1], self.fight_img, True)
                         else:
+                            print('noo')
                             self.not_my_fight = False
                             self.data = self.find_sms(data_)
                             if len(self.data) != len(self.opponent.persons):
@@ -1080,7 +1154,6 @@ class Main:
 
                     if not self.not_my_fight:
                         self.render()
-                        self.need_render = False
 
             else:
                 self.events('menu')

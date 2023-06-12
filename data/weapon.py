@@ -58,7 +58,10 @@ weapon = {'iron_sword': {'mt': 5, 'wt': 5, 'hit': 90, 'crt': 0, 'range': [1], 'c
                         'subclass': 'light'},
 
           'flux': {'mt': 7, 'wt': 8, 'hit': 80, 'crt': 0, 'range': [1, 2], 'class': 'magic', 'subclass': 'dark'},
-          'ereshkigal': {'mt': 20, 'wt': 12, 'hit': 95, 'crt': 0, 'range': [1, 2], 'class': 'magic', 'subclass': 'dark'}
+          'ereshkigal': {'mt': 20, 'wt': 12, 'hit': 95, 'crt': 0, 'range': [1, 2], 'class': 'magic',
+                         'subclass': 'dark'},
+
+          'heal': {'mt': 0, 'wt': 2, 'hit': 100, 'crt': 0, 'range': [1], 'class': 'staff'},
           }
 
 weapon_can_be_used = {'rapier': ['eliwood', 'knight_lord'],
@@ -197,7 +200,10 @@ weapon_img = {
                                         (72, 72)),
     'ereshkigal': pygame.transform.scale(
         pygame.image.load('templates/weapon/weapon.png').subsurface((102, 119, 16, 16)),
-        (72, 72))
+        (72, 72)),
+
+    'heal': pygame.transform.scale(pygame.image.load('templates/weapon/weapon.png').subsurface((119, 119, 16, 16)),
+                                   (72, 72))
 }
 
 weapon_arrow = {'up': [pygame.transform.scale(pygame.image.load('templates/fight/up_arrow.png').

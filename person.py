@@ -26,6 +26,7 @@ class Person:
         self.want_move = self.pos
         self.move_to = ''
         self.damage_for_me = 0
+        self.heal_to_me = 0
         self.active = True
         self.gender = characters[self.name]['gender']
 
@@ -42,6 +43,10 @@ class Person:
         self.speed = stats['speed']
         self.movement = stats['move']
         self.class_ = stats['class']
+
+        self.support = False
+        if self.class_ in ['cleric']:
+            self.support = True
 
         self.flying = True if self.class_ in types['flying'] else False
 

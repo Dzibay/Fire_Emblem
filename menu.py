@@ -29,7 +29,7 @@ class Menu:
         self.person_choice_cords = [(i, j, 100, 100) for j in range(300, 730, 120) for i in range(970, 1770, 120)]
         self.all_names_persons = ['roy', 'lyn', 'marth', 'ike', 'eirika', 'eliwood', 'hector',
                                   'ephraim', 'barthe', 'amelia', 'kent', 'wil', 'florina', 'marisa',
-                                  'raven', 'rath', 'heath', 'sophia', 'lina']
+                                  'raven', 'rath', 'heath', 'sophia', 'lina', 'serra']
         self.up_classes = {name: False for name in self.all_names_persons}
 
         self.choice_persons_weapon = {name: [characters[name]['weapon']] for name in self.all_names_persons}

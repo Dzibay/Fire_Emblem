@@ -30,6 +30,7 @@ class Fight_images:
                     elif len(i) == 1 and len(res) > 1:
                         break
                 result[attack] = [[int(i[2].split('_')[1]), int(i[1])] for i in res]
+                result[attack] = [[i[0] - result[attack][0][0], i[1]] for i in result[attack]]
                 dmg_times[attack] = dmg_time
 
             return result, dmg_times
@@ -73,6 +74,10 @@ class Fight_images:
                 # persons
                 if name in lords:
                     w_ = characters[name]['can_use']
+                    if 'lance' in w_:
+                        w_.append('distance_lance')
+                    if 'axe' in w_:
+                        w_.append('distance_axe')
                     t_ = 1 if class_ == characters[name]['class'] else 2
                     self.images[person] = {i: [] for i in w_}
                     for weapon_ in w_:
@@ -94,6 +99,10 @@ class Fight_images:
                 else:
                     try:
                         w_ = characters[name]['can_use' if class_ == characters[name]['class'] else 't2_can_use']
+                        if 'lance' in w_:
+                            w_.append('distance_lance')
+                        if 'axe' in w_:
+                            w_.append('distance_axe')
                         self.images[person] = {i: [] for i in w_}
                         for weapon_ in w_:
                             self.images[person][weapon_] = {'person': [], 'enemy': []}

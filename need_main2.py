@@ -224,7 +224,6 @@ class Main:
 
     @staticmethod
     def is_support(s):
-        print(s)
         first = None
         for i in range(len(s)):
             if s[i] == '<':
@@ -232,7 +231,6 @@ class Main:
             if s[i] == '>' and first is not None:
                 end = i
                 res = s[first:end]
-                print(res[:8])
                 if res[:8] == '<support':
                     return True
         return False
@@ -385,7 +383,7 @@ class Main:
                                         else:
                                             self.choice_person = None
                                     elif self.turn_phase == 'attack':
-                                        if self.person_want_attack:
+                                        if self.person_want_attack or self.person_want_support:
                                             self.person_want_attack = False
                                             self.turn_menu = True
                                 else:
@@ -442,14 +440,9 @@ class Main:
                                         elif self.person_want_attack and mouse_pos in self.can_attack_to:
                                             for enemy in self.opponent.persons:
                                                 if mouse_pos == enemy.pos:
-                                                    if self.player.persons[self.choice_person].support:
-                                                        self.support_flag = True
-                                                        self.support = Support(self.player.persons[self.choice_person], enemy,
-                                                                               self.fight_img)
-                                                    else:
-                                                        self.fight_flag = True
-                                                        self.fight = Fight(self.player.persons[self.choice_person], enemy,
-                                                                           self.fight_img)
+                                                    self.fight_flag = True
+                                                    self.fight = Fight(self.player.persons[self.choice_person], enemy,
+                                                                       self.fight_img)
                                                     self.your_turn = False
                                                     self.turn_phase = 'move'
                                                     self.player.persons[self.choice_person].active = False
@@ -457,16 +450,20 @@ class Main:
                                                     break
 
                                         elif self.person_want_support and mouse_pos in self.can_support_to:
+                                            p_ = self.player.persons[self.choice_person]
                                             for target in self.player.persons:
-                                                if target != self.player.persons[self.choice_person]:
+                                                if target != p_:
                                                     if mouse_pos == target.pos:
                                                         self.support_flag = True
-                                                        self.support = Support(self.player.persons[self.choice_person], target,
-                                                                               self.fight_img)
+                                                        self.support = Support(p_, target, self.fight_img)
 
-                                                        self.your_turn = False
+                                                        if p_.weapon.name == 'refresh':
+                                                            target.active = True
+                                                        else:
+                                                            self.your_turn = False
+
                                                         self.turn_phase = 'move'
-                                                        self.player.persons[self.choice_person].active = False
+                                                        p_.active = False
                                                         self.choice_person = None
                                                         break
 
@@ -791,7 +788,10 @@ class Main:
 
                 text_unit = self.f2.render('Unit', True, WHITE)
                 text_move = self.f2.render('Move', True, WHITE)
-                text_attack = self.f2.render('Attack' if not self.player.persons[self.choice_person].support else 'Heal', True, WHITE)
+                t_ = 'Attack' if not self.player.persons[self.choice_person].weapon.name == 'heal' else 'Heal'
+                if self.player.persons[self.choice_person].weapon.name == 'refresh':
+                    t_ = 'Dance'
+                text_attack = self.f2.render(t_, True, WHITE)
                 text_wait = self.f2.render('Wait', True, WHITE)
                 if self.unit_btn is not None:
                     self.screen.blit(text_unit, (self.unit_btn[0] + 50, self.unit_btn[1] + 19))
@@ -909,7 +909,7 @@ class Main:
 
     def main_loop(self):
         while self.run:
-            if not self.fight_flag and not self.not_my_fight and self.start_game:
+            if not (self.fight_flag or self.support_flag) and not self.not_my_fight and self.start_game:
                 self.clock.tick(30)
             else:
                 self.clock.tick(FPS)
@@ -963,7 +963,6 @@ class Main:
                             pass
 
                 elif self.not_my_fight:
-                    print('not_my_fight')
                     for event in pygame.event.get():
                         if event.type == pygame.QUIT:
                             self.run = False
@@ -983,7 +982,6 @@ class Main:
                             if self.fight.person.hp <= 0:
                                 self.player.persons.remove(self.fight.person)
                         else:
-                            print('no 2')
                             self.not_my_fight = False
                             self.data = self.find_sms(self.data)
                     except:
@@ -1052,7 +1050,6 @@ class Main:
                             self.fight = Fight(self.player.persons[id_2],
                                                self.opponent.persons[id_1], self.fight_img, True)
                         elif self.is_support(data_):
-                            print('yeee')
                             self.data = self.find_fight(data_)
                             self.not_my_fight = True
                             id_1, a_, b_, c_, d_ = self.data[1]
@@ -1060,7 +1057,6 @@ class Main:
                             self.fight = Fight(self.opponent.persons[id_2],
                                                self.opponent.persons[id_1], self.fight_img, True)
                         else:
-                            print('noo')
                             self.not_my_fight = False
                             self.data = self.find_sms(data_)
                             if len(self.data) != len(self.opponent.persons):

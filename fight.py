@@ -657,7 +657,7 @@ class Support(Fight):
 
         self.person_heal = 10 + self.person.mag
         self.person_heal_tick = 50 + 25  # ~
-        self.end = self.person_heal_tick + self.person_heal * 2 + 50
+        self.end = 50 + self.person_attack_time + 50
 
     def render_support(self, screen):
         self.tick += 1
@@ -678,8 +678,9 @@ class Support(Fight):
                 self.img = self.person_stay_img
 
             # heal
-            if self.tick == self.person_heal_tick + 5:
-                self.enemy.heal_to_me = self.person_heal
+            if self.person.weapon.name == 'heal':
+                if self.tick == self.person_heal_tick + 5:
+                    self.enemy.heal_to_me = self.person_heal
 
         # magic effect
         # magic_img = None

@@ -45,7 +45,7 @@ class Person:
         self.class_ = stats['class']
 
         self.support = False
-        if self.class_ in ['cleric']:
+        if self.class_ in ['cleric', 'bard']:
             self.support = True
 
         self.flying = True if self.class_ in types['flying'] else False

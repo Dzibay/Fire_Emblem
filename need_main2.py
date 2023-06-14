@@ -110,6 +110,10 @@ class Main:
         self.can_support_to = []
         self.person_want_support = False
 
+        # rescue
+        self.person_want_rescue = False
+        self.can_rescue_to = []
+
         # pointer
         names_point = ['start_r', 'start_d', 'u', 'r', 'u-r', 'r-d', 'end_r', 'end_d',
                        'start_u', 'start_l', 'r', 'u', 'd-r', 'r-u', 'end_u', 'end_l']
@@ -145,6 +149,7 @@ class Main:
         # turn menu
         self.turn_menu = False
         self.turn_menu_rect = (20, 150, 200, 300)
+        self.rescue_btn = None
         self.unit_btn = None
         self.move_btn = (20, 150, 200, 70)
         self.attack_btn = None
@@ -189,10 +194,13 @@ class Main:
         persons = self.player.persons + self.opponent.persons
         while len(persons) > 0:
             choice = persons[0]
-            for person in persons:
-                if person.pos[1] <= choice.pos[1]:
-                    choice = person
-            res.append(choice)
+            try:
+                for person in persons:
+                    if person.pos[1] <= choice.pos[1]:
+                        choice = person
+                res.append(choice)
+            except:
+                pass
             persons.remove(choice)
         return res
 
@@ -383,7 +391,7 @@ class Main:
                                         else:
                                             self.choice_person = None
                                     elif self.turn_phase == 'attack':
-                                        if self.person_want_attack or self.person_want_support:
+                                        if self.person_want_attack or self.person_want_support or self.person_want_rescue:
                                             self.person_want_attack = False
                                             self.turn_menu = True
                                 else:
@@ -409,7 +417,11 @@ class Main:
 
                                         # attack phase
                                         elif self.turn_phase == 'attack':
-                                            if in_box(self.big_mouse_pos, self.unit_btn):
+                                            if in_box(self.big_mouse_pos, self.rescue_btn):
+                                                self.person_want_rescue = True
+                                                self.can_rescue_to = self.get_can_to(p_.pos, [1], [p_.pos])
+                                                self.turn_menu = False
+                                            elif in_box(self.big_mouse_pos, self.unit_btn):
                                                 self.settings_unit = True
                                             elif in_box(self.big_mouse_pos, self.attack_btn):
                                                 if self.player.persons[self.choice_person].support:
@@ -449,6 +461,7 @@ class Main:
                                                     self.choice_person = None
                                                     break
 
+                                        # support
                                         elif self.person_want_support and mouse_pos in self.can_support_to:
                                             p_ = self.player.persons[self.choice_person]
                                             for target in self.player.persons:
@@ -467,6 +480,35 @@ class Main:
                                                         self.choice_person = None
                                                         break
 
+                                        # rescue
+                                        elif self.person_want_rescue and mouse_pos in self.can_rescue_to:
+                                            p_ = self.player.persons[self.choice_person]
+                                            if p_.rescue is not None:
+                                                if mouse_pos in self.can_rescue_to and mouse_pos not in \
+                                                        [i.pos for i in self.opponent.persons]:
+                                                    self.person_want_rescue = False
+                                                    p_.rescue.pos = mouse_pos
+                                                    p_.rescue.state = 'stay'
+                                                    p_.rescue.move_to = ''
+                                                    p_.rescue.x, p_.rescue.y = mouse_pos[0] * TILE, mouse_pos[1] * TILE
+                                                    p_.rescue.active = False
+                                                    p_.active = False
+                                                    p_.rescue = None
+
+                                                    self.choice_person = None
+                                                    self.your_turn = False
+                                                    self.turn_phase = 'move'
+                                            else:
+                                                for target in self.player.persons:
+                                                    if target != p_ and target.rescue is None:
+                                                        if mouse_pos == target.pos:
+                                                            self.person_want_rescue = False
+                                                            p_.rescue = target
+                                                            target.pos = (-2, -2)
+                                                            target.x, target.y = target.pos[0] * TILE, target.pos[1] * TILE
+
+                                                            self.choice_person = None
+                                                            self.turn_phase = 'move'
                             else:
                                 # choice person
                                 for person in self.player.persons:
@@ -710,6 +752,11 @@ class Main:
                 self.screen.blit(self.highlight['green'][self.tick % 80 // 5],
                                  ((i[0] - self.cam_pos[0]) * TILE, (i[1] - self.cam_pos[1]) * TILE))
 
+        if self.person_want_rescue:
+            for i in self.can_rescue_to:
+                self.screen.blit(self.highlight['green'][self.tick % 80 // 5],
+                                 ((i[0] - self.cam_pos[0]) * TILE, (i[1] - self.cam_pos[1]) * TILE))
+
         for person in self.sort_persons():
             if person in self.opponent.persons:
                 try:
@@ -766,8 +813,11 @@ class Main:
                 choice_rect = pygame.Surface((200, 30))
                 choice_rect.fill(GREY)
                 choice_rect.set_alpha(80)
-
-                if self.unit_btn is not None and in_box(self.big_mouse_pos, self.unit_btn):
+                if self.rescue_btn is not None and in_box(self.big_mouse_pos, self.rescue_btn):
+                    self.screen.blit(choice_rect, (self.rescue_btn[0], self.rescue_btn[1] + 20))
+                    self.screen.blit(self.menu_arrow[self.tick % 12 // 2 if self.tick % 36 < 12 else 0],
+                                     (self.rescue_btn[0] + 150, self.rescue_btn[1] + 15))
+                elif self.unit_btn is not None and in_box(self.big_mouse_pos, self.unit_btn):
                     self.screen.blit(choice_rect, (self.unit_btn[0], self.unit_btn[1] + 20))
                     self.screen.blit(self.menu_arrow[self.tick % 12 // 2 if self.tick % 36 < 12 else 0],
                                      (self.unit_btn[0] + 150, self.unit_btn[1] + 15))
@@ -786,6 +836,7 @@ class Main:
 
                 pygame.draw.rect(self.screen, WHITE, self.turn_menu_rect, 5)
 
+                text_rescue = self.f2.render('Rescue' if self.player.persons[self.choice_person].rescue is None else 'Drop', True, WHITE)
                 text_unit = self.f2.render('Unit', True, WHITE)
                 text_move = self.f2.render('Move', True, WHITE)
                 t_ = 'Attack' if not self.player.persons[self.choice_person].weapon.name == 'heal' else 'Heal'
@@ -793,14 +844,16 @@ class Main:
                     t_ = 'Dance'
                 text_attack = self.f2.render(t_, True, WHITE)
                 text_wait = self.f2.render('Wait', True, WHITE)
+                if self.rescue_btn is not None:
+                    self.screen.blit(text_rescue, (self.rescue_btn[0] + 35, self.rescue_btn[1] + 19))
                 if self.unit_btn is not None:
-                    self.screen.blit(text_unit, (self.unit_btn[0] + 50, self.unit_btn[1] + 19))
+                    self.screen.blit(text_unit, (self.unit_btn[0] + 35, self.unit_btn[1] + 19))
                 if self.move_btn is not None:
-                    self.screen.blit(text_move, (self.move_btn[0] + 50, self.move_btn[1] + 19))
+                    self.screen.blit(text_move, (self.move_btn[0] + 35, self.move_btn[1] + 19))
                 if self.attack_btn is not None:
                     self.screen.blit(text_attack, (self.attack_btn[0] + 35, self.attack_btn[1] + 19))
                 if self.wait_btn is not None:
-                    self.screen.blit(text_wait, (self.wait_btn[0] + 50, self.wait_btn[1] + 19))
+                    self.screen.blit(text_wait, (self.wait_btn[0] + 35, self.wait_btn[1] + 19))
 
             # see person info
             for person in self.player.persons + self.opponent.persons:
@@ -830,6 +883,33 @@ class Main:
                         else:
                             img_ = self.map_person_hp['0']
                         self.screen.blit(img_, (122 + 15 * i, 980))
+
+                    if person.rescue is not None:
+                        # rect
+                        pygame.draw.rect(self.screen, SKY_BLUE, (300, 900, 260, 100))
+                        self.screen.blit(self.mini_person_faces[person.rescue.name], (300, 900))
+                        pygame.draw.rect(self.screen, WHITE, (300, 900, 260, 100), 3)
+
+                        # name
+                        text_name = self.f2.render(person.rescue.name, True, BLACK)
+                        self.screen.blit(text_name, (420, 905))
+
+                        # hp
+                        text_hp = self.f2.render('HP', True, BLACK)
+                        text_person_hp = self.f2.render(f'{person.rescue.hp}/{person.rescue.max_hp}', True, BLACK)
+                        self.screen.blit(text_hp, (405, 945))
+                        self.screen.blit(text_person_hp, (465, 945))
+
+                        for i in range(10):
+                            if i == 0:
+                                img_ = self.map_person_hp['start']
+                            elif i == 9 and 100 / person.rescue.max_hp * person.rescue.hp > 90:
+                                img_ = self.map_person_hp['end']
+                            elif (i - 1) * 10 < 100 / person.rescue.max_hp * person.rescue.hp:
+                                img_ = self.map_person_hp['1']
+                            else:
+                                img_ = self.map_person_hp['0']
+                            self.screen.blit(img_, (402 + 15 * i, 980))
 
         # person placing window
         if self.placing_persons_window:
@@ -1003,15 +1083,17 @@ class Main:
                         self.person_want_support = False
 
                     if self.turn_phase == 'move':
+                        self.rescue_btn = None
                         self.unit_btn = None
                         self.move_btn = (20, 150, 200, 70)
                         self.attack_btn = None
                         self.wait_btn = (20, 220, 200, 70)
                     elif self.turn_phase == 'attack':
-                        self.unit_btn = (20, 150, 200, 70)
+                        self.rescue_btn = (20, 150, 200, 70)
+                        self.unit_btn = (20, 220, 200, 70)
                         self.move_btn = None
-                        self.attack_btn = (20, 220, 200, 70)
-                        self.wait_btn = (20, 290, 200, 70)
+                        self.attack_btn = (20, 290, 200, 70)
+                        self.wait_btn = (20, 360, 200, 70)
 
                     # send sms
                     self.sms = f'<{self.your_turn}|'
@@ -1035,6 +1117,7 @@ class Main:
                         if self.your_turn != self.last_sms_to_move:
                             self.turn_phase = 'move'
                             self.choice_person = None
+                            self.rescue_btn = None
                             self.unit_btn = None
                             self.move_btn = (20, 150, 200, 70)
                             self.attack_btn = None
@@ -1131,20 +1214,6 @@ class Main:
                     # if self.turn_menu:
                     #     if self.tick % 36 < 12 and self.tick % 2 == 0:
                     #         self.need_render = True
-
-                    # attack
-                    for person in self.player.persons:
-                        a_ = []
-                        b_ = []
-                        for enemy in self.opponent.persons:
-                            if abs(person.pos[0] - enemy.pos[0]) + \
-                                    abs(person.pos[1] - enemy.pos[1]) in person.weapon.range:
-                                a_.append(enemy)
-                                b_.append((enemy.pos[0] * TILE + TILE, enemy.pos[1] * TILE - (TILE / 2), 100, 30))
-                            else:
-                                pass
-                        person.can_fight_with = a_
-                        person.attack_button = b_
 
                     # dead persons
                     for player in self.players:

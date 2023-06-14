@@ -28,9 +28,10 @@ class Person:
         self.damage_for_me = 0
         self.heal_to_me = 0
         self.active = True
-        self.gender = characters[self.name]['gender']
+        self.rescue = None
 
         # stats
+        self.gender = characters[self.name]['gender']
         self.lvl = stats['lvl']
         self.hp = stats['hp']
         self.str = stats['str']
